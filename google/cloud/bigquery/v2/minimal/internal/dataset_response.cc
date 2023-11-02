@@ -56,10 +56,11 @@ StatusOr<GetDatasetResponse> GetDatasetResponse::BuildFromHttpResponse(
   auto json = parse_json(http_response.payload);
   if (!json) return std::move(json).status();
 
-  if (!valid_dataset(*json)) {
-    return internal::InternalError("Not a valid Json Dataset object",
-                                   GCP_ERROR_INFO());
-  }
+  //if (!valid_dataset(*json)) {
+  //  std::cout << "JSON:::::" << '\n' << json->dump() << "\n\n";
+  //  return internal::InternalError("Not a valid Json Dataset object",
+  //                                 GCP_ERROR_INFO());
+  //}
 
   GetDatasetResponse result;
   result.dataset = json->get<Dataset>();
