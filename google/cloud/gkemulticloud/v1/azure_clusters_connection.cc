@@ -27,6 +27,7 @@
 #include "google/cloud/credentials.h"
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/pagination_range.h"
+#include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
 
 namespace google {
@@ -104,6 +105,14 @@ AzureClustersConnection::DeleteAzureCluster(
       Status(StatusCode::kUnimplemented, "not implemented"));
 }
 
+StatusOr<
+    google::cloud::gkemulticloud::v1::GenerateAzureClusterAgentTokenResponse>
+AzureClustersConnection::GenerateAzureClusterAgentToken(
+    google::cloud::gkemulticloud::v1::
+        GenerateAzureClusterAgentTokenRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
 StatusOr<google::cloud::gkemulticloud::v1::GenerateAzureAccessTokenResponse>
 AzureClustersConnection::GenerateAzureAccessToken(
     google::cloud::gkemulticloud::v1::GenerateAzureAccessTokenRequest const&) {
@@ -148,6 +157,18 @@ AzureClustersConnection::DeleteAzureNodePool(
       Status(StatusCode::kUnimplemented, "not implemented"));
 }
 
+StatusOr<google::cloud::gkemulticloud::v1::AzureOpenIdConfig>
+AzureClustersConnection::GetAzureOpenIdConfig(
+    google::cloud::gkemulticloud::v1::GetAzureOpenIdConfigRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StatusOr<google::cloud::gkemulticloud::v1::AzureJsonWebKeys>
+AzureClustersConnection::GetAzureJsonWebKeys(
+    google::cloud::gkemulticloud::v1::GetAzureJsonWebKeysRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
 StatusOr<google::cloud::gkemulticloud::v1::AzureServerConfig>
 AzureClustersConnection::GetAzureServerConfig(
     google::cloud::gkemulticloud::v1::GetAzureServerConfigRequest const&) {
@@ -163,8 +184,9 @@ std::shared_ptr<AzureClustersConnection> MakeAzureClustersConnection(
   options = gkemulticloud_v1_internal::AzureClustersDefaultOptions(
       location, std::move(options));
   auto background = internal::MakeBackgroundThreadsFactory(options)();
+  auto auth = internal::CreateAuthenticationStrategy(background->cq(), options);
   auto stub = gkemulticloud_v1_internal::CreateDefaultAzureClustersStub(
-      background->cq(), options);
+      std::move(auth), options);
   return gkemulticloud_v1_internal::MakeAzureClustersTracingConnection(
       std::make_shared<gkemulticloud_v1_internal::AzureClustersConnectionImpl>(
           std::move(background), std::move(stub), std::move(options)));

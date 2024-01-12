@@ -27,6 +27,7 @@
 #include "google/cloud/credentials.h"
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/pagination_range.h"
+#include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
 
 namespace google {
@@ -106,6 +107,70 @@ TranslationServiceConnection::DeleteGlossary(
       Status(StatusCode::kUnimplemented, "not implemented"));
 }
 
+StatusOr<google::cloud::translation::v3::AdaptiveMtDataset>
+TranslationServiceConnection::CreateAdaptiveMtDataset(
+    google::cloud::translation::v3::CreateAdaptiveMtDatasetRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+Status TranslationServiceConnection::DeleteAdaptiveMtDataset(
+    google::cloud::translation::v3::DeleteAdaptiveMtDatasetRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StatusOr<google::cloud::translation::v3::AdaptiveMtDataset>
+TranslationServiceConnection::GetAdaptiveMtDataset(
+    google::cloud::translation::v3::GetAdaptiveMtDatasetRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StreamRange<google::cloud::translation::v3::AdaptiveMtDataset>
+TranslationServiceConnection::ListAdaptiveMtDatasets(
+    google::cloud::translation::v3::
+        ListAdaptiveMtDatasetsRequest) {  // NOLINT(performance-unnecessary-value-param)
+  return google::cloud::internal::MakeUnimplementedPaginationRange<
+      StreamRange<google::cloud::translation::v3::AdaptiveMtDataset>>();
+}
+
+StatusOr<google::cloud::translation::v3::AdaptiveMtTranslateResponse>
+TranslationServiceConnection::AdaptiveMtTranslate(
+    google::cloud::translation::v3::AdaptiveMtTranslateRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StatusOr<google::cloud::translation::v3::AdaptiveMtFile>
+TranslationServiceConnection::GetAdaptiveMtFile(
+    google::cloud::translation::v3::GetAdaptiveMtFileRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+Status TranslationServiceConnection::DeleteAdaptiveMtFile(
+    google::cloud::translation::v3::DeleteAdaptiveMtFileRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StatusOr<google::cloud::translation::v3::ImportAdaptiveMtFileResponse>
+TranslationServiceConnection::ImportAdaptiveMtFile(
+    google::cloud::translation::v3::ImportAdaptiveMtFileRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StreamRange<google::cloud::translation::v3::AdaptiveMtFile>
+TranslationServiceConnection::ListAdaptiveMtFiles(
+    google::cloud::translation::v3::
+        ListAdaptiveMtFilesRequest) {  // NOLINT(performance-unnecessary-value-param)
+  return google::cloud::internal::MakeUnimplementedPaginationRange<
+      StreamRange<google::cloud::translation::v3::AdaptiveMtFile>>();
+}
+
+StreamRange<google::cloud::translation::v3::AdaptiveMtSentence>
+TranslationServiceConnection::ListAdaptiveMtSentences(
+    google::cloud::translation::v3::
+        ListAdaptiveMtSentencesRequest) {  // NOLINT(performance-unnecessary-value-param)
+  return google::cloud::internal::MakeUnimplementedPaginationRange<
+      StreamRange<google::cloud::translation::v3::AdaptiveMtSentence>>();
+}
+
 std::shared_ptr<TranslationServiceConnection> MakeTranslationServiceConnection(
     Options options) {
   internal::CheckExpectedOptions<CommonOptionList, GrpcOptionList,
@@ -115,8 +180,9 @@ std::shared_ptr<TranslationServiceConnection> MakeTranslationServiceConnection(
   options = translate_v3_internal::TranslationServiceDefaultOptions(
       std::move(options));
   auto background = internal::MakeBackgroundThreadsFactory(options)();
+  auto auth = internal::CreateAuthenticationStrategy(background->cq(), options);
   auto stub = translate_v3_internal::CreateDefaultTranslationServiceStub(
-      background->cq(), options);
+      std::move(auth), options);
   return translate_v3_internal::MakeTranslationServiceTracingConnection(
       std::make_shared<translate_v3_internal::TranslationServiceConnectionImpl>(
           std::move(background), std::move(stub), std::move(options)));

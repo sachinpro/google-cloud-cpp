@@ -1,4 +1,4 @@
-// Copyright 2017 Google Inc.
+// Copyright 2017 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,9 +50,9 @@ ClientOptions::ClientOptions(std::shared_ptr<grpc::ChannelCredentials> creds) {
 
   // This constructor ignores the emulator environment variables, which might be
   // set by `internal::DefaultOptions()`.
-  opts_.set<DataEndpointOption>("bigtable.googleapis.com");
-  opts_.set<AdminEndpointOption>("bigtableadmin.googleapis.com");
-  opts_.set<InstanceAdminEndpointOption>("bigtableadmin.googleapis.com");
+  opts_.set<DataEndpointOption>("bigtable.googleapis.com.");
+  opts_.set<AdminEndpointOption>("bigtableadmin.googleapis.com.");
+  opts_.set<InstanceAdminEndpointOption>("bigtableadmin.googleapis.com.");
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)

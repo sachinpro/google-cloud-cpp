@@ -32,10 +32,10 @@ CloudRedisClusterStub::~CloudRedisClusterStub() = default;
 
 StatusOr<google::cloud::redis::cluster::v1::ListClustersResponse>
 DefaultCloudRedisClusterStub::ListClusters(
-    grpc::ClientContext& client_context,
+    grpc::ClientContext& context,
     google::cloud::redis::cluster::v1::ListClustersRequest const& request) {
   google::cloud::redis::cluster::v1::ListClustersResponse response;
-  auto status = grpc_stub_->ListClusters(&client_context, request, &response);
+  auto status = grpc_stub_->ListClusters(&context, request, &response);
   if (!status.ok()) {
     return google::cloud::MakeStatusFromRpcError(status);
   }
@@ -44,10 +44,10 @@ DefaultCloudRedisClusterStub::ListClusters(
 
 StatusOr<google::cloud::redis::cluster::v1::Cluster>
 DefaultCloudRedisClusterStub::GetCluster(
-    grpc::ClientContext& client_context,
+    grpc::ClientContext& context,
     google::cloud::redis::cluster::v1::GetClusterRequest const& request) {
   google::cloud::redis::cluster::v1::Cluster response;
-  auto status = grpc_stub_->GetCluster(&client_context, request, &response);
+  auto status = grpc_stub_->GetCluster(&context, request, &response);
   if (!status.ok()) {
     return google::cloud::MakeStatusFromRpcError(status);
   }
@@ -57,7 +57,7 @@ DefaultCloudRedisClusterStub::GetCluster(
 future<StatusOr<google::longrunning::Operation>>
 DefaultCloudRedisClusterStub::AsyncUpdateCluster(
     google::cloud::CompletionQueue& cq,
-    std::shared_ptr<grpc::ClientContext> context,
+    std::shared_ptr<grpc::ClientContext> context, Options const&,
     google::cloud::redis::cluster::v1::UpdateClusterRequest const& request) {
   return internal::MakeUnaryRpcImpl<
       google::cloud::redis::cluster::v1::UpdateClusterRequest,
@@ -75,7 +75,7 @@ DefaultCloudRedisClusterStub::AsyncUpdateCluster(
 future<StatusOr<google::longrunning::Operation>>
 DefaultCloudRedisClusterStub::AsyncDeleteCluster(
     google::cloud::CompletionQueue& cq,
-    std::shared_ptr<grpc::ClientContext> context,
+    std::shared_ptr<grpc::ClientContext> context, Options const&,
     google::cloud::redis::cluster::v1::DeleteClusterRequest const& request) {
   return internal::MakeUnaryRpcImpl<
       google::cloud::redis::cluster::v1::DeleteClusterRequest,
@@ -93,7 +93,7 @@ DefaultCloudRedisClusterStub::AsyncDeleteCluster(
 future<StatusOr<google::longrunning::Operation>>
 DefaultCloudRedisClusterStub::AsyncCreateCluster(
     google::cloud::CompletionQueue& cq,
-    std::shared_ptr<grpc::ClientContext> context,
+    std::shared_ptr<grpc::ClientContext> context, Options const&,
     google::cloud::redis::cluster::v1::CreateClusterRequest const& request) {
   return internal::MakeUnaryRpcImpl<
       google::cloud::redis::cluster::v1::CreateClusterRequest,
@@ -111,7 +111,7 @@ DefaultCloudRedisClusterStub::AsyncCreateCluster(
 future<StatusOr<google::longrunning::Operation>>
 DefaultCloudRedisClusterStub::AsyncGetOperation(
     google::cloud::CompletionQueue& cq,
-    std::shared_ptr<grpc::ClientContext> context,
+    std::shared_ptr<grpc::ClientContext> context, Options const&,
     google::longrunning::GetOperationRequest const& request) {
   return internal::MakeUnaryRpcImpl<google::longrunning::GetOperationRequest,
                                     google::longrunning::Operation>(
@@ -126,7 +126,7 @@ DefaultCloudRedisClusterStub::AsyncGetOperation(
 
 future<Status> DefaultCloudRedisClusterStub::AsyncCancelOperation(
     google::cloud::CompletionQueue& cq,
-    std::shared_ptr<grpc::ClientContext> context,
+    std::shared_ptr<grpc::ClientContext> context, Options const&,
     google::longrunning::CancelOperationRequest const& request) {
   return internal::MakeUnaryRpcImpl<google::longrunning::CancelOperationRequest,
                                     google::protobuf::Empty>(

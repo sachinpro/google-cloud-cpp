@@ -27,6 +27,7 @@
 #include "google/cloud/credentials.h"
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/pagination_range.h"
+#include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
 
 namespace google {
@@ -80,14 +81,46 @@ Status OrgPolicyConnection::DeletePolicy(
   return Status(StatusCode::kUnimplemented, "not implemented");
 }
 
+StatusOr<google::cloud::orgpolicy::v2::CustomConstraint>
+OrgPolicyConnection::CreateCustomConstraint(
+    google::cloud::orgpolicy::v2::CreateCustomConstraintRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StatusOr<google::cloud::orgpolicy::v2::CustomConstraint>
+OrgPolicyConnection::UpdateCustomConstraint(
+    google::cloud::orgpolicy::v2::UpdateCustomConstraintRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StatusOr<google::cloud::orgpolicy::v2::CustomConstraint>
+OrgPolicyConnection::GetCustomConstraint(
+    google::cloud::orgpolicy::v2::GetCustomConstraintRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StreamRange<google::cloud::orgpolicy::v2::CustomConstraint>
+OrgPolicyConnection::ListCustomConstraints(
+    google::cloud::orgpolicy::v2::
+        ListCustomConstraintsRequest) {  // NOLINT(performance-unnecessary-value-param)
+  return google::cloud::internal::MakeUnimplementedPaginationRange<
+      StreamRange<google::cloud::orgpolicy::v2::CustomConstraint>>();
+}
+
+Status OrgPolicyConnection::DeleteCustomConstraint(
+    google::cloud::orgpolicy::v2::DeleteCustomConstraintRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
 std::shared_ptr<OrgPolicyConnection> MakeOrgPolicyConnection(Options options) {
   internal::CheckExpectedOptions<CommonOptionList, GrpcOptionList,
                                  UnifiedCredentialsOptionList,
                                  OrgPolicyPolicyOptionList>(options, __func__);
   options = orgpolicy_v2_internal::OrgPolicyDefaultOptions(std::move(options));
   auto background = internal::MakeBackgroundThreadsFactory(options)();
-  auto stub = orgpolicy_v2_internal::CreateDefaultOrgPolicyStub(
-      background->cq(), options);
+  auto auth = internal::CreateAuthenticationStrategy(background->cq(), options);
+  auto stub = orgpolicy_v2_internal::CreateDefaultOrgPolicyStub(std::move(auth),
+                                                                options);
   return orgpolicy_v2_internal::MakeOrgPolicyTracingConnection(
       std::make_shared<orgpolicy_v2_internal::OrgPolicyConnectionImpl>(
           std::move(background), std::move(stub), std::move(options)));

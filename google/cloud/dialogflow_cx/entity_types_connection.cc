@@ -27,6 +27,7 @@
 #include "google/cloud/credentials.h"
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/pagination_range.h"
+#include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
 
 namespace google {
@@ -35,14 +36,6 @@ namespace dialogflow_cx {
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 
 EntityTypesConnection::~EntityTypesConnection() = default;
-
-StreamRange<google::cloud::dialogflow::cx::v3::EntityType>
-EntityTypesConnection::ListEntityTypes(
-    google::cloud::dialogflow::cx::v3::
-        ListEntityTypesRequest) {  // NOLINT(performance-unnecessary-value-param)
-  return google::cloud::internal::MakeUnimplementedPaginationRange<
-      StreamRange<google::cloud::dialogflow::cx::v3::EntityType>>();
-}
 
 StatusOr<google::cloud::dialogflow::cx::v3::EntityType>
 EntityTypesConnection::GetEntityType(
@@ -67,6 +60,14 @@ Status EntityTypesConnection::DeleteEntityType(
   return Status(StatusCode::kUnimplemented, "not implemented");
 }
 
+StreamRange<google::cloud::dialogflow::cx::v3::EntityType>
+EntityTypesConnection::ListEntityTypes(
+    google::cloud::dialogflow::cx::v3::
+        ListEntityTypesRequest) {  // NOLINT(performance-unnecessary-value-param)
+  return google::cloud::internal::MakeUnimplementedPaginationRange<
+      StreamRange<google::cloud::dialogflow::cx::v3::EntityType>>();
+}
+
 std::shared_ptr<EntityTypesConnection> MakeEntityTypesConnection(
     std::string const& location, Options options) {
   internal::CheckExpectedOptions<CommonOptionList, GrpcOptionList,
@@ -76,8 +77,9 @@ std::shared_ptr<EntityTypesConnection> MakeEntityTypesConnection(
   options = dialogflow_cx_internal::EntityTypesDefaultOptions(
       location, std::move(options));
   auto background = internal::MakeBackgroundThreadsFactory(options)();
+  auto auth = internal::CreateAuthenticationStrategy(background->cq(), options);
   auto stub = dialogflow_cx_internal::CreateDefaultEntityTypesStub(
-      background->cq(), options);
+      std::move(auth), options);
   return dialogflow_cx_internal::MakeEntityTypesTracingConnection(
       std::make_shared<dialogflow_cx_internal::EntityTypesConnectionImpl>(
           std::move(background), std::move(stub), std::move(options)));

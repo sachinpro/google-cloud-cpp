@@ -19,6 +19,9 @@
 #include "google/cloud/pubsub/internal/subscriber_metadata_decorator.h"
 #include "google/cloud/pubsub/internal/subscriber_round_robin_decorator.h"
 #include "google/cloud/pubsub/internal/subscriber_tracing_stub.h"
+#include "google/cloud/common_options.h"
+#include "google/cloud/grpc_options.h"
+#include "google/cloud/internal/algorithm.h"
 #include "google/cloud/internal/api_client_header.h"
 #include "google/cloud/internal/opentelemetry.h"
 #include "google/cloud/log.h"
@@ -57,9 +60,24 @@ std::shared_ptr<SubscriberStub> CreateDefaultSubscriberStub(
       google::pubsub::v1::Subscriber::NewStub(std::move(channel)));
 }
 
-std::shared_ptr<SubscriberStub> CreateDefaultSubscriberStub(Options const& opts,
-                                                            int channel_id) {
-  return CreateDefaultSubscriberStub(CreateChannel(opts, channel_id));
+std::shared_ptr<SubscriberStub> MakeRoundRobinSubscriberStub(
+    google::cloud::CompletionQueue cq, Options const& options) {
+  return CreateDecoratedStubs(
+      std::move(cq), options, [](std::shared_ptr<grpc::Channel> c) {
+        return std::make_shared<DefaultSubscriberStub>(
+            google::pubsub::v1::Subscriber::NewStub(std::move(c)));
+      });
+}
+
+std::shared_ptr<SubscriberStub> MakeTestSubscriberStub(
+    google::cloud::CompletionQueue cq, Options const& options,
+    std::vector<std::shared_ptr<SubscriberStub>> mocks) {
+  return CreateDecoratedStubs(
+      std::move(cq), options,
+      [mocks = std::move(mocks)](std::shared_ptr<grpc::Channel> const&) {
+        return std::make_shared<pubsub_internal::SubscriberRoundRobin>(
+            std::move(mocks));
+      });
 }
 
 std::shared_ptr<SubscriberStub> CreateDecoratedStubs(

@@ -41,6 +41,7 @@
 @com_google_googleapis//google/cloud/aiplatform/v1:artifact.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:batch_prediction_job.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:completion_stats.proto
+@com_google_googleapis//google/cloud/aiplatform/v1:content.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:context.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:custom_job.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:data_item.proto
@@ -50,6 +51,8 @@
 @com_google_googleapis//google/cloud/aiplatform/v1:dataset_version.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:deployed_index_ref.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:deployed_model_ref.proto
+@com_google_googleapis//google/cloud/aiplatform/v1:deployment_resource_pool.proto
+@com_google_googleapis//google/cloud/aiplatform/v1:deployment_resource_pool_service.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:encryption_spec.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:endpoint.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:endpoint_service.proto
@@ -61,8 +64,15 @@
 @com_google_googleapis//google/cloud/aiplatform/v1:explanation.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:explanation_metadata.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:feature.proto
+@com_google_googleapis//google/cloud/aiplatform/v1:feature_group.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:feature_monitoring_stats.proto
+@com_google_googleapis//google/cloud/aiplatform/v1:feature_online_store.proto
+@com_google_googleapis//google/cloud/aiplatform/v1:feature_online_store_admin_service.proto
+@com_google_googleapis//google/cloud/aiplatform/v1:feature_online_store_service.proto
+@com_google_googleapis//google/cloud/aiplatform/v1:feature_registry_service.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:feature_selector.proto
+@com_google_googleapis//google/cloud/aiplatform/v1:feature_view.proto
+@com_google_googleapis//google/cloud/aiplatform/v1:feature_view_sync.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:featurestore.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:featurestore_monitoring.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:featurestore_online_service.proto
@@ -76,6 +86,7 @@
 @com_google_googleapis//google/cloud/aiplatform/v1:job_service.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:job_state.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:lineage_subgraph.proto
+@com_google_googleapis//google/cloud/aiplatform/v1:llm_utility_service.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:machine_resources.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:manual_batch_tuning_parameters.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:match_service.proto
@@ -92,6 +103,7 @@
 @com_google_googleapis//google/cloud/aiplatform/v1:model_monitoring.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:model_service.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:nas_job.proto
+@com_google_googleapis//google/cloud/aiplatform/v1:openapi.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:operation.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:pipeline_failure_policy.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:pipeline_job.proto
@@ -112,6 +124,7 @@
 @com_google_googleapis//google/cloud/aiplatform/v1:tensorboard_run.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:tensorboard_service.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:tensorboard_time_series.proto
+@com_google_googleapis//google/cloud/aiplatform/v1:tool.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:training_pipeline.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:types.proto
 @com_google_googleapis//google/cloud/aiplatform/v1:unmanaged_container_model.proto

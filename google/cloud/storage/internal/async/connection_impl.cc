@@ -13,12 +13,15 @@
 // limitations under the License.
 
 #include "google/cloud/storage/internal/async/connection_impl.h"
-#include "google/cloud/storage/async_reader_connection.h"
+#include "google/cloud/storage/async/reader_connection.h"
 #include "google/cloud/storage/internal/async/accumulate_read_object.h"
 #include "google/cloud/storage/internal/async/insert_object.h"
 #include "google/cloud/storage/internal/async/read_payload_impl.h"
 #include "google/cloud/storage/internal/async/reader_connection_impl.h"
 #include "google/cloud/storage/internal/async/write_payload_impl.h"
+#include "google/cloud/storage/internal/async/writer_connection_buffered.h"
+#include "google/cloud/storage/internal/async/writer_connection_finalized.h"
+#include "google/cloud/storage/internal/async/writer_connection_impl.h"
 #include "google/cloud/storage/internal/crc32c.h"
 #include "google/cloud/storage/internal/grpc/channel_refresh.h"
 #include "google/cloud/storage/internal/grpc/configure_client_context.h"
@@ -63,8 +66,8 @@ AsyncConnectionImpl::AsyncConnectionImpl(
       stub_(std::move(stub)),
       options_(std::move(options)) {}
 
-future<StatusOr<storage::ObjectMetadata>>
-AsyncConnectionImpl::AsyncInsertObject(InsertObjectParams p) {
+future<StatusOr<storage::ObjectMetadata>> AsyncConnectionImpl::InsertObject(
+    InsertObjectParams p) {
   auto proto = ToProto(p.request);
   if (!proto) {
     return make_ready_future(
@@ -108,7 +111,7 @@ AsyncConnectionImpl::AsyncInsertObject(InsertObjectParams p) {
 }
 
 future<StatusOr<std::unique_ptr<storage_experimental::AsyncReaderConnection>>>
-AsyncConnectionImpl::AsyncReadObject(ReadObjectParams p) {
+AsyncConnectionImpl::ReadObject(ReadObjectParams p) {
   using StreamingRpc = google::cloud::internal::AsyncStreamingReadRpc<
       google::storage::v2::ReadObjectResponse>;
 
@@ -157,13 +160,12 @@ AsyncConnectionImpl::AsyncReadObject(ReadObjectParams p) {
       .then(std::move(transform));
 }
 
-future<storage_experimental::AsyncReadObjectRangeResponse>
-AsyncConnectionImpl::AsyncReadObjectRange(ReadObjectParams p) {
+future<StatusOr<storage_experimental::ReadPayload>>
+AsyncConnectionImpl::ReadObjectRange(ReadObjectParams p) {
   auto proto = ToProto(p.request.impl_);
   if (!proto) {
-    auto response = storage_experimental::AsyncReadObjectRangeResponse{};
-    response.status = std::move(proto).status();
-    return make_ready_future(std::move(response));
+    return make_ready_future(
+        StatusOr<storage_experimental::ReadPayload>(std::move(proto).status()));
   }
 
   auto const current = internal::MakeImmutableOptions(std::move(p.options));
@@ -182,8 +184,61 @@ AsyncConnectionImpl::AsyncReadObjectRange(ReadObjectParams p) {
       });
 }
 
-future<StatusOr<storage::ObjectMetadata>>
-AsyncConnectionImpl::AsyncComposeObject(ComposeObjectParams p) {
+future<StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
+AsyncConnectionImpl::StartUnbufferedUpload(UploadParams p) {
+  auto current = internal::MakeImmutableOptions(std::move(p.options));
+
+  if (p.request.HasOption<storage::UseResumableUploadSession>()) {
+    auto query = storage::internal::QueryResumableUploadRequest(
+        p.request.GetOption<storage::UseResumableUploadSession>().value());
+    p.request.impl_.ForEachOption(storage::internal::CopyCommonOptions(query));
+    return ResumeUpload(current, std::move(p.request), query);
+  }
+  auto response = StartResumableWrite(current, p.request.impl_);
+  return response.then([w = WeakFromThis(), current = std::move(current),
+                        request = std::move(p.request)](auto f) mutable {
+    auto self = w.lock();
+    if (auto self = w.lock()) {
+      return self->UnbufferedUploadImpl(std::move(current), std::move(request),
+                                        f.get());
+    }
+    return make_ready_future(
+        StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>(
+            internal::CancelledError("Cannot lock self", GCP_ERROR_INFO())));
+  });
+}
+
+future<StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
+AsyncConnectionImpl::StartBufferedUpload(UploadParams p) {
+  auto current = internal::MakeImmutableOptions(p.options);
+  auto async_write_object = [c = current, r = p.request, w = WeakFromThis()](
+                                std::string const& upload_id) mutable {
+    auto query = storage::internal::QueryResumableUploadRequest(upload_id);
+    r.impl_.ForEachOption(storage::internal::CopyCommonOptions(query));
+    r.set_multiple_options(storage::UseResumableUploadSession(upload_id));
+    if (auto self = w.lock()) return self->ResumeUpload(c, r, query);
+    return make_ready_future(
+        StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>{
+            internal::CancelledError("Cannot lock self", GCP_ERROR_INFO())});
+  };
+  return StartUnbufferedUpload(std::move(p))
+      .then([current = std::move(current),
+             async_write_object = std::move(async_write_object)](auto f) mutable
+            -> StatusOr<
+                std::unique_ptr<storage_experimental::AsyncWriterConnection>> {
+        auto w = f.get();
+        if (!w) return std::move(w).status();
+        auto factory = [upload_id = (*w)->UploadId(),
+                        f = std::move(async_write_object)]() mutable {
+          return f(upload_id);
+        };
+        return MakeWriterConnectionBuffered(std::move(factory), *std::move(w),
+                                            *current);
+      });
+}
+
+future<StatusOr<storage::ObjectMetadata>> AsyncConnectionImpl::ComposeObject(
+    ComposeObjectParams p) {
   auto current = internal::MakeImmutableOptions(std::move(p.options));
   auto proto = ToProto(p.request.impl_);
   if (!proto) {
@@ -211,7 +266,7 @@ AsyncConnectionImpl::AsyncComposeObject(ComposeObjectParams p) {
       });
 }
 
-future<Status> AsyncConnectionImpl::AsyncDeleteObject(DeleteObjectParams p) {
+future<Status> AsyncConnectionImpl::DeleteObject(DeleteObjectParams p) {
   auto current = internal::MakeImmutableOptions(std::move(p.options));
   auto proto = ToProto(p.request.impl_);
   auto const idempotency =
@@ -229,6 +284,194 @@ future<Status> AsyncConnectionImpl::AsyncDeleteObject(DeleteObjectParams p) {
         return stub->AsyncDeleteObject(cq, std::move(context), proto);
       },
       proto, __func__);
+}
+
+future<StatusOr<google::storage::v2::StartResumableWriteResponse>>
+AsyncConnectionImpl::StartResumableWrite(
+    internal::ImmutableOptions current,
+    storage::internal::ResumableUploadRequest request) {
+  auto proto = ToProto(request);
+  if (!proto) {
+    return make_ready_future(
+        StatusOr<google::storage::v2::StartResumableWriteResponse>(
+            std::move(proto).status()));
+  }
+  // Querying the status of an upload is always idempotent. It is a read-only
+  // operation.
+  auto const idempotency = Idempotency::kIdempotent;
+  auto retry = retry_policy(*current);
+  auto backoff = backoff_policy(*current);
+  return google::cloud::internal::AsyncRetryLoop(
+      std::move(retry), std::move(backoff), idempotency, cq_,
+      [stub = stub_, current = std::move(current),
+       request = std::move(request)](
+          CompletionQueue& cq, std::shared_ptr<grpc::ClientContext> context,
+          google::storage::v2::StartResumableWriteRequest const& proto) {
+        ApplyQueryParameters(*context, *current, request);
+        // TODO(#12359) - pass the `options` parameter
+        google::cloud::internal::OptionsSpan span(current);
+        return stub->AsyncStartResumableWrite(cq, std::move(context), proto);
+      },
+      *proto, __func__);
+}
+
+future<StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
+AsyncConnectionImpl::ResumeUpload(
+    internal::ImmutableOptions current,
+    storage_experimental::ResumableUploadRequest request,
+    storage::internal::QueryResumableUploadRequest query) {
+  auto response = QueryWriteStatus(current, std::move(query));
+  return response.then([w = WeakFromThis(), c = std::move(current),
+                        r = std::move(request)](auto f) mutable {
+    auto self = w.lock();
+    if (auto self = w.lock()) {
+      return self->UnbufferedUploadImpl(std::move(c), std::move(r), f.get());
+    }
+    return make_ready_future(
+        StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>(
+            internal::CancelledError("Cannot lock self", GCP_ERROR_INFO())));
+  });
+}
+
+future<StatusOr<google::storage::v2::QueryWriteStatusResponse>>
+AsyncConnectionImpl::QueryWriteStatus(
+    internal::ImmutableOptions current,
+    storage::internal::QueryResumableUploadRequest request) {
+  auto proto = ToProto(request);
+  // Starting a new upload is always idempotent. Any side-effects of early
+  // attempts are not observable.
+  auto const idempotency = Idempotency::kIdempotent;
+  auto retry = retry_policy(*current);
+  auto backoff = backoff_policy(*current);
+  return google::cloud::internal::AsyncRetryLoop(
+      std::move(retry), std::move(backoff), idempotency, cq_,
+      [stub = stub_, current = std::move(current),
+       request = std::move(request)](
+          CompletionQueue& cq, std::shared_ptr<grpc::ClientContext> context,
+          google::storage::v2::QueryWriteStatusRequest const& proto) {
+        ApplyQueryParameters(*context, *current, request);
+        // TODO(#12359) - pass the `options` parameter
+        google::cloud::internal::OptionsSpan span(current);
+        return stub->AsyncQueryWriteStatus(cq, std::move(context), proto);
+      },
+      proto, __func__);
+}
+
+future<StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
+AsyncConnectionImpl::UnbufferedUploadImpl(
+    internal::ImmutableOptions current,
+    storage_experimental::ResumableUploadRequest request,
+    StatusOr<google::storage::v2::StartResumableWriteResponse> response) {
+  if (!response) {
+    return make_ready_future(
+        StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>(
+            std::move(response).status()));
+  }
+  auto hash_function = storage::internal::CreateHashFunction(
+      request.GetOption<storage::Crc32cChecksumValue>(),
+      request.GetOption<storage::DisableCrc32cChecksum>(),
+      request.GetOption<storage::MD5HashValue>(),
+      request.GetOption<storage::DisableMD5Hash>());
+  auto configure = [current, request = std::move(request),
+                    upload =
+                        response->upload_id()](grpc::ClientContext& context) {
+    ApplyQueryParameters(context, *current, request);
+    ApplyResumableUploadRoutingHeader(context, upload);
+  };
+
+  return UnbufferedUploadImpl(std::move(current), std::move(configure),
+                              std::move(*response->mutable_upload_id()),
+                              std::move(hash_function), 0);
+}
+
+future<StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
+AsyncConnectionImpl::UnbufferedUploadImpl(
+    internal::ImmutableOptions current,
+    storage_experimental::ResumableUploadRequest request,
+    StatusOr<google::storage::v2::QueryWriteStatusResponse> response) {
+  if (!response) {
+    return make_ready_future(
+        StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>(
+            std::move(response).status()));
+  }
+  auto id =
+      request.GetOption<storage::UseResumableUploadSession>().value_or("");
+  if (response->has_resource()) {
+    auto metadata = FromProto(response->resource(), *current);
+    return make_ready_future(
+        StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>(
+            std::make_unique<AsyncWriterConnectionFinalized>(
+                std::move(id), std::move(metadata))));
+  }
+
+  auto hash_function =
+      response->persisted_size() == 0
+          ? storage::internal::CreateHashFunction(
+                request.GetOption<storage::Crc32cChecksumValue>(),
+                request.GetOption<storage::DisableCrc32cChecksum>(),
+                request.GetOption<storage::MD5HashValue>(),
+                request.GetOption<storage::DisableMD5Hash>())
+          : storage::internal::CreateNullHashFunction();
+  auto configure = [current, request = std::move(request),
+                    upload = id](grpc::ClientContext& context) {
+    ApplyQueryParameters(context, *current, request);
+    ApplyResumableUploadRoutingHeader(context, upload);
+  };
+  return UnbufferedUploadImpl(std::move(current), std::move(configure),
+                              std::move(id), std::move(hash_function),
+                              response->persisted_size());
+}
+
+future<StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
+AsyncConnectionImpl::UnbufferedUploadImpl(
+    internal::ImmutableOptions current,
+    std::function<void(grpc::ClientContext&)> configure_context,
+    std::string upload_id,
+    std::shared_ptr<storage::internal::HashFunction> hash_function,
+    std::int64_t persisted_size) {
+  using StreamingRpc = AsyncWriterConnectionImpl::StreamingRpc;
+
+  struct RequestPlaceholder {};
+  auto call =
+      [stub = stub_, current, configure_context = std::move(configure_context)](
+          CompletionQueue& cq, std::shared_ptr<grpc::ClientContext> context,
+          RequestPlaceholder const&)
+      -> future<StatusOr<std::unique_ptr<StreamingRpc>>> {
+    configure_context(*context);
+    // TODO(#12359) - pass the `options` parameter
+    google::cloud::internal::OptionsSpan span(current);
+
+    auto rpc = stub->AsyncBidiWriteObject(cq, std::move(context));
+    auto start = rpc->Start();
+    // TODO(coryan): I think we just call `Start()` and then send the data and
+    // the metadata (if needed) on the first Write() call.
+    return start.then([rpc = std::move(rpc)](auto f) mutable {
+      if (f.get()) return make_ready_future(make_status_or(std::move(rpc)));
+      auto r = std::move(rpc);
+      return r->Finish().then([](auto f) {
+        auto status = f.get();
+        return StatusOr<std::unique_ptr<StreamingRpc>>(std::move(status));
+      });
+    });
+  };
+
+  auto transform = [current, id = std::move(upload_id), persisted_size,
+                    hash = std::move(hash_function)](auto f) mutable
+      -> StatusOr<
+          std::unique_ptr<storage_experimental::AsyncWriterConnection>> {
+    auto rpc = f.get();
+    if (!rpc) return std::move(rpc).status();
+    return std::unique_ptr<storage_experimental::AsyncWriterConnection>(
+        std::make_unique<AsyncWriterConnectionImpl>(
+            current, *std::move(rpc), std::move(id), std::move(hash),
+            persisted_size));
+  };
+
+  return google::cloud::internal::AsyncRetryLoop(
+             retry_policy(*current), backoff_policy(*current),
+             Idempotency::kIdempotent, cq_, std::move(call),
+             RequestPlaceholder{}, __func__)
+      .then(std::move(transform));
 }
 
 std::shared_ptr<storage_experimental::AsyncConnection> MakeAsyncConnection(

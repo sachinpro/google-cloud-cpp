@@ -27,6 +27,7 @@
 #include "google/cloud/credentials.h"
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/pagination_range.h"
+#include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
 
 namespace google {
@@ -69,6 +70,14 @@ CloudFilestoreManagerConnection::UpdateInstance(
 future<StatusOr<google::cloud::filestore::v1::Instance>>
 CloudFilestoreManagerConnection::RestoreInstance(
     google::cloud::filestore::v1::RestoreInstanceRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::filestore::v1::Instance>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
+future<StatusOr<google::cloud::filestore::v1::Instance>>
+CloudFilestoreManagerConnection::RevertInstance(
+    google::cloud::filestore::v1::RevertInstanceRequest const&) {
   return google::cloud::make_ready_future<
       StatusOr<google::cloud::filestore::v1::Instance>>(
       Status(StatusCode::kUnimplemented, "not implemented"));
@@ -167,8 +176,9 @@ MakeCloudFilestoreManagerConnection(Options options) {
   options = filestore_v1_internal::CloudFilestoreManagerDefaultOptions(
       std::move(options));
   auto background = internal::MakeBackgroundThreadsFactory(options)();
+  auto auth = internal::CreateAuthenticationStrategy(background->cq(), options);
   auto stub = filestore_v1_internal::CreateDefaultCloudFilestoreManagerStub(
-      background->cq(), options);
+      std::move(auth), options);
   return filestore_v1_internal::MakeCloudFilestoreManagerTracingConnection(
       std::make_shared<
           filestore_v1_internal::CloudFilestoreManagerConnectionImpl>(

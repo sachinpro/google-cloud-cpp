@@ -19,10 +19,10 @@
 #include "google/cloud/common_options.h"
 #include "google/cloud/internal/absl_str_cat_quiet.h"
 #include "google/cloud/internal/debug_string.h"
-#include "google/cloud/internal/format_time_point.h"
 #include "google/cloud/internal/make_status.h"
 #include "google/cloud/status.h"
 #include "absl/strings/match.h"
+#include <chrono>
 
 namespace google {
 namespace cloud {
@@ -117,14 +117,6 @@ StatusOr<rest_internal::RestRequest> BuildRestRequest(GetJobRequest const& r) {
   auto const& opts = internal::CurrentOptions();
 
   rest_internal::RestRequest request;
-  if (r.project_id().empty()) {
-    return internal::InvalidArgumentError(
-        "Invalid GetJobRequest: Project Id is empty", GCP_ERROR_INFO());
-  }
-  if (r.job_id().empty()) {
-    return internal::InvalidArgumentError(
-        "Invalid GetJobRequest: Job Id is empty", GCP_ERROR_INFO());
-  }
   // Builds GetJob request path based on endpoint provided.
   std::string endpoint = GetBaseEndpoint(opts);
 
@@ -139,15 +131,16 @@ StatusOr<rest_internal::RestRequest> BuildRestRequest(GetJobRequest const& r) {
   return request;
 }
 
+auto TimePointToUnixMilliseconds(std::chrono::system_clock::time_point tp) {
+  return std::chrono::duration_cast<std::chrono::milliseconds>(
+             tp - std::chrono::system_clock::from_time_t(0))
+      .count();
+}
+
 StatusOr<rest_internal::RestRequest> BuildRestRequest(
     ListJobsRequest const& r) {
   rest_internal::RestRequest request;
   auto const& opts = internal::CurrentOptions();
-
-  if (r.project_id().empty()) {
-    return internal::InvalidArgumentError(
-        "Invalid ListJobsRequest: Project Id is empty", GCP_ERROR_INFO());
-  }
   // Builds GetJob request path based on endpoint provided.
   std::string endpoint = GetBaseEndpoint(opts);
 
@@ -163,12 +156,14 @@ StatusOr<rest_internal::RestRequest> BuildRestRequest(
     request.AddQueryParameter("maxResults", std::to_string(r.max_results()));
   }
   if (r.min_creation_time()) {
-    request.AddQueryParameter("minCreationTime",
-                              internal::FormatRfc3339(*r.min_creation_time()));
+    request.AddQueryParameter(
+        "minCreationTime",
+        std::to_string(TimePointToUnixMilliseconds(*r.min_creation_time())));
   }
   if (r.max_creation_time()) {
-    request.AddQueryParameter("maxCreationTime",
-                              internal::FormatRfc3339(*r.max_creation_time()));
+    request.AddQueryParameter(
+        "maxCreationTime",
+        std::to_string(TimePointToUnixMilliseconds(*r.max_creation_time())));
   }
 
   auto if_not_empty_add = [&](char const* key, auto const& v) {
@@ -205,11 +200,6 @@ StatusOr<rest_internal::RestRequest> BuildRestRequest(
   auto const& opts = internal::CurrentOptions();
 
   rest_internal::RestRequest request;
-  if (r.project_id().empty()) {
-    return internal::InvalidArgumentError(
-        "Invalid InsertJobRequest: Project Id is empty", GCP_ERROR_INFO());
-  }
-
   // Builds InsertJob request path based on endpoint provided.
   std::string endpoint = GetBaseEndpoint(opts);
   std::string path =
@@ -240,15 +230,6 @@ StatusOr<rest_internal::RestRequest> BuildRestRequest(
   auto const& opts = internal::CurrentOptions();
 
   rest_internal::RestRequest request;
-  if (r.project_id().empty()) {
-    return internal::InvalidArgumentError(
-        "Invalid CancelJobRequest: Project Id is empty", GCP_ERROR_INFO());
-  }
-  if (r.job_id().empty()) {
-    return internal::InvalidArgumentError(
-        "Invalid CancelJobRequest: Job Id is empty", GCP_ERROR_INFO());
-  }
-
   // Builds CancelJob request path based on endpoint provided.
   std::string endpoint = GetBaseEndpoint(opts);
   std::string path = absl::StrCat(endpoint, "/projects/", r.project_id(),
@@ -335,11 +316,6 @@ StatusOr<rest_internal::RestRequest> BuildRestRequest(
     PostQueryRequest const& r) {
   auto const& opts = internal::CurrentOptions();
   rest_internal::RestRequest request;
-
-  if (r.project_id().empty()) {
-    return internal::InvalidArgumentError(
-        "Invalid PostQueryRequest: Project Id is empty", GCP_ERROR_INFO());
-  }
 
   // Builds PostQueryRequest path based on endpoint provided.
   std::string endpoint = GetBaseEndpoint(opts);
@@ -435,16 +411,6 @@ StatusOr<rest_internal::RestRequest> BuildRestRequest(
     GetQueryResultsRequest const& r) {
   auto const& opts = internal::CurrentOptions();
   rest_internal::RestRequest request;
-
-  if (r.project_id().empty()) {
-    return internal::InvalidArgumentError(
-        "Invalid GetQueryResultsRequest: Project Id is empty",
-        GCP_ERROR_INFO());
-  }
-  if (r.job_id().empty()) {
-    return internal::InvalidArgumentError(
-        "Invalid GetQueryResultsRequest: Job Id is empty", GCP_ERROR_INFO());
-  }
 
   // Builds GetQueryResultsRequest path based on endpoint provided.
   std::string endpoint = GetBaseEndpoint(opts);

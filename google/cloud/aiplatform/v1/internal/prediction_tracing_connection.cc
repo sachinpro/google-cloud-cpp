@@ -49,6 +49,31 @@ StatusOr<google::api::HttpBody> PredictionServiceTracingConnection::RawPredict(
   return internal::EndSpan(*span, child_->RawPredict(request));
 }
 
+StatusOr<google::cloud::aiplatform::v1::DirectPredictResponse>
+PredictionServiceTracingConnection::DirectPredict(
+    google::cloud::aiplatform::v1::DirectPredictRequest const& request) {
+  auto span = internal::MakeSpan(
+      "aiplatform_v1::PredictionServiceConnection::DirectPredict");
+  auto scope = opentelemetry::trace::Scope(span);
+  return internal::EndSpan(*span, child_->DirectPredict(request));
+}
+
+StatusOr<google::cloud::aiplatform::v1::DirectRawPredictResponse>
+PredictionServiceTracingConnection::DirectRawPredict(
+    google::cloud::aiplatform::v1::DirectRawPredictRequest const& request) {
+  auto span = internal::MakeSpan(
+      "aiplatform_v1::PredictionServiceConnection::DirectRawPredict");
+  auto scope = opentelemetry::trace::Scope(span);
+  return internal::EndSpan(*span, child_->DirectRawPredict(request));
+}
+
+std::unique_ptr<::google::cloud::AsyncStreamingReadWriteRpc<
+    google::cloud::aiplatform::v1::StreamingPredictRequest,
+    google::cloud::aiplatform::v1::StreamingPredictResponse>>
+PredictionServiceTracingConnection::AsyncStreamingPredict() {
+  return child_->AsyncStreamingPredict();
+}
+
 StreamRange<google::cloud::aiplatform::v1::StreamingPredictResponse>
 PredictionServiceTracingConnection::ServerStreamingPredict(
     google::cloud::aiplatform::v1::StreamingPredictRequest const& request) {
@@ -60,6 +85,13 @@ PredictionServiceTracingConnection::ServerStreamingPredict(
       google::cloud::aiplatform::v1::StreamingPredictResponse>(std::move(span),
                                                                std::move(sr));
 }
+std::unique_ptr<::google::cloud::AsyncStreamingReadWriteRpc<
+    google::cloud::aiplatform::v1::StreamingRawPredictRequest,
+    google::cloud::aiplatform::v1::StreamingRawPredictResponse>>
+PredictionServiceTracingConnection::AsyncStreamingRawPredict() {
+  return child_->AsyncStreamingRawPredict();
+}
+
 StatusOr<google::cloud::aiplatform::v1::ExplainResponse>
 PredictionServiceTracingConnection::Explain(
     google::cloud::aiplatform::v1::ExplainRequest const& request) {
@@ -69,6 +101,17 @@ PredictionServiceTracingConnection::Explain(
   return internal::EndSpan(*span, child_->Explain(request));
 }
 
+StreamRange<google::cloud::aiplatform::v1::GenerateContentResponse>
+PredictionServiceTracingConnection::StreamGenerateContent(
+    google::cloud::aiplatform::v1::GenerateContentRequest const& request) {
+  auto span = internal::MakeSpan(
+      "aiplatform_v1::PredictionServiceConnection::StreamGenerateContent");
+  internal::OTelScope scope(span);
+  auto sr = child_->StreamGenerateContent(request);
+  return internal::MakeTracedStreamRange<
+      google::cloud::aiplatform::v1::GenerateContentResponse>(std::move(span),
+                                                              std::move(sr));
+}
 #endif  // GOOGLE_CLOUD_CPP_HAVE_OPENTELEMETRY
 
 std::shared_ptr<aiplatform_v1::PredictionServiceConnection>

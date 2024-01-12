@@ -143,11 +143,17 @@ MATCHER(SpanKindIsProducer,
   return kind == opentelemetry::trace::SpanKind::kProducer;
 }
 
-MATCHER_P(SpanWithParentSpanId, parent_span_id,
-          "has parent span id: " + ToString(parent_span_id)) {
+MATCHER_P(SpanWithParent, span,
+          "has parent span id: " + ToString(span->GetContext().span_id())) {
   auto const& actual = arg->GetParentSpanId();
   *result_listener << "has parent span id: " << ToString(actual);
-  return actual == parent_span_id;
+  return actual == span->GetContext().span_id();
+}
+
+MATCHER(SpanIsRoot, "is root span") {
+  auto const actual = arg->GetParentSpanId() == opentelemetry::trace::SpanId();
+  *result_listener << "is root span: " << (actual ? "true" : "false");
+  return actual;
 }
 
 MATCHER_P(SpanNamed, name, "has name: " + std::string{name}) {
@@ -176,6 +182,12 @@ template <typename... Args>
 ::testing::Matcher<SpanDataPtr> SpanHasAttributes(Args const&... matchers) {
   return testing_util_internal::SpanAttributesImpl(
       ::testing::IsSupersetOf({matchers...}));
+}
+
+MATCHER(SpanHasNoAttributes, " has no attributes") {
+  auto const actual = arg->GetAttributes().size() == 0;
+  *result_listener << "has no attributes: " << (actual ? "true" : "false");
+  return actual;
 }
 
 template <typename T>
@@ -250,6 +262,11 @@ MATCHER_P(SpanLinksSizeIs, span_links,
   auto const& actual = static_cast<std::int64_t>(arg->GetLinks().size());
   *result_listener << "has size: " + std::to_string(actual);
   return actual == span_links;
+}
+
+MATCHER_P(EqualsSpanContext, context, "has context" + ToString(context)) {
+  *result_listener << "has context: " << ToString(arg);
+  return arg == context;
 }
 
 class SpanCatcher {

@@ -27,6 +27,7 @@
 #include "google/cloud/credentials.h"
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/pagination_range.h"
+#include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
 
 namespace google {
@@ -114,6 +115,17 @@ ContactCenterInsightsConnection::BulkAnalyzeConversations(
   return google::cloud::make_ready_future<
       StatusOr<google::cloud::contactcenterinsights::v1::
                    BulkAnalyzeConversationsResponse>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
+future<StatusOr<
+    google::cloud::contactcenterinsights::v1::BulkDeleteConversationsResponse>>
+ContactCenterInsightsConnection::BulkDeleteConversations(
+    google::cloud::contactcenterinsights::v1::
+        BulkDeleteConversationsRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::contactcenterinsights::v1::
+                   BulkDeleteConversationsResponse>>(
       Status(StatusCode::kUnimplemented, "not implemented"));
 }
 
@@ -315,9 +327,10 @@ MakeContactCenterInsightsConnection(Options options) {
       contactcenterinsights_v1_internal::ContactCenterInsightsDefaultOptions(
           std::move(options));
   auto background = internal::MakeBackgroundThreadsFactory(options)();
+  auto auth = internal::CreateAuthenticationStrategy(background->cq(), options);
   auto stub =
       contactcenterinsights_v1_internal::CreateDefaultContactCenterInsightsStub(
-          background->cq(), options);
+          std::move(auth), options);
   return contactcenterinsights_v1_internal::
       MakeContactCenterInsightsTracingConnection(
           std::make_shared<contactcenterinsights_v1_internal::

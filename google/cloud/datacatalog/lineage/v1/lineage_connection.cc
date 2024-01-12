@@ -27,6 +27,7 @@
 #include "google/cloud/credentials.h"
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/pagination_range.h"
+#include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
 
 namespace google {
@@ -35,6 +36,14 @@ namespace datacatalog_lineage_v1 {
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 
 LineageConnection::~LineageConnection() = default;
+
+StatusOr<
+    google::cloud::datacatalog::lineage::v1::ProcessOpenLineageRunEventResponse>
+LineageConnection::ProcessOpenLineageRunEvent(
+    google::cloud::datacatalog::lineage::v1::
+        ProcessOpenLineageRunEventRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
 
 StatusOr<google::cloud::datacatalog::lineage::v1::Process>
 LineageConnection::CreateProcess(
@@ -152,8 +161,9 @@ std::shared_ptr<LineageConnection> MakeLineageConnection(Options options) {
   options = datacatalog_lineage_v1_internal::LineageDefaultOptions(
       std::move(options));
   auto background = internal::MakeBackgroundThreadsFactory(options)();
+  auto auth = internal::CreateAuthenticationStrategy(background->cq(), options);
   auto stub = datacatalog_lineage_v1_internal::CreateDefaultLineageStub(
-      background->cq(), options);
+      std::move(auth), options);
   return datacatalog_lineage_v1_internal::MakeLineageTracingConnection(
       std::make_shared<datacatalog_lineage_v1_internal::LineageConnectionImpl>(
           std::move(background), std::move(stub), std::move(options)));

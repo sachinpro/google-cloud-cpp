@@ -14,9 +14,13 @@
 
 #include "google/cloud/internal/populate_common_options.h"
 #include "google/cloud/common_options.h"
+#include "google/cloud/credentials.h"
+#include "google/cloud/internal/credentials_impl.h"
 #include "google/cloud/internal/user_agent_prefix.h"
 #include "google/cloud/opentelemetry_options.h"
+#include "google/cloud/testing_util/credentials.h"
 #include "google/cloud/testing_util/scoped_environment.h"
+#include "google/cloud/universe_domain_options.h"
 #include "absl/types/optional.h"
 #include <gmock/gmock.h>
 
@@ -27,6 +31,7 @@ namespace internal {
 namespace {
 
 using ::google::cloud::testing_util::ScopedEnvironment;
+using ::google::cloud::testing_util::TestCredentialsVisitor;
 using ::testing::Contains;
 using ::testing::ElementsAre;
 using ::testing::Eq;
@@ -36,11 +41,12 @@ TEST(PopulateCommonOptions, Simple) {
   // Unset all the relevant environment variables.
   ScopedEnvironment user("GOOGLE_CLOUD_CPP_USER_PROJECT", absl::nullopt);
   ScopedEnvironment tracing("GOOGLE_CLOUD_CPP_ENABLE_TRACING", absl::nullopt);
-  auto actual = PopulateCommonOptions(Options{}, {}, {}, {}, "default");
+  auto actual =
+      PopulateCommonOptions(Options{}, {}, {}, {}, "default.googleapis.com");
   EXPECT_TRUE(actual.has<EndpointOption>());
-  EXPECT_THAT(actual.get<EndpointOption>(), Eq("default"));
+  EXPECT_THAT(actual.get<EndpointOption>(), Eq("default.googleapis.com."));
   EXPECT_TRUE(actual.has<AuthorityOption>());
-  EXPECT_THAT(actual.get<AuthorityOption>(), Eq("default"));
+  EXPECT_THAT(actual.get<AuthorityOption>(), Eq("default.googleapis.com"));
   EXPECT_FALSE(actual.has<UserProjectOption>());
   EXPECT_TRUE(actual.has<TracingComponentsOption>());
   EXPECT_THAT(actual.get<TracingComponentsOption>(), IsEmpty());
@@ -49,6 +55,46 @@ TEST(PopulateCommonOptions, Simple) {
               Contains(UserAgentPrefix()));
 }
 
+TEST(PopulateCommonOptions, EmptyEndpointOption) {
+  auto actual = PopulateCommonOptions(Options{}.set<EndpointOption>(""), {}, {},
+                                      {}, "default.googleapis.com");
+  EXPECT_TRUE(actual.has<EndpointOption>());
+  EXPECT_THAT(actual.get<EndpointOption>(), Eq(""));
+}
+
+TEST(PopulateCommonOptions, EmptyEndpointEnvVar) {
+  ScopedEnvironment endpoint("GOOGLE_CLOUD_CPP_SERVICE_ENDPOINT", "");
+  auto actual =
+      PopulateCommonOptions(Options{}, "GOOGLE_CLOUD_CPP_SERVICE_ENDPOINT", {},
+                            {}, "default.googleapis.com");
+  EXPECT_TRUE(actual.has<EndpointOption>());
+  EXPECT_THAT(actual.get<EndpointOption>(), Eq("default.googleapis.com."));
+}
+
+TEST(PopulateCommonOptions, EmptyEmulatorEnvVar) {
+  ScopedEnvironment endpoint("GOOGLE_CLOUD_CPP_EMULATOR_ENDPOINT", "");
+  auto actual =
+      PopulateCommonOptions(Options{}, {}, "GOOGLE_CLOUD_CPP_EMULATOR_ENDPOINT",
+                            {}, "default.googleapis.com");
+  EXPECT_TRUE(actual.has<EndpointOption>());
+  EXPECT_THAT(actual.get<EndpointOption>(), Eq("default.googleapis.com."));
+  EXPECT_FALSE(actual.has<UnifiedCredentialsOption>());
+}
+
+TEST(PopulateCommonOptions, InsecureCredentialsWithEmulator) {
+  ScopedEnvironment endpoint("GOOGLE_CLOUD_CPP_EMULATOR_ENDPOINT", "emulator");
+  auto actual =
+      PopulateCommonOptions(Options{}, {}, "GOOGLE_CLOUD_CPP_EMULATOR_ENDPOINT",
+                            {}, "default.googleapis.com");
+  EXPECT_TRUE(actual.has<UnifiedCredentialsOption>());
+  auto const& creds = actual.get<UnifiedCredentialsOption>();
+
+  TestCredentialsVisitor v;
+  CredentialsVisitor::dispatch(*creds, v);
+  EXPECT_EQ(v.name, "InsecureCredentialsConfig");
+}
+
+// TODO(#13191): Simplify into multiple tests.
 TEST(PopulateCommonOptions, EndpointAuthority) {
   Options optionses[] = {
       Options{},
@@ -69,9 +115,9 @@ TEST(PopulateCommonOptions, EndpointAuthority) {
           ScopedEnvironment emulator("SERVICE_EMULATOR", emulator_env);
           ScopedEnvironment authority("SERVICE_AUTHORITY", authority_env);
 
-          auto actual = PopulateCommonOptions(options, "SERVICE_ENDPOINT",
-                                              "SERVICE_EMULATOR",
-                                              "SERVICE_AUTHORITY", "default");
+          auto actual = PopulateCommonOptions(
+              options, "SERVICE_ENDPOINT", "SERVICE_EMULATOR",
+              "SERVICE_AUTHORITY", "default.googleapis.com");
 
           ASSERT_TRUE(actual.has<EndpointOption>());
           auto const& actual_endpoint = actual.get<EndpointOption>();
@@ -82,7 +128,7 @@ TEST(PopulateCommonOptions, EndpointAuthority) {
           } else if (options.has<EndpointOption>()) {
             EXPECT_THAT(actual_endpoint, Eq(options.get<EndpointOption>()));
           } else {
-            EXPECT_THAT(actual_endpoint, Eq("default"));
+            EXPECT_THAT(actual_endpoint, Eq("default.googleapis.com."));
           }
 
           ASSERT_TRUE(actual.has<AuthorityOption>());
@@ -92,12 +138,43 @@ TEST(PopulateCommonOptions, EndpointAuthority) {
           } else if (options.has<AuthorityOption>()) {
             EXPECT_THAT(actual_authority, Eq(options.get<AuthorityOption>()));
           } else {
-            EXPECT_THAT(actual_authority, Eq("default"));
+            EXPECT_THAT(actual_authority, Eq("default.googleapis.com"));
           }
         }
       }
     }
   }
+}
+
+TEST(PopulateCommonOptions, UniverseDomain) {
+  auto actual =
+      PopulateCommonOptions(Options{}.set<UniverseDomainOption>("my-ud.net"),
+                            {}, {}, {}, "default.googleapis.com");
+  EXPECT_EQ(actual.get<EndpointOption>(), "default.my-ud.net");
+}
+
+TEST(PopulateCommonOptions, EndpointOptionOverridesUniverseDomain) {
+  auto actual = PopulateCommonOptions(
+      Options{}
+          .set<UniverseDomainOption>("ignored-ud.net")
+          .set<EndpointOption>("custom-endpoint.googleapis.com"),
+      {}, {}, {}, "default.googleapis.com");
+  EXPECT_EQ(actual.get<EndpointOption>(), "custom-endpoint.googleapis.com");
+}
+
+TEST(PopulateCommonOptions, EnvVarsOverridesUniverseDomain) {
+  ScopedEnvironment endpoint("SERVICE_ENDPOINT", "endpoint-env.googleapis.com");
+  ScopedEnvironment emulator("SERVICE_EMULATOR", "emulator-env.googleapis.com");
+
+  auto actual = PopulateCommonOptions(
+      Options{}.set<UniverseDomainOption>("ignored-ud.net"), "SERVICE_ENDPOINT",
+      {}, {}, "default.googleapis.com");
+  EXPECT_EQ(actual.get<EndpointOption>(), "endpoint-env.googleapis.com");
+
+  actual = PopulateCommonOptions(
+      Options{}.set<UniverseDomainOption>("ignored-ud.net"), {},
+      "SERVICE_EMULATOR", {}, "default.googleapis.com");
+  EXPECT_EQ(actual.get<EndpointOption>(), "emulator-env.googleapis.com");
 }
 
 TEST(PopulateCommonOptions, UserProject) {
@@ -109,7 +186,8 @@ TEST(PopulateCommonOptions, UserProject) {
   for (auto const& options : optionses) {
     for (auto const& project_env : projects) {
       ScopedEnvironment projects("GOOGLE_CLOUD_CPP_USER_PROJECT", project_env);
-      auto actual = PopulateCommonOptions(options, {}, {}, {}, "default");
+      auto actual =
+          PopulateCommonOptions(options, {}, {}, {}, "default.googleapis.com");
       if (project_env.has_value() && !project_env->empty()) {
         EXPECT_THAT(actual.get<UserProjectOption>(), Eq(*project_env));
       } else if (options.has<UserProjectOption>()) {
@@ -150,6 +228,28 @@ TEST(DefaultTracingComponents, WithValue) {
   ScopedEnvironment env("GOOGLE_CLOUD_CPP_ENABLE_TRACING", "a,b,c");
   auto const actual = DefaultTracingComponents();
   EXPECT_THAT(actual, ElementsAre("a", "b", "c"));
+}
+
+TEST(DefaultTracingOptions, NoEnvironment) {
+  ScopedEnvironment env("GOOGLE_CLOUD_CPP_TRACING_OPTIONS", absl::nullopt);
+  auto const actual = DefaultTracingOptions();
+  auto const expected = TracingOptions{};
+  EXPECT_EQ(expected.single_line_mode(), actual.single_line_mode());
+  EXPECT_EQ(expected.use_short_repeated_primitives(),
+            actual.use_short_repeated_primitives());
+  EXPECT_EQ(expected.truncate_string_field_longer_than(),
+            actual.truncate_string_field_longer_than());
+}
+
+TEST(DefaultTracingOptions, WithValue) {
+  ScopedEnvironment env("GOOGLE_CLOUD_CPP_TRACING_OPTIONS",
+                        "single_line_mode=on"
+                        ",use_short_repeated_primitives=ON"
+                        ",truncate_string_field_longer_than=42");
+  auto const actual = DefaultTracingOptions();
+  EXPECT_TRUE(actual.single_line_mode());
+  EXPECT_TRUE(actual.use_short_repeated_primitives());
+  EXPECT_EQ(42, actual.truncate_string_field_longer_than());
 }
 
 TEST(MakeAuthOptions, WithoutTracing) {

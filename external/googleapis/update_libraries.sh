@@ -89,6 +89,7 @@ declare -A -r LIBRARIES=(
       "@com_google_googleapis//google/devtools/cloudbuild/v1:cloudbuild_cc_grpc" \
       "@com_google_googleapis//google/devtools/cloudbuild/v2:cloudbuild_cc_grpc"
   )"
+  ["cloudquotas"]="@com_google_googleapis//google/api/cloudquotas/v1:cloudquotas_cc_grpc"
   ["commerce"]="@com_google_googleapis//google/cloud/commerce/consumer/procurement/v1:procurement_cc_grpc"
   ["common"]="@com_google_googleapis//google/cloud/common:common_cc_grpc"
   ["composer"]="@com_google_googleapis//google/cloud/orchestration/airflow/service/v1:service_cc_grpc"
@@ -126,6 +127,7 @@ declare -A -r LIBRARIES=(
   ["documentai"]="@com_google_googleapis//google/cloud/documentai/v1:documentai_cc_grpc"
   ["domains"]="@com_google_googleapis//google/cloud/domains/v1:domains_cc_grpc"
   ["edgecontainer"]="@com_google_googleapis//google/cloud/edgecontainer/v1:edgecontainer_cc_grpc"
+  ["edgenetwork"]="@com_google_googleapis//google/cloud/edgenetwork/v1:edgenetwork_cc_grpc"
   ["essentialcontacts"]="@com_google_googleapis//google/cloud/essentialcontacts/v1:essentialcontacts_cc_grpc"
   ["eventarc"]="$(
     printf ",%s" \
@@ -264,6 +266,7 @@ declare -A -r LIBRARIES=(
   ["support"]="@com_google_googleapis//google/cloud/support/v2:support_cc_grpc"
   ["talent"]="@com_google_googleapis//google/cloud/talent/v4:talent_cc_grpc"
   ["tasks"]="@com_google_googleapis//google/cloud/tasks/v2:tasks_cc_grpc"
+  ["telcoautomation"]="@com_google_googleapis//google/cloud/telcoautomation/v1:telcoautomation_cc_grpc"
   ["texttospeech"]="@com_google_googleapis//google/cloud/texttospeech/v1:texttospeech_cc_grpc"
   ["timeseriesinsights"]="@com_google_googleapis//google/cloud/timeseriesinsights/v1:timeseriesinsights_cc_grpc"
   ["tpu"]="$(

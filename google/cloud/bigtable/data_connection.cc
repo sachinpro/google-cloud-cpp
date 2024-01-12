@@ -17,6 +17,7 @@
 #include "google/cloud/bigtable/internal/data_connection_impl.h"
 #include "google/cloud/bigtable/internal/data_tracing_connection.h"
 #include "google/cloud/bigtable/internal/defaults.h"
+#include "google/cloud/bigtable/internal/mutate_rows_limiter.h"
 #include "google/cloud/bigtable/internal/row_reader_impl.h"
 #include "google/cloud/bigtable/options.h"
 #include "google/cloud/background_threads.h"
@@ -24,6 +25,7 @@
 #include "google/cloud/credentials.h"
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/opentelemetry.h"
+#include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
 
 namespace google {
@@ -162,10 +164,16 @@ std::shared_ptr<DataConnection> MakeDataConnection(Options options) {
   options = bigtable::internal::DefaultDataOptions(std::move(options));
   auto background =
       google::cloud::internal::MakeBackgroundThreadsFactory(options)();
-  auto stub = bigtable_internal::CreateBigtableStub(background->cq(), options);
+  auto auth = google::cloud::internal::CreateAuthenticationStrategy(
+      background->cq(), options);
+  auto stub = bigtable_internal::CreateBigtableStub(std::move(auth),
+                                                    background->cq(), options);
+  auto limiter =
+      bigtable_internal::MakeMutateRowsLimiter(background->cq(), options);
   std::shared_ptr<DataConnection> conn =
       std::make_shared<bigtable_internal::DataConnectionImpl>(
-          std::move(background), std::move(stub), std::move(options));
+          std::move(background), std::move(stub), std::move(limiter),
+          std::move(options));
   if (google::cloud::internal::TracingEnabled(conn->options())) {
     conn = bigtable_internal::MakeDataTracingConnection(std::move(conn));
   }

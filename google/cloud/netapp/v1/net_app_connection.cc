@@ -27,6 +27,7 @@
 #include "google/cloud/credentials.h"
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/pagination_range.h"
+#include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
 
 namespace google {
@@ -306,14 +307,127 @@ NetAppConnection::ReverseReplicationDirection(
       Status(StatusCode::kUnimplemented, "not implemented"));
 }
 
+future<StatusOr<google::cloud::netapp::v1::BackupVault>>
+NetAppConnection::CreateBackupVault(
+    google::cloud::netapp::v1::CreateBackupVaultRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::netapp::v1::BackupVault>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
+StatusOr<google::cloud::netapp::v1::BackupVault>
+NetAppConnection::GetBackupVault(
+    google::cloud::netapp::v1::GetBackupVaultRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StreamRange<google::cloud::netapp::v1::BackupVault>
+NetAppConnection::ListBackupVaults(
+    google::cloud::netapp::v1::
+        ListBackupVaultsRequest) {  // NOLINT(performance-unnecessary-value-param)
+  return google::cloud::internal::MakeUnimplementedPaginationRange<
+      StreamRange<google::cloud::netapp::v1::BackupVault>>();
+}
+
+future<StatusOr<google::cloud::netapp::v1::BackupVault>>
+NetAppConnection::UpdateBackupVault(
+    google::cloud::netapp::v1::UpdateBackupVaultRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::netapp::v1::BackupVault>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
+future<StatusOr<google::cloud::netapp::v1::OperationMetadata>>
+NetAppConnection::DeleteBackupVault(
+    google::cloud::netapp::v1::DeleteBackupVaultRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::netapp::v1::OperationMetadata>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
+future<StatusOr<google::cloud::netapp::v1::Backup>>
+NetAppConnection::CreateBackup(
+    google::cloud::netapp::v1::CreateBackupRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::netapp::v1::Backup>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
+StatusOr<google::cloud::netapp::v1::Backup> NetAppConnection::GetBackup(
+    google::cloud::netapp::v1::GetBackupRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StreamRange<google::cloud::netapp::v1::Backup> NetAppConnection::ListBackups(
+    google::cloud::netapp::v1::
+        ListBackupsRequest) {  // NOLINT(performance-unnecessary-value-param)
+  return google::cloud::internal::MakeUnimplementedPaginationRange<
+      StreamRange<google::cloud::netapp::v1::Backup>>();
+}
+
+future<StatusOr<google::cloud::netapp::v1::OperationMetadata>>
+NetAppConnection::DeleteBackup(
+    google::cloud::netapp::v1::DeleteBackupRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::netapp::v1::OperationMetadata>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
+future<StatusOr<google::cloud::netapp::v1::Backup>>
+NetAppConnection::UpdateBackup(
+    google::cloud::netapp::v1::UpdateBackupRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::netapp::v1::Backup>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
+future<StatusOr<google::cloud::netapp::v1::BackupPolicy>>
+NetAppConnection::CreateBackupPolicy(
+    google::cloud::netapp::v1::CreateBackupPolicyRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::netapp::v1::BackupPolicy>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
+StatusOr<google::cloud::netapp::v1::BackupPolicy>
+NetAppConnection::GetBackupPolicy(
+    google::cloud::netapp::v1::GetBackupPolicyRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StreamRange<google::cloud::netapp::v1::BackupPolicy>
+NetAppConnection::ListBackupPolicies(
+    google::cloud::netapp::v1::
+        ListBackupPoliciesRequest) {  // NOLINT(performance-unnecessary-value-param)
+  return google::cloud::internal::MakeUnimplementedPaginationRange<
+      StreamRange<google::cloud::netapp::v1::BackupPolicy>>();
+}
+
+future<StatusOr<google::cloud::netapp::v1::BackupPolicy>>
+NetAppConnection::UpdateBackupPolicy(
+    google::cloud::netapp::v1::UpdateBackupPolicyRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::netapp::v1::BackupPolicy>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
+future<StatusOr<google::cloud::netapp::v1::OperationMetadata>>
+NetAppConnection::DeleteBackupPolicy(
+    google::cloud::netapp::v1::DeleteBackupPolicyRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::netapp::v1::OperationMetadata>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
 std::shared_ptr<NetAppConnection> MakeNetAppConnection(Options options) {
   internal::CheckExpectedOptions<CommonOptionList, GrpcOptionList,
                                  UnifiedCredentialsOptionList,
                                  NetAppPolicyOptionList>(options, __func__);
   options = netapp_v1_internal::NetAppDefaultOptions(std::move(options));
   auto background = internal::MakeBackgroundThreadsFactory(options)();
+  auto auth = internal::CreateAuthenticationStrategy(background->cq(), options);
   auto stub =
-      netapp_v1_internal::CreateDefaultNetAppStub(background->cq(), options);
+      netapp_v1_internal::CreateDefaultNetAppStub(std::move(auth), options);
   return netapp_v1_internal::MakeNetAppTracingConnection(
       std::make_shared<netapp_v1_internal::NetAppConnectionImpl>(
           std::move(background), std::move(stub), std::move(options)));

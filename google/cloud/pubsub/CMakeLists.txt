@@ -18,10 +18,12 @@ include(GoogleapisConfig)
 set(DOXYGEN_PROJECT_NAME "Google Cloud Pub/Sub C++ Client")
 set(DOXYGEN_PROJECT_BRIEF "A C++ Client Library for Google Cloud Pub/Sub")
 set(DOXYGEN_PROJECT_NUMBER "${PROJECT_VERSION}")
-set(DOXYGEN_EXAMPLE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/samples
-                         ${CMAKE_CURRENT_SOURCE_DIR}/quickstart)
-set(DOXYGEN_EXCLUDE_SYMBOLS "internal" "pubsub_internal" "pubsub_testing"
-                            "examples" "samples")
+set(DOXYGEN_EXAMPLE_PATH
+    ${CMAKE_CURRENT_SOURCE_DIR}/samples ${CMAKE_CURRENT_SOURCE_DIR}/quickstart,
+    ${CMAKE_CURRENT_SOURCE_DIR}/admin/samples)
+set(DOXYGEN_EXCLUDE_SYMBOLS
+    "internal" "pubsub_admin_internal" "pubsub_internal" "pubsub_testing"
+    "examples" "samples")
 
 include(GoogleCloudCppDoxygen)
 google_cloud_cpp_doxygen_targets("pubsub" DEPENDS cloud-docs
@@ -39,6 +41,58 @@ add_library(
     google_cloud_cpp_pubsub # cmake-format: sort
     ack_handler.cc
     ack_handler.h
+    admin/internal/subscription_admin_auth_decorator.cc
+    admin/internal/subscription_admin_auth_decorator.h
+    admin/internal/subscription_admin_connection_impl.cc
+    admin/internal/subscription_admin_connection_impl.h
+    admin/internal/subscription_admin_logging_decorator.cc
+    admin/internal/subscription_admin_logging_decorator.h
+    admin/internal/subscription_admin_metadata_decorator.cc
+    admin/internal/subscription_admin_metadata_decorator.h
+    admin/internal/subscription_admin_option_defaults.cc
+    admin/internal/subscription_admin_option_defaults.h
+    admin/internal/subscription_admin_retry_traits.h
+    admin/internal/subscription_admin_stub.cc
+    admin/internal/subscription_admin_stub.h
+    admin/internal/subscription_admin_stub_factory.cc
+    admin/internal/subscription_admin_stub_factory.h
+    admin/internal/subscription_admin_tracing_connection.cc
+    admin/internal/subscription_admin_tracing_connection.h
+    admin/internal/subscription_admin_tracing_stub.cc
+    admin/internal/subscription_admin_tracing_stub.h
+    admin/internal/topic_admin_auth_decorator.cc
+    admin/internal/topic_admin_auth_decorator.h
+    admin/internal/topic_admin_connection_impl.cc
+    admin/internal/topic_admin_connection_impl.h
+    admin/internal/topic_admin_logging_decorator.cc
+    admin/internal/topic_admin_logging_decorator.h
+    admin/internal/topic_admin_metadata_decorator.cc
+    admin/internal/topic_admin_metadata_decorator.h
+    admin/internal/topic_admin_option_defaults.cc
+    admin/internal/topic_admin_option_defaults.h
+    admin/internal/topic_admin_retry_traits.h
+    admin/internal/topic_admin_stub.cc
+    admin/internal/topic_admin_stub.h
+    admin/internal/topic_admin_stub_factory.cc
+    admin/internal/topic_admin_stub_factory.h
+    admin/internal/topic_admin_tracing_connection.cc
+    admin/internal/topic_admin_tracing_connection.h
+    admin/internal/topic_admin_tracing_stub.cc
+    admin/internal/topic_admin_tracing_stub.h
+    admin/subscription_admin_client.cc
+    admin/subscription_admin_client.h
+    admin/subscription_admin_connection.cc
+    admin/subscription_admin_connection.h
+    admin/subscription_admin_connection_idempotency_policy.cc
+    admin/subscription_admin_connection_idempotency_policy.h
+    admin/subscription_admin_options.h
+    admin/topic_admin_client.cc
+    admin/topic_admin_client.h
+    admin/topic_admin_connection.cc
+    admin/topic_admin_connection.h
+    admin/topic_admin_connection_idempotency_policy.cc
+    admin/topic_admin_connection_idempotency_policy.h
+    admin/topic_admin_options.h
     application_callback.h
     backoff_policy.h
     blocking_publisher.cc
@@ -67,6 +121,8 @@ add_library(
     internal/default_batch_sink.h
     internal/default_pull_ack_handler.cc
     internal/default_pull_ack_handler.h
+    internal/default_pull_lease_manager.cc
+    internal/default_pull_lease_manager.h
     internal/defaults.cc
     internal/defaults.h
     internal/exactly_once_policies.cc
@@ -77,12 +133,10 @@ add_library(
     internal/flow_controlled_publisher_connection.h
     internal/flow_controlled_publisher_tracing_connection.cc
     internal/flow_controlled_publisher_tracing_connection.h
-    internal/message_batch.h
     internal/message_carrier.cc
     internal/message_carrier.h
     internal/message_propagator.cc
     internal/message_propagator.h
-    internal/noop_message_batch.h
     internal/ordering_key_publisher_connection.cc
     internal/ordering_key_publisher_connection.h
     internal/publisher_auth_decorator.cc
@@ -101,8 +155,11 @@ add_library(
     internal/publisher_tracing_connection.h
     internal/publisher_tracing_stub.cc
     internal/publisher_tracing_stub.h
-    internal/pull_lease_manager.cc
+    internal/pull_ack_handler_factory.cc
+    internal/pull_ack_handler_factory.h
     internal/pull_lease_manager.h
+    internal/pull_lease_manager_factory.cc
+    internal/pull_lease_manager_factory.h
     internal/rejects_with_ordering_key.cc
     internal/rejects_with_ordering_key.h
     internal/schema_auth_decorator.cc
@@ -144,6 +201,8 @@ add_library(
     internal/subscriber_stub.h
     internal/subscriber_stub_factory.cc
     internal/subscriber_stub_factory.h
+    internal/subscriber_tracing_connection.cc
+    internal/subscriber_tracing_connection.h
     internal/subscriber_tracing_stub.cc
     internal/subscriber_tracing_stub.h
     internal/subscription_batch_source.h
@@ -156,8 +215,14 @@ add_library(
     internal/subscription_message_source.h
     internal/subscription_session.cc
     internal/subscription_session.h
-    internal/tracing_message_batch.cc
-    internal/tracing_message_batch.h
+    internal/tracing_batch_sink.cc
+    internal/tracing_batch_sink.h
+    internal/tracing_helpers.cc
+    internal/tracing_helpers.h
+    internal/tracing_pull_ack_handler.cc
+    internal/tracing_pull_ack_handler.h
+    internal/tracing_pull_lease_manager.cc
+    internal/tracing_pull_lease_manager.h
     message.cc
     message.h
     options.cc
@@ -240,6 +305,8 @@ create_bazel_config(google_cloud_cpp_pubsub YEAR "2020")
 add_library(google_cloud_cpp_pubsub_mocks INTERFACE)
 set(google_cloud_cpp_pubsub_mocks_hdrs
     # cmake-format: sort
+    admin/mocks/mock_subscription_admin_connection.h
+    admin/mocks/mock_topic_admin_connection.h
     mocks/mock_ack_handler.h
     mocks/mock_blocking_publisher_connection.h
     mocks/mock_exactly_once_ack_handler.h
@@ -251,6 +318,14 @@ set(google_cloud_cpp_pubsub_mocks_hdrs
     mocks/mock_topic_admin_connection.h)
 export_list_to_bazel("google_cloud_cpp_pubsub_mocks.bzl"
                      "google_cloud_cpp_pubsub_mocks_hdrs" YEAR "2020")
+# Add the prefix to each file name for cmake
+set(cmake_google_cloud_cpp_pubsub_mocks_hdrs)
+foreach (fname ${google_cloud_cpp_pubsub_mocks_hdrs})
+    list(APPEND cmake_google_cloud_cpp_pubsub_mocks_hdrs
+         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${fname}>")
+endforeach ()
+target_sources(google_cloud_cpp_pubsub_mocks
+               INTERFACE ${cmake_google_cloud_cpp_pubsub_mocks_hdrs})
 target_link_libraries(
     google_cloud_cpp_pubsub_mocks
     INTERFACE google-cloud-cpp::pubsub GTest::gmock_main GTest::gmock
@@ -281,8 +356,8 @@ function (google_cloud_cpp_pubsub_client_define_tests)
         testing/fake_streaming_pull.cc
         testing/fake_streaming_pull.h
         testing/mock_batch_sink.h
-        testing/mock_message_batch.h
         testing/mock_publisher_stub.h
+        testing/mock_pull_lease_manager.h
         testing/mock_subscriber_stub.h
         testing/mock_subscription_batch_source.h
         testing/mock_subscription_message_source.h
@@ -312,6 +387,7 @@ function (google_cloud_cpp_pubsub_client_define_tests)
         internal/blocking_publisher_tracing_connection_test.cc
         internal/default_batch_sink_test.cc
         internal/default_pull_ack_handler_test.cc
+        internal/default_pull_lease_manager_test.cc
         internal/defaults_test.cc
         internal/exactly_once_policies_test.cc
         internal/extend_leases_with_retry_test.cc
@@ -322,23 +398,29 @@ function (google_cloud_cpp_pubsub_client_define_tests)
         internal/ordering_key_publisher_connection_test.cc
         internal/publisher_stub_factory_test.cc
         internal/publisher_tracing_connection_test.cc
-        internal/pull_lease_manager_test.cc
+        internal/pull_ack_handler_factory_test.cc
+        internal/pull_lease_manager_factory_test.cc
         internal/rejects_with_ordering_key_test.cc
         internal/sequential_batch_sink_test.cc
         internal/session_shutdown_manager_test.cc
         internal/streaming_subscription_batch_source_test.cc
         internal/subscriber_connection_impl_test.cc
         internal/subscriber_stub_factory_test.cc
+        internal/subscriber_tracing_connection_test.cc
         internal/subscription_concurrency_control_test.cc
         internal/subscription_lease_management_test.cc
         internal/subscription_message_queue_test.cc
         internal/subscription_session_test.cc
-        internal/tracing_message_batch_test.cc
+        internal/tracing_batch_sink_test.cc
+        internal/tracing_helpers_test.cc
+        internal/tracing_pull_ack_handler_test.cc
+        internal/tracing_pull_lease_manager_test.cc
         message_test.cc
         options_test.cc
         publisher_connection_test.cc
         publisher_options_test.cc
         publisher_test.cc
+        pull_ack_handler_test.cc
         schema_test.cc
         snapshot_builder_test.cc
         snapshot_test.cc
@@ -384,6 +466,7 @@ endfunction ()
 if (BUILD_TESTING)
     google_cloud_cpp_pubsub_client_define_tests()
     add_subdirectory(benchmarks)
+    add_subdirectory(admin/samples)
     add_subdirectory(integration_tests)
 endif (BUILD_TESTING)
 
@@ -427,13 +510,11 @@ install(
 
 google_cloud_cpp_install_headers("google_cloud_cpp_pubsub"
                                  "include/google/cloud/pubsub")
-
 # Export the CMake targets to make it easy to create configuration files.
 install(
     EXPORT pubsub_mocks-targets
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/google_cloud_cpp_pubsub_mocks"
     COMPONENT google_cloud_cpp_development)
-
 install(
     TARGETS google_cloud_cpp_pubsub_mocks
     EXPORT pubsub_mocks-targets
@@ -441,6 +522,10 @@ install(
 install(
     FILES ${google_cloud_cpp_pubsub_mocks_hdrs}
     DESTINATION "include/google/cloud/pubsub/mocks"
+    COMPONENT google_cloud_cpp_development)
+install(
+    FILES ${google_cloud_cpp_pubsub_mocks_hdrs}
+    DESTINATION "include/google/cloud/pubsub/admin/mocks"
     COMPONENT google_cloud_cpp_development)
 
 google_cloud_cpp_add_pkgconfig(

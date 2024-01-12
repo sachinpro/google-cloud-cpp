@@ -15,6 +15,7 @@
 #include "generator/internal/descriptor_utils.h"
 #include "generator/generator_config.pb.h"
 #include "generator/internal/codegen_utils.h"
+#include "generator/internal/doxygen.h"
 #include "generator/internal/format_class_comments.h"
 #include "generator/internal/format_method_comments.h"
 #include "generator/internal/http_option_utils.h"
@@ -385,6 +386,9 @@ ParameterCommentSubstitution substitutions[] = {
     {R"""(`{cluster} = '-'`)""", R"""(``{cluster} = '-'``)"""},
     {R"""(`projects/<Project ID or '-'>`)""",
      R"""(``projects/<Project ID or '-'>``)"""},
+    // In this case the single quote is just a mistake so we can remove it.
+    {R"""(`projects/{project}/locations/{location}'`)""",
+     R"""(`projects/{project}/locations/{location}`)"""},
 
     // Further trim some initial paragraphs for long descriptions.
     {R"""( The included patch
@@ -416,6 +420,10 @@ ParameterCommentSubstitution substitutions[] = {
      "rule123@c7cfa2a8c7cfa2a8c7cfa2a8c7cfa2a8",
      "`conversionWorkspace/123/mappingRules/"
      "rule123@c7cfa2a8c7cfa2a8c7cfa2a8c7cfa2a8`"},
+
+    // From google/cloud/gkemulticloud/v1/azure_service.proto
+    {" projects/<project-id>/locations/<region>/azureClusters/<cluster-id>",
+     " `projects/<project-id>/locations/<region>/azureClusters/<cluster-id>`"},
 
     // Some comments include multiple newlines in a row. We need to preserve
     // these because they are paragraph separators. When used in `@param`
@@ -618,17 +626,6 @@ std::string CppTypeToString(FieldDescriptor const* field) {
                  << " not handled";
   /*NOTREACHED*/
   return field->cpp_type_name();
-}
-
-// TODO(#11545): relocate this function to a separate TU.
-std::string FormatDoxygenLink(
-    google::protobuf::Descriptor const& message_type) {
-  google::protobuf::SourceLocation loc;
-  message_type.GetSourceLocation(&loc);
-  std::string output_type_proto_file_name = message_type.file()->name();
-  return absl::StrCat(
-      "@googleapis_link{", ProtoNameToCppName(message_type.full_name()), ",",
-      output_type_proto_file_name, "#L", loc.start_line + 1, "}");
 }
 
 std::string FormatMethodCommentsMethodSignature(

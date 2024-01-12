@@ -31,27 +31,24 @@ env -C "${vcpkg_dir}" ./vcpkg remove --outdated --recurse
 env -C "${vcpkg_dir}" ./vcpkg install --recurse "google-cloud-cpp[*]"
 
 # Compiles all the quickstart builds
-# TODO(#12937) - cleanup this build
-# - `vcpkg`` still has retired features: `iot`, `debugger`, `gameservices`
-# - skip `compute`, `appengine`, `iam`, `policytroubleshooter`, `appengine`,
-#   `logging`, and `servicecontrol` because the `vcpkg` recipes are incomplete.
+readonly SED_ARGS=(
+  # The diaglogflow features in vcpkg use `-` because `_` is not a legal
+  # character for vcpkg features
+  -e 's/dialogflow-/dialogflow_/'
+  # These vcpkg features are there just to refactor / simplify the dependencies.
+  -e '/^grafeas$/d'
+  -e '/^grpc-common$/d'
+  -e '/^rest-common$/d'
+  # Skip experimental features because these do not have dedicated quickstart
+  # programs.
+  -e '/^experimental-/d'
+  # TODO(#12120) - skip SQL because the vcpkg package is broken.
+  -e '/^sql/d'
+)
 mapfile -t features < <(
   env -C "${vcpkg_dir}" ./vcpkg search google-cloud-cpp |
     sed -n -e 's/^google-cloud-cpp\[\(.*\)\].*/\1/p' |
-    sed -e 's/dialogflow-/dialogflow_/' \
-      -e '/^grafeas$/d' \
-      -e '/^experimental-/d' \
-      -e '/^grpc-common$/d' \
-      -e '/^rest-common$/d' \
-      -e '/^debugger$/d' \
-      -e '/^gameservices$/d' \
-      -e '/^iot$/d' \
-      -e '/^compute$/d' \
-      -e '/^appengine$/d' \
-      -e '/^iam$/d' \
-      -e '/^logging$/d' \
-      -e '/^policytroubleshooter$/d' \
-      -e '/^servicecontrol$/d'
+    sed "${SED_ARGS[@]}"
 )
 feature_list="$(printf ";%s" "${features[@]}")"
 feature_list="${feature_list:1}"

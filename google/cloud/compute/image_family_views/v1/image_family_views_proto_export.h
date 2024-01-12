@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,9 +29,8 @@
 #include <google/cloud/compute/v1/internal/common_020.pb.h>
 #include <google/cloud/compute/v1/internal/common_022.pb.h>
 #include <google/cloud/compute/v1/internal/common_033.pb.h>
-#include <google/cloud/compute/v1/internal/common_047.pb.h>
+#include <google/cloud/compute/v1/internal/common_053.pb.h>
 #include <google/cloud/compute/v1/internal/common_054.pb.h>
-#include <google/cloud/compute/v1/internal/common_055.pb.h>
 // IWYU pragma: end_exports
 
 #endif  // GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_COMPUTE_IMAGE_FAMILY_VIEWS_V1_IMAGE_FAMILY_VIEWS_PROTO_EXPORT_H

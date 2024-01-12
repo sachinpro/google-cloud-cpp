@@ -20,7 +20,6 @@
 #define GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_SQL_V1_SQL_OPERATIONS_CLIENT_H
 
 #include "google/cloud/sql/v1/sql_operations_rest_connection.h"
-#include "google/cloud/experimental_tag.h"
 #include "google/cloud/future.h"
 #include "google/cloud/options.h"
 #include "google/cloud/polling_policy.h"
@@ -62,7 +61,6 @@ GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 class SqlOperationsServiceClient {
  public:
   explicit SqlOperationsServiceClient(
-      ExperimentalTag,
       std::shared_ptr<SqlOperationsServiceConnection> connection,
       Options opts = {});
   ~SqlOperationsServiceClient();
@@ -111,8 +109,8 @@ class SqlOperationsServiceClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.sql.v1.Operation]: @googleapis_reference_link{google/cloud/sql/v1/cloud_sql_resources.proto#L717}
-  /// [google.cloud.sql.v1.SqlOperationsGetRequest]: @googleapis_reference_link{google/cloud/sql/v1/cloud_sql_operations.proto#L62}
+  /// [google.cloud.sql.v1.Operation]: @googleapis_reference_link{google/cloud/sql/v1/cloud_sql_resources.proto#L764}
+  /// [google.cloud.sql.v1.SqlOperationsGetRequest]: @googleapis_reference_link{google/cloud/sql/v1/cloud_sql_operations.proto#L63}
   ///
   // clang-format on
   StatusOr<google::cloud::sql::v1::Operation> Get(
@@ -152,8 +150,8 @@ class SqlOperationsServiceClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.sql.v1.Operation]: @googleapis_reference_link{google/cloud/sql/v1/cloud_sql_resources.proto#L717}
-  /// [google.cloud.sql.v1.SqlOperationsListRequest]: @googleapis_reference_link{google/cloud/sql/v1/cloud_sql_operations.proto#L71}
+  /// [google.cloud.sql.v1.Operation]: @googleapis_reference_link{google/cloud/sql/v1/cloud_sql_resources.proto#L764}
+  /// [google.cloud.sql.v1.SqlOperationsListRequest]: @googleapis_reference_link{google/cloud/sql/v1/cloud_sql_operations.proto#L72}
   ///
   // clang-format on
   StreamRange<google::cloud::sql::v1::Operation> List(
@@ -181,7 +179,7 @@ class SqlOperationsServiceClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.sql.v1.SqlOperationsCancelRequest]: @googleapis_reference_link{google/cloud/sql/v1/cloud_sql_operations.proto#L100}
+  /// [google.cloud.sql.v1.SqlOperationsCancelRequest]: @googleapis_reference_link{google/cloud/sql/v1/cloud_sql_operations.proto#L101}
   ///
   // clang-format on
   Status Cancel(

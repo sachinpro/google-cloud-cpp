@@ -21,6 +21,7 @@
 
 #include "google/cloud/completion_queue.h"
 #include "google/cloud/future.h"
+#include "google/cloud/options.h"
 #include "google/cloud/status_or.h"
 #include "google/cloud/version.h"
 #include <google/cloud/gkemulticloud/v1/aws_service.grpc.pb.h>
@@ -39,14 +40,14 @@ class AwsClustersStub {
   virtual future<StatusOr<google::longrunning::Operation>>
   AsyncCreateAwsCluster(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::cloud::gkemulticloud::v1::CreateAwsClusterRequest const&
           request) = 0;
 
   virtual future<StatusOr<google::longrunning::Operation>>
   AsyncUpdateAwsCluster(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::cloud::gkemulticloud::v1::UpdateAwsClusterRequest const&
           request) = 0;
 
@@ -64,9 +65,16 @@ class AwsClustersStub {
   virtual future<StatusOr<google::longrunning::Operation>>
   AsyncDeleteAwsCluster(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::cloud::gkemulticloud::v1::DeleteAwsClusterRequest const&
           request) = 0;
+
+  virtual StatusOr<
+      google::cloud::gkemulticloud::v1::GenerateAwsClusterAgentTokenResponse>
+  GenerateAwsClusterAgentToken(
+      grpc::ClientContext& context,
+      google::cloud::gkemulticloud::v1::
+          GenerateAwsClusterAgentTokenRequest const& request) = 0;
 
   virtual StatusOr<
       google::cloud::gkemulticloud::v1::GenerateAwsAccessTokenResponse>
@@ -78,15 +86,22 @@ class AwsClustersStub {
   virtual future<StatusOr<google::longrunning::Operation>>
   AsyncCreateAwsNodePool(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::cloud::gkemulticloud::v1::CreateAwsNodePoolRequest const&
           request) = 0;
 
   virtual future<StatusOr<google::longrunning::Operation>>
   AsyncUpdateAwsNodePool(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::cloud::gkemulticloud::v1::UpdateAwsNodePoolRequest const&
+          request) = 0;
+
+  virtual future<StatusOr<google::longrunning::Operation>>
+  AsyncRollbackAwsNodePoolUpdate(
+      google::cloud::CompletionQueue& cq,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
+      google::cloud::gkemulticloud::v1::RollbackAwsNodePoolUpdateRequest const&
           request) = 0;
 
   virtual StatusOr<google::cloud::gkemulticloud::v1::AwsNodePool>
@@ -103,8 +118,20 @@ class AwsClustersStub {
   virtual future<StatusOr<google::longrunning::Operation>>
   AsyncDeleteAwsNodePool(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::cloud::gkemulticloud::v1::DeleteAwsNodePoolRequest const&
+          request) = 0;
+
+  virtual StatusOr<google::cloud::gkemulticloud::v1::AwsOpenIdConfig>
+  GetAwsOpenIdConfig(
+      grpc::ClientContext& context,
+      google::cloud::gkemulticloud::v1::GetAwsOpenIdConfigRequest const&
+          request) = 0;
+
+  virtual StatusOr<google::cloud::gkemulticloud::v1::AwsJsonWebKeys>
+  GetAwsJsonWebKeys(
+      grpc::ClientContext& context,
+      google::cloud::gkemulticloud::v1::GetAwsJsonWebKeysRequest const&
           request) = 0;
 
   virtual StatusOr<google::cloud::gkemulticloud::v1::AwsServerConfig>
@@ -115,12 +142,12 @@ class AwsClustersStub {
 
   virtual future<StatusOr<google::longrunning::Operation>> AsyncGetOperation(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::longrunning::GetOperationRequest const& request) = 0;
 
   virtual future<Status> AsyncCancelOperation(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::longrunning::CancelOperationRequest const& request) = 0;
 };
 
@@ -136,82 +163,107 @@ class DefaultAwsClustersStub : public AwsClustersStub {
 
   future<StatusOr<google::longrunning::Operation>> AsyncCreateAwsCluster(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::cloud::gkemulticloud::v1::CreateAwsClusterRequest const& request)
       override;
 
   future<StatusOr<google::longrunning::Operation>> AsyncUpdateAwsCluster(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::cloud::gkemulticloud::v1::UpdateAwsClusterRequest const& request)
       override;
 
   StatusOr<google::cloud::gkemulticloud::v1::AwsCluster> GetAwsCluster(
-      grpc::ClientContext& client_context,
+      grpc::ClientContext& context,
       google::cloud::gkemulticloud::v1::GetAwsClusterRequest const& request)
       override;
 
   StatusOr<google::cloud::gkemulticloud::v1::ListAwsClustersResponse>
   ListAwsClusters(
-      grpc::ClientContext& client_context,
+      grpc::ClientContext& context,
       google::cloud::gkemulticloud::v1::ListAwsClustersRequest const& request)
       override;
 
   future<StatusOr<google::longrunning::Operation>> AsyncDeleteAwsCluster(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::cloud::gkemulticloud::v1::DeleteAwsClusterRequest const& request)
       override;
 
+  StatusOr<
+      google::cloud::gkemulticloud::v1::GenerateAwsClusterAgentTokenResponse>
+  GenerateAwsClusterAgentToken(
+      grpc::ClientContext& context,
+      google::cloud::gkemulticloud::v1::
+          GenerateAwsClusterAgentTokenRequest const& request) override;
+
   StatusOr<google::cloud::gkemulticloud::v1::GenerateAwsAccessTokenResponse>
   GenerateAwsAccessToken(
-      grpc::ClientContext& client_context,
+      grpc::ClientContext& context,
       google::cloud::gkemulticloud::v1::GenerateAwsAccessTokenRequest const&
           request) override;
 
   future<StatusOr<google::longrunning::Operation>> AsyncCreateAwsNodePool(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::cloud::gkemulticloud::v1::CreateAwsNodePoolRequest const& request)
       override;
 
   future<StatusOr<google::longrunning::Operation>> AsyncUpdateAwsNodePool(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::cloud::gkemulticloud::v1::UpdateAwsNodePoolRequest const& request)
       override;
 
+  future<StatusOr<google::longrunning::Operation>>
+  AsyncRollbackAwsNodePoolUpdate(
+      google::cloud::CompletionQueue& cq,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
+      google::cloud::gkemulticloud::v1::RollbackAwsNodePoolUpdateRequest const&
+          request) override;
+
   StatusOr<google::cloud::gkemulticloud::v1::AwsNodePool> GetAwsNodePool(
-      grpc::ClientContext& client_context,
+      grpc::ClientContext& context,
       google::cloud::gkemulticloud::v1::GetAwsNodePoolRequest const& request)
       override;
 
   StatusOr<google::cloud::gkemulticloud::v1::ListAwsNodePoolsResponse>
   ListAwsNodePools(
-      grpc::ClientContext& client_context,
+      grpc::ClientContext& context,
       google::cloud::gkemulticloud::v1::ListAwsNodePoolsRequest const& request)
       override;
 
   future<StatusOr<google::longrunning::Operation>> AsyncDeleteAwsNodePool(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::cloud::gkemulticloud::v1::DeleteAwsNodePoolRequest const& request)
+      override;
+
+  StatusOr<google::cloud::gkemulticloud::v1::AwsOpenIdConfig>
+  GetAwsOpenIdConfig(
+      grpc::ClientContext& context,
+      google::cloud::gkemulticloud::v1::GetAwsOpenIdConfigRequest const&
+          request) override;
+
+  StatusOr<google::cloud::gkemulticloud::v1::AwsJsonWebKeys> GetAwsJsonWebKeys(
+      grpc::ClientContext& context,
+      google::cloud::gkemulticloud::v1::GetAwsJsonWebKeysRequest const& request)
       override;
 
   StatusOr<google::cloud::gkemulticloud::v1::AwsServerConfig>
   GetAwsServerConfig(
-      grpc::ClientContext& client_context,
+      grpc::ClientContext& context,
       google::cloud::gkemulticloud::v1::GetAwsServerConfigRequest const&
           request) override;
 
   future<StatusOr<google::longrunning::Operation>> AsyncGetOperation(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::longrunning::GetOperationRequest const& request) override;
 
   future<Status> AsyncCancelOperation(
       google::cloud::CompletionQueue& cq,
-      std::shared_ptr<grpc::ClientContext> context,
+      std::shared_ptr<grpc::ClientContext> context, Options const& options,
       google::longrunning::CancelOperationRequest const& request) override;
 
  private:

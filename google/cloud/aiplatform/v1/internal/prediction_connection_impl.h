@@ -24,6 +24,7 @@
 #include "google/cloud/aiplatform/v1/prediction_connection.h"
 #include "google/cloud/aiplatform/v1/prediction_connection_idempotency_policy.h"
 #include "google/cloud/aiplatform/v1/prediction_options.h"
+#include "google/cloud/async_streaming_read_write_rpc.h"
 #include "google/cloud/background_threads.h"
 #include "google/cloud/backoff_policy.h"
 #include "google/cloud/options.h"
@@ -40,6 +41,10 @@ GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 void PredictionServiceServerStreamingPredictStreamingUpdater(
     google::cloud::aiplatform::v1::StreamingPredictResponse const& response,
     google::cloud::aiplatform::v1::StreamingPredictRequest& request);
+
+void PredictionServiceStreamGenerateContentStreamingUpdater(
+    google::cloud::aiplatform::v1::GenerateContentResponse const& response,
+    google::cloud::aiplatform::v1::GenerateContentRequest& request);
 
 class PredictionServiceConnectionImpl
     : public aiplatform_v1::PredictionServiceConnection {
@@ -59,13 +64,36 @@ class PredictionServiceConnectionImpl
   StatusOr<google::api::HttpBody> RawPredict(
       google::cloud::aiplatform::v1::RawPredictRequest const& request) override;
 
+  StatusOr<google::cloud::aiplatform::v1::DirectPredictResponse> DirectPredict(
+      google::cloud::aiplatform::v1::DirectPredictRequest const& request)
+      override;
+
+  StatusOr<google::cloud::aiplatform::v1::DirectRawPredictResponse>
+  DirectRawPredict(google::cloud::aiplatform::v1::DirectRawPredictRequest const&
+                       request) override;
+
+  std::unique_ptr<::google::cloud::AsyncStreamingReadWriteRpc<
+      google::cloud::aiplatform::v1::StreamingPredictRequest,
+      google::cloud::aiplatform::v1::StreamingPredictResponse>>
+  AsyncStreamingPredict() override;
+
   StreamRange<google::cloud::aiplatform::v1::StreamingPredictResponse>
   ServerStreamingPredict(
       google::cloud::aiplatform::v1::StreamingPredictRequest const& request)
       override;
 
+  std::unique_ptr<::google::cloud::AsyncStreamingReadWriteRpc<
+      google::cloud::aiplatform::v1::StreamingRawPredictRequest,
+      google::cloud::aiplatform::v1::StreamingRawPredictResponse>>
+  AsyncStreamingRawPredict() override;
+
   StatusOr<google::cloud::aiplatform::v1::ExplainResponse> Explain(
       google::cloud::aiplatform::v1::ExplainRequest const& request) override;
+
+  StreamRange<google::cloud::aiplatform::v1::GenerateContentResponse>
+  StreamGenerateContent(
+      google::cloud::aiplatform::v1::GenerateContentRequest const& request)
+      override;
 
  private:
   std::unique_ptr<google::cloud::BackgroundThreads> background_;

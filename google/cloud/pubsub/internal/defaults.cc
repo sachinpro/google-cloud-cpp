@@ -22,6 +22,7 @@
 #include "google/cloud/internal/populate_grpc_options.h"
 #include "google/cloud/internal/user_agent_prefix.h"
 #include "google/cloud/options.h"
+#include "absl/strings/numbers.h"
 #include <chrono>
 #include <limits>
 #include <thread>
@@ -47,7 +48,7 @@ std::size_t DefaultThreadCount() {
 Options DefaultCommonOptions(Options opts) {
   opts = internal::PopulateCommonOptions(
       std::move(opts), "", "PUBSUB_EMULATOR_HOST", "", "pubsub.googleapis.com");
-  opts = internal::PopulateGrpcOptions(std::move(opts), "PUBSUB_EMULATOR_HOST");
+  opts = internal::PopulateGrpcOptions(std::move(opts));
 
   if (!opts.has<GrpcNumChannelsOption>()) {
     opts.set<GrpcNumChannelsOption>(static_cast<int>(DefaultThreadCount()));
@@ -104,6 +105,13 @@ Options DefaultPublisherOptionsOnly(Options opts) {
   }
   if (!opts.has<pubsub::CompressionAlgorithmOption>()) {
     opts.set<pubsub::CompressionAlgorithmOption>(GRPC_COMPRESS_DEFLATE);
+  }
+  auto e = internal::GetEnv("OTEL_SPAN_LINK_COUNT_LIMIT");
+  size_t link_count;
+  if (e && absl::SimpleAtoi(e.value(), &link_count)) {
+    opts.set<pubsub::MaxOtelLinkCountOption>(link_count);
+  } else if (!opts.has<pubsub::MaxOtelLinkCountOption>()) {
+    opts.set<pubsub::MaxOtelLinkCountOption>(128);
   }
 
   return opts;

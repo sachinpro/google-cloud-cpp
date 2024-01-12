@@ -1,4 +1,4 @@
-// Copyright 2023 Google LLC
+// Copyright 2024 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@
 
 // IWYU pragma: begin_exports
 #include <google/cloud/compute/v1/internal/common_022.pb.h>
-#include <google/cloud/compute/v1/internal/common_072.pb.h>
+#include <google/cloud/compute/v1/internal/common_071.pb.h>
 // IWYU pragma: end_exports
 
 #endif  // GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_COMPUTE_MACHINE_TYPES_V1_MACHINE_TYPES_PROTO_EXPORT_H

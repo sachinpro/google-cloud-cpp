@@ -27,6 +27,7 @@
 #include "google/cloud/credentials.h"
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/pagination_range.h"
+#include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
 
 namespace google {
@@ -96,6 +97,14 @@ AttachedClustersConnection::GenerateAttachedClusterInstallManifest(
   return Status(StatusCode::kUnimplemented, "not implemented");
 }
 
+StatusOr<
+    google::cloud::gkemulticloud::v1::GenerateAttachedClusterAgentTokenResponse>
+AttachedClustersConnection::GenerateAttachedClusterAgentToken(
+    google::cloud::gkemulticloud::v1::
+        GenerateAttachedClusterAgentTokenRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
 std::shared_ptr<AttachedClustersConnection> MakeAttachedClustersConnection(
     std::string const& location, Options options) {
   internal::CheckExpectedOptions<CommonOptionList, GrpcOptionList,
@@ -105,8 +114,9 @@ std::shared_ptr<AttachedClustersConnection> MakeAttachedClustersConnection(
   options = gkemulticloud_v1_internal::AttachedClustersDefaultOptions(
       location, std::move(options));
   auto background = internal::MakeBackgroundThreadsFactory(options)();
+  auto auth = internal::CreateAuthenticationStrategy(background->cq(), options);
   auto stub = gkemulticloud_v1_internal::CreateDefaultAttachedClustersStub(
-      background->cq(), options);
+      std::move(auth), options);
   return gkemulticloud_v1_internal::MakeAttachedClustersTracingConnection(
       std::make_shared<
           gkemulticloud_v1_internal::AttachedClustersConnectionImpl>(

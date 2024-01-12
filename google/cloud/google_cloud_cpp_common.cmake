@@ -56,6 +56,7 @@ add_library(
     internal/big_endian.h
     internal/build_info.h
     internal/call_context.h
+    internal/clock.h
     internal/compiler_info.cc
     internal/compiler_info.h
     internal/compute_engine_util.cc
@@ -81,8 +82,8 @@ add_library(
     internal/future_fwd.h
     internal/future_impl.cc
     internal/future_impl.h
+    internal/future_then_impl.cc
     internal/future_then_impl.h
-    internal/future_then_meta.h
     internal/getenv.cc
     internal/getenv.h
     internal/group_options.h
@@ -111,6 +112,8 @@ add_library(
     internal/retry_loop_helpers.h
     internal/retry_policy_impl.cc
     internal/retry_policy_impl.h
+    internal/service_endpoint.cc
+    internal/service_endpoint.h
     internal/sha256_hash.cc
     internal/sha256_hash.h
     internal/sha256_hmac.cc
@@ -152,6 +155,7 @@ add_library(
     project.cc
     project.h
     retry_policy.h
+    rpc_metadata.h
     status.cc
     status.h
     status_or.h
@@ -160,6 +164,7 @@ add_library(
     terminate_handler.h
     tracing_options.cc
     tracing_options.h
+    universe_domain_options.h
     version.cc
     version.h)
 target_link_libraries(
@@ -181,11 +186,10 @@ if (opentelemetry IN_LIST GOOGLE_CLOUD_CPP_ENABLE)
         target_compile_definitions(
             google_cloud_cpp_common
             PUBLIC # Enable OpenTelemetry features in google-cloud-cpp
-                   GOOGLE_CLOUD_CPP_HAVE_OPENTELEMETRY
-                   # TODO(#10975) - install separate opentelemetry .pc file
-                   HAVE_ABSEIL)
+                   GOOGLE_CLOUD_CPP_HAVE_OPENTELEMETRY)
         set(GOOGLE_CLOUD_CPP_FIND_OPTIONAL_DEPENDENCIES
             "find_dependency(opentelemetry-cpp)")
+        set(GOOGLE_CLOUD_CPP_OPENTELEMETRY_API "opentelemetry_api")
     endif ()
 endif ()
 google_cloud_cpp_add_common_options(google_cloud_cpp_common)
@@ -241,7 +245,8 @@ google_cloud_cpp_add_pkgconfig(
     "absl_time"
     "absl_time_zone"
     "absl_variant"
-    "openssl")
+    "openssl"
+    "${GOOGLE_CLOUD_CPP_OPENTELEMETRY_API}")
 
 # Create and install the CMake configuration files.
 configure_file("config.cmake.in" "google_cloud_cpp_common-config.cmake" @ONLY)
@@ -334,6 +339,7 @@ if (BUILD_TESTING)
         internal/base64_transforms_test.cc
         internal/big_endian_test.cc
         internal/call_context_test.cc
+        internal/clock_test.cc
         internal/compiler_info_test.cc
         internal/compute_engine_util_test.cc
         internal/credentials_impl_test.cc
@@ -343,6 +349,7 @@ if (BUILD_TESTING)
         internal/filesystem_test.cc
         internal/format_time_point_test.cc
         internal/future_impl_test.cc
+        internal/future_then_impl_test.cc
         internal/group_options_test.cc
         internal/invoke_result_test.cc
         internal/log_impl_test.cc
@@ -356,6 +363,7 @@ if (BUILD_TESTING)
         internal/random_test.cc
         internal/retry_loop_helpers_test.cc
         internal/retry_policy_impl_test.cc
+        internal/service_endpoint_test.cc
         internal/sha256_hash_test.cc
         internal/sha256_hmac_test.cc
         internal/status_payload_keys_test.cc

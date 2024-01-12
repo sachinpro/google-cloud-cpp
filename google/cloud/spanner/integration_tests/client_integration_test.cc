@@ -49,29 +49,36 @@ class ClientIntegrationTest : public spanner_testing::DatabaseIntegrationTest {
  protected:
   static void SetUpTestSuite() {
     spanner_testing::DatabaseIntegrationTest::SetUpTestSuite();
-    client_ = std::make_unique<Client>(MakeConnection(GetDatabase()));
+    client_ = std::make_unique<Client>(MakeConnection(
+        GetDatabase(),
+        Options{}.set<GrpcCompressionAlgorithmOption>(GRPC_COMPRESS_GZIP)));
   }
 
   void SetUp() override {
     auto commit_result = client_->Commit(
-        Mutations{MakeDeleteMutation("Singers", KeySet::All())});
+        Mutations{MakeDeleteMutation("Singers", KeySet::All())},
+        Options{}.set<GrpcCompressionAlgorithmOption>(GRPC_COMPRESS_DEFLATE));
     ASSERT_STATUS_OK(commit_result);
   }
 
   static StatusOr<Timestamp> DatabaseNow() {
     auto statement = SqlStatement("SELECT CURRENT_TIMESTAMP()");
-    auto rows = client_->ExecuteQuery(std::move(statement));
+    auto rows = client_->ExecuteQuery(
+        std::move(statement),
+        Options{}.set<GrpcCompressionAlgorithmOption>(GRPC_COMPRESS_NONE));
     auto row = GetSingularRow(StreamOf<std::tuple<Timestamp>>(rows));
     if (!row) return std::move(row).status();
     return std::get<0>(*row);
   }
 
   static void InsertTwoSingers() {
-    auto commit_result = client_->Commit(Mutations{
-        InsertMutationBuilder("Singers", {"SingerId", "FirstName", "LastName"})
-            .EmplaceRow(1, "test-fname-1", "test-lname-1")
-            .EmplaceRow(2, "test-fname-2", "test-lname-2")
-            .Build()});
+    auto commit_result = client_->Commit(
+        Mutations{InsertMutationBuilder("Singers",
+                                        {"SingerId", "FirstName", "LastName"})
+                      .EmplaceRow(1, "test-fname-1", "test-lname-1")
+                      .EmplaceRow(2, "test-fname-2", "test-lname-2")
+                      .Build()},
+        Options{}.set<GrpcCompressionAlgorithmOption>(GRPC_COMPRESS_DEFLATE));
     ASSERT_STATUS_OK(commit_result);
   }
 
@@ -94,22 +101,27 @@ class PgClientIntegrationTest
  protected:
   static void SetUpTestSuite() {
     spanner_testing::PgDatabaseIntegrationTest::SetUpTestSuite();
-    client_ = std::make_unique<Client>(MakeConnection(GetDatabase()));
+    client_ = std::make_unique<Client>(MakeConnection(
+        GetDatabase(),
+        Options{}.set<GrpcCompressionAlgorithmOption>(GRPC_COMPRESS_DEFLATE)));
   }
 
   void SetUp() override {
     if (UsingEmulator()) return;
     auto commit_result = client_->Commit(
-        Mutations{MakeDeleteMutation("Singers", KeySet::All())});
+        Mutations{MakeDeleteMutation("Singers", KeySet::All())},
+        Options{}.set<GrpcCompressionAlgorithmOption>(GRPC_COMPRESS_DEFLATE));
     ASSERT_STATUS_OK(commit_result);
   }
 
   static void InsertTwoSingers() {
-    auto commit_result = client_->Commit(Mutations{
-        InsertMutationBuilder("Singers", {"SingerId", "FirstName", "LastName"})
-            .EmplaceRow(1, "test-fname-1", "test-lname-1")
-            .EmplaceRow(2, "test-fname-2", "test-lname-2")
-            .Build()});
+    auto commit_result = client_->Commit(
+        Mutations{InsertMutationBuilder("Singers",
+                                        {"SingerId", "FirstName", "LastName"})
+                      .EmplaceRow(1, "test-fname-1", "test-lname-1")
+                      .EmplaceRow(2, "test-fname-2", "test-lname-2")
+                      .Build()},
+        Options{}.set<GrpcCompressionAlgorithmOption>(GRPC_COMPRESS_DEFLATE));
     ASSERT_STATUS_OK(commit_result);
   }
 
@@ -800,6 +812,33 @@ TEST_F(ClientIntegrationTest, ExecuteQueryExactStalenessDuration) {
     return Transaction::SingleUseOptions(Transaction::ReadOnlyOptions(
         /*exact_staleness=*/std::chrono::nanoseconds(0)));
   });
+}
+
+/// @test Test that a directed read within a read-write transaction fails.
+TEST_F(ClientIntegrationTest, DirectedReadWithinReadWriteTransaction) {
+  auto& client = *client_;
+  auto commit =
+      client_->Commit([&client](Transaction const& txn) -> StatusOr<Mutations> {
+        auto rows =
+            client.Read(txn, "Singers", KeySet::All(),
+                        {"SingerId", "FirstName", "LastName"},
+                        Options{}.set<DirectedReadOption>(IncludeReplicas(
+                            {ReplicaSelection(ReplicaType::kReadOnly)},
+                            /*auto_failover_disabled=*/true)));
+        using RowType = std::tuple<std::int64_t, std::string, std::string>;
+        for (auto& row : StreamOf<RowType>(rows)) {
+          if (!row) return row.status();
+        }
+        return Mutations{};
+      });
+  if (UsingEmulator()) {
+    EXPECT_THAT(commit, IsOk());  // The emulator doesn't diagnose the error.
+  } else {
+    EXPECT_THAT(commit,
+                StatusIs(StatusCode::kInvalidArgument,
+                         HasSubstr("Directed reads can only be performed "
+                                   "in a read-only transaction")));
+  }
 }
 
 StatusOr<std::vector<std::vector<Value>>> AddSingerDataToTable(Client client) {
@@ -1599,27 +1638,6 @@ TEST_F(ClientIntegrationTest, SpannerStatistics) {
     // refine the column expectations beyond a non-empty package name.
     EXPECT_NE(std::get<1>(*row), "");
   }
-}
-
-/// @test Verify the use of unified credentials.
-TEST_F(ClientIntegrationTest, UnifiedCredentials) {
-  auto options =
-      Options{}.set<UnifiedCredentialsOption>(MakeGoogleDefaultCredentials());
-  if (UsingEmulator()) {
-    options = Options{}
-                  .set<UnifiedCredentialsOption>(MakeInsecureCredentials())
-                  .set<internal::UseInsecureChannelOption>(true);
-  }
-
-  // Reconnect to the database using the new credentials.
-  auto client = Client(MakeConnection(GetDatabase(), options));
-
-  auto commit_result = client.Commit(Mutations{
-      InsertMutationBuilder("Singers", {"SingerId", "FirstName", "LastName"})
-          .EmplaceRow(1, "test-fname-1", "test-lname-1")
-          .EmplaceRow(2, "test-fname-2", "test-lname-2")
-          .Build()});
-  EXPECT_STATUS_OK(commit_result);
 }
 
 /// @test Verify backwards compatibility for MakeConnection() arguments.

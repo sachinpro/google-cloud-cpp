@@ -18,7 +18,6 @@
 
 GOOGLE_CLOUD_CPP_EXPERIMENTAL_LIBRARIES = [
     "pubsublite",
-    "sql",
 ]
 
 GOOGLE_CLOUD_CPP_TRANSITION_LIBRARIES = [
@@ -48,6 +47,7 @@ GOOGLE_CLOUD_CPP_GA_LIBRARIES = [
     "certificatemanager",
     "channel",
     "cloudbuild",
+    "cloudquotas",
     "commerce",
     "composer",
     "compute_accelerator_types",
@@ -149,6 +149,7 @@ GOOGLE_CLOUD_CPP_GA_LIBRARIES = [
     "documentai",
     "domains",
     "edgecontainer",
+    "edgenetwork",
     "essentialcontacts",
     "eventarc",
     "filestore",
@@ -202,12 +203,14 @@ GOOGLE_CLOUD_CPP_GA_LIBRARIES = [
     "shell",
     "spanner",
     "speech",
+    "sql",
     "storage",
     "storageinsights",
     "storagetransfer",
     "support",
     "talent",
     "tasks",
+    "telcoautomation",
     "texttospeech",
     "timeseriesinsights",
     "tpu",

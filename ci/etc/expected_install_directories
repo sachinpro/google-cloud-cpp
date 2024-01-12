@@ -4,6 +4,8 @@
 ./include/google/api
 ./include/google/api/apikeys
 ./include/google/api/apikeys/v2
+./include/google/api/cloudquotas
+./include/google/api/cloudquotas/v1
 ./include/google/api/servicecontrol
 ./include/google/api/servicecontrol/v1
 ./include/google/api/servicecontrol/v2
@@ -177,6 +179,10 @@
 ./include/google/cloud/cloudbuild/v2/mocks
 ./include/google/cloud/clouddms
 ./include/google/cloud/clouddms/v1
+./include/google/cloud/cloudquotas
+./include/google/cloud/cloudquotas/v1
+./include/google/cloud/cloudquotas/v1/internal
+./include/google/cloud/cloudquotas/v1/mocks
 ./include/google/cloud/commerce
 ./include/google/cloud/commerce/consumer
 ./include/google/cloud/commerce/consumer/procurement
@@ -672,6 +678,10 @@
 ./include/google/cloud/edgecontainer/v1
 ./include/google/cloud/edgecontainer/v1/internal
 ./include/google/cloud/edgecontainer/v1/mocks
+./include/google/cloud/edgenetwork
+./include/google/cloud/edgenetwork/v1
+./include/google/cloud/edgenetwork/v1/internal
+./include/google/cloud/edgenetwork/v1/mocks
 ./include/google/cloud/essentialcontacts
 ./include/google/cloud/essentialcontacts/v1
 ./include/google/cloud/essentialcontacts/v1/internal
@@ -872,6 +882,9 @@
 ./include/google/cloud/profiler/v2/internal
 ./include/google/cloud/profiler/v2/mocks
 ./include/google/cloud/pubsub
+./include/google/cloud/pubsub/admin
+./include/google/cloud/pubsub/admin/internal
+./include/google/cloud/pubsub/admin/mocks
 ./include/google/cloud/pubsub/internal
 ./include/google/cloud/pubsub/mocks
 ./include/google/cloud/pubsublite
@@ -1012,6 +1025,10 @@
 ./include/google/cloud/tasks/v2
 ./include/google/cloud/tasks/v2/internal
 ./include/google/cloud/tasks/v2/mocks
+./include/google/cloud/telcoautomation
+./include/google/cloud/telcoautomation/v1
+./include/google/cloud/telcoautomation/v1/internal
+./include/google/cloud/telcoautomation/v1/mocks
 ./include/google/cloud/texttospeech
 ./include/google/cloud/texttospeech/mocks
 ./include/google/cloud/texttospeech/v1
@@ -1181,6 +1198,7 @@
 ./lib64/cmake/google_cloud_cpp_certificatemanager
 ./lib64/cmake/google_cloud_cpp_channel
 ./lib64/cmake/google_cloud_cpp_cloudbuild
+./lib64/cmake/google_cloud_cpp_cloudquotas
 ./lib64/cmake/google_cloud_cpp_commerce
 ./lib64/cmake/google_cloud_cpp_composer
 ./lib64/cmake/google_cloud_cpp_compute
@@ -1206,6 +1224,7 @@
 ./lib64/cmake/google_cloud_cpp_documentai
 ./lib64/cmake/google_cloud_cpp_domains
 ./lib64/cmake/google_cloud_cpp_edgecontainer
+./lib64/cmake/google_cloud_cpp_edgenetwork
 ./lib64/cmake/google_cloud_cpp_essentialcontacts
 ./lib64/cmake/google_cloud_cpp_eventarc
 ./lib64/cmake/google_cloud_cpp_filestore
@@ -1266,6 +1285,7 @@
 ./lib64/cmake/google_cloud_cpp_support
 ./lib64/cmake/google_cloud_cpp_talent
 ./lib64/cmake/google_cloud_cpp_tasks
+./lib64/cmake/google_cloud_cpp_telcoautomation
 ./lib64/cmake/google_cloud_cpp_texttospeech
 ./lib64/cmake/google_cloud_cpp_timeseriesinsights
 ./lib64/cmake/google_cloud_cpp_tpu

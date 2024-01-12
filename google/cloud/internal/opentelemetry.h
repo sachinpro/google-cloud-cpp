@@ -26,7 +26,9 @@
 #include <opentelemetry/nostd/shared_ptr.h>
 #include <opentelemetry/nostd/string_view.h>
 #include <opentelemetry/trace/span.h>
+#include <opentelemetry/trace/span_context_kv_iterable_view.h>
 #include <opentelemetry/trace/tracer.h>
+#include <string>
 #endif  // GOOGLE_CLOUD_CPP_HAVE_OPENTELEMETRY
 #include <chrono>
 #include <functional>
@@ -94,6 +96,19 @@ opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span> MakeSpan(
         DefaultStartSpanOptions());
 
 /**
+ * Start a span with a @p name and @p attributes.
+ */
+template <typename T>
+opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span> MakeSpan(
+    opentelemetry::nostd::string_view name, T const& attributes,
+    opentelemetry::trace::StartSpanOptions const& options =
+        DefaultStartSpanOptions()) {
+  return MakeSpanImpl(
+      name, opentelemetry::common::KeyValueIterableView<T>(attributes),
+      opentelemetry::trace::NullSpanContext(), options);
+}
+
+/**
  * Start a span with a @p name, @p attributes using an initializer list, and @p
  * links using an initializer lists.
  */
@@ -114,7 +129,7 @@ opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span> MakeSpan(
 /**
  * Start a span with a @p name, @p attributes, and @p links.
  */
-template <class T, class U>
+template <typename T, typename U>
 opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span> MakeSpan(
     opentelemetry::nostd::string_view name, T const& attributes, U const& links,
     opentelemetry::trace::StartSpanOptions const& options =
@@ -128,7 +143,7 @@ opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span> MakeSpan(
  * Start a span with a @p name, @p attributes, and @p links where attributes
  * uses an initializer list.
  */
-template <class T>
+template <typename T>
 opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span> MakeSpan(
     opentelemetry::nostd::string_view name,
     std::initializer_list<std::pair<opentelemetry::nostd::string_view,
@@ -216,17 +231,38 @@ std::string ToString(opentelemetry::trace::TraceId const& trace_id);
 
 std::string ToString(opentelemetry::trace::SpanId const& span_id);
 
+/// Gets the current thread id.
+std::string CurrentThreadId();
+
 #endif  // GOOGLE_CLOUD_CPP_HAVE_OPENTELEMETRY
 
 bool TracingEnabled(Options const& options);
 
 /// Wraps the sleeper in a span, if tracing is enabled.
-std::function<void(std::chrono::milliseconds)> MakeTracedSleeper(
+template <typename Rep, typename Period>
+std::function<void(std::chrono::duration<Rep, Period>)> MakeTracedSleeper(
     Options const& options,
-    std::function<void(std::chrono::milliseconds)> const& sleeper);
+    std::function<void(std::chrono::duration<Rep, Period>)> const& sleeper,
+    std::string const& name) {
+#ifdef GOOGLE_CLOUD_CPP_HAVE_OPENTELEMETRY
+  if (TracingEnabled(options)) {
+    return [=](std::chrono::duration<Rep, Period> d) {
+      // A sleep of 0 is not an interesting event worth tracing.
+      if (d == std::chrono::duration<Rep, Period>::zero()) return sleeper(d);
+      auto span = MakeSpan(name);
+      sleeper(d);
+      span->End();
+    };
+  }
+#endif  // GOOGLE_CLOUD_CPP_HAVE_OPENTELEMETRY
+  (void)options;
+  (void)name;
+  return sleeper;
+}
 
 /// Adds an attribute to the active span, if tracing is enabled.
-void AddSpanAttribute(std::string const& key, std::string const& value);
+void AddSpanAttribute(Options const& options, std::string const& key,
+                      std::string const& value);
 
 }  // namespace internal
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END

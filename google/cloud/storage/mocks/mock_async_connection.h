@@ -15,7 +15,7 @@
 #ifndef GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_STORAGE_MOCKS_MOCK_ASYNC_CONNECTION_H
 #define GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_STORAGE_MOCKS_MOCK_ASYNC_CONNECTION_H
 
-#include "google/cloud/storage/async_connection.h"
+#include "google/cloud/storage/async/connection.h"
 #include "google/cloud/storage/object_metadata.h"
 #include "google/cloud/options.h"
 #include "google/cloud/status.h"
@@ -32,18 +32,25 @@ GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 class MockAsyncConnection : public storage_experimental::AsyncConnection {
  public:
   MOCK_METHOD(Options, options, (), (const, override));
-  MOCK_METHOD(future<StatusOr<storage::ObjectMetadata>>, AsyncInsertObject,
+  MOCK_METHOD(future<StatusOr<storage::ObjectMetadata>>, InsertObject,
               (InsertObjectParams), (override));
   MOCK_METHOD(
       future<StatusOr<
           std::unique_ptr<storage_experimental::AsyncReaderConnection>>>,
-      AsyncReadObject, (ReadObjectParams), (override));
-  MOCK_METHOD(future<storage_experimental::AsyncReadObjectRangeResponse>,
-              AsyncReadObjectRange, (ReadObjectParams), (override));
-  MOCK_METHOD(future<StatusOr<storage::ObjectMetadata>>, AsyncComposeObject,
+      ReadObject, (ReadObjectParams), (override));
+  MOCK_METHOD(future<StatusOr<storage_experimental::ReadPayload>>,
+              ReadObjectRange, (ReadObjectParams), (override));
+  MOCK_METHOD(
+      future<StatusOr<
+          std::unique_ptr<storage_experimental::AsyncWriterConnection>>>,
+      StartUnbufferedUpload, (UploadParams), (override));
+  MOCK_METHOD(
+      future<StatusOr<
+          std::unique_ptr<storage_experimental::AsyncWriterConnection>>>,
+      StartBufferedUpload, (UploadParams), (override));
+  MOCK_METHOD(future<StatusOr<storage::ObjectMetadata>>, ComposeObject,
               (ComposeObjectParams), (override));
-  MOCK_METHOD(future<Status>, AsyncDeleteObject, (DeleteObjectParams),
-              (override));
+  MOCK_METHOD(future<Status>, DeleteObject, (DeleteObjectParams), (override));
 };
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END

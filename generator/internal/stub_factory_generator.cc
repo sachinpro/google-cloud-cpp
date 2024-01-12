@@ -45,10 +45,8 @@ Status StubFactoryGenerator::GenerateHeader() {
   // includes
   HeaderPrint("\n");
   HeaderLocalIncludes({vars("stub_header_path"),
-                       "google/cloud/completion_queue.h",
-                       "google/cloud/credentials.h",
                        "google/cloud/internal/unified_grpc_credentials.h",
-                       "google/cloud/version.h"});
+                       "google/cloud/options.h", "google/cloud/version.h"});
   HeaderSystemIncludes({"memory"});
 
   auto result = HeaderOpenNamespaces(NamespaceType::kInternal);
@@ -57,7 +55,8 @@ Status StubFactoryGenerator::GenerateHeader() {
   HeaderPrint(
       R"""(
 std::shared_ptr<$stub_class_name$> CreateDefault$stub_class_name$(
-    google::cloud::CompletionQueue cq, Options const& options);
+    std::shared_ptr<internal::GrpcAuthenticationStrategy> auth,
+    Options const& options);
 )""");
 
   HeaderCloseNamespaces();
@@ -94,9 +93,8 @@ Status StubFactoryGenerator::GenerateCc() {
   CcPrint(R"""(
 std::shared_ptr<$stub_class_name$>
 CreateDefault$stub_class_name$(
-    google::cloud::CompletionQueue cq, Options const& options) {
-  auto auth = google::cloud::internal::CreateAuthenticationStrategy(
-      std::move(cq), options);
+    std::shared_ptr<internal::GrpcAuthenticationStrategy> auth,
+    Options const& options) {
   auto channel = auth->CreateChannel(
     options.get<EndpointOption>(), internal::MakeChannelArguments(options));
   auto service_grpc_stub = $grpc_stub_fqn$::NewStub(channel);)""");

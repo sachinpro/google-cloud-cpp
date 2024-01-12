@@ -29,6 +29,7 @@
 #include "google/cloud/common_options.h"
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/base64_transforms.h"
+#include "google/cloud/internal/unified_grpc_credentials.h"
 #include <google/protobuf/struct.pb.h>
 #include <functional>
 
@@ -113,7 +114,7 @@ StatusOr<std::unique_ptr<PublisherConnection>> MakePublisherConnection(
     opts.set<GrpcNumChannelsOption>(20);
   }
 
-  opts = google::cloud::internal::PopulateGrpcOptions(std::move(opts), "");
+  opts = google::cloud::internal::PopulateGrpcOptions(std::move(opts));
   if (!opts.has<EndpointOption>()) {
     // need to parse the location because if it's a zone we need to extract the
     // region to form the endpoint
@@ -145,7 +146,9 @@ StatusOr<std::unique_ptr<PublisherConnection>> MakePublisherConnection(
         });
   };
 
-  auto publisher_service_stub = CreateDefaultPublisherServiceStub(cq, opts);
+  auto auth = internal::CreateAuthenticationStrategy(cq, opts);
+  auto publisher_service_stub =
+      CreateDefaultPublisherServiceStub(std::move(auth), opts);
   auto batching_options = MakeBatchingOptions(opts);
 
   auto partition_publisher_factory = [=](std::uint32_t partition) {

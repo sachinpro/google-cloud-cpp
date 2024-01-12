@@ -37,10 +37,9 @@ namespace essentialcontacts_v1_internal {
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 
 std::shared_ptr<EssentialContactsServiceStub>
-CreateDefaultEssentialContactsServiceStub(google::cloud::CompletionQueue cq,
-                                          Options const& options) {
-  auto auth = google::cloud::internal::CreateAuthenticationStrategy(
-      std::move(cq), options);
+CreateDefaultEssentialContactsServiceStub(
+    std::shared_ptr<internal::GrpcAuthenticationStrategy> auth,
+    Options const& options) {
   auto channel = auth->CreateChannel(options.get<EndpointOption>(),
                                      internal::MakeChannelArguments(options));
   auto service_grpc_stub =

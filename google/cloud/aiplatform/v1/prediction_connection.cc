@@ -26,6 +26,7 @@
 #include "google/cloud/common_options.h"
 #include "google/cloud/credentials.h"
 #include "google/cloud/grpc_options.h"
+#include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
 
 namespace google {
@@ -46,6 +47,29 @@ StatusOr<google::api::HttpBody> PredictionServiceConnection::RawPredict(
   return Status(StatusCode::kUnimplemented, "not implemented");
 }
 
+StatusOr<google::cloud::aiplatform::v1::DirectPredictResponse>
+PredictionServiceConnection::DirectPredict(
+    google::cloud::aiplatform::v1::DirectPredictRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StatusOr<google::cloud::aiplatform::v1::DirectRawPredictResponse>
+PredictionServiceConnection::DirectRawPredict(
+    google::cloud::aiplatform::v1::DirectRawPredictRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+std::unique_ptr<::google::cloud::AsyncStreamingReadWriteRpc<
+    google::cloud::aiplatform::v1::StreamingPredictRequest,
+    google::cloud::aiplatform::v1::StreamingPredictResponse>>
+PredictionServiceConnection::AsyncStreamingPredict() {
+  return std::make_unique<
+      ::google::cloud::internal::AsyncStreamingReadWriteRpcError<
+          google::cloud::aiplatform::v1::StreamingPredictRequest,
+          google::cloud::aiplatform::v1::StreamingPredictResponse>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
 StreamRange<google::cloud::aiplatform::v1::StreamingPredictResponse>
 PredictionServiceConnection::ServerStreamingPredict(
     google::cloud::aiplatform::v1::StreamingPredictRequest const&) {
@@ -58,10 +82,32 @@ PredictionServiceConnection::ServerStreamingPredict(
       });
 }
 
+std::unique_ptr<::google::cloud::AsyncStreamingReadWriteRpc<
+    google::cloud::aiplatform::v1::StreamingRawPredictRequest,
+    google::cloud::aiplatform::v1::StreamingRawPredictResponse>>
+PredictionServiceConnection::AsyncStreamingRawPredict() {
+  return std::make_unique<
+      ::google::cloud::internal::AsyncStreamingReadWriteRpcError<
+          google::cloud::aiplatform::v1::StreamingRawPredictRequest,
+          google::cloud::aiplatform::v1::StreamingRawPredictResponse>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
 StatusOr<google::cloud::aiplatform::v1::ExplainResponse>
 PredictionServiceConnection::Explain(
     google::cloud::aiplatform::v1::ExplainRequest const&) {
   return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StreamRange<google::cloud::aiplatform::v1::GenerateContentResponse>
+PredictionServiceConnection::StreamGenerateContent(
+    google::cloud::aiplatform::v1::GenerateContentRequest const&) {
+  return google::cloud::internal::MakeStreamRange<
+      google::cloud::aiplatform::v1::GenerateContentResponse>(
+      []() -> absl::variant<
+               Status, google::cloud::aiplatform::v1::GenerateContentResponse> {
+        return Status(StatusCode::kUnimplemented, "not implemented");
+      });
 }
 
 std::shared_ptr<PredictionServiceConnection> MakePredictionServiceConnection(
@@ -73,8 +119,9 @@ std::shared_ptr<PredictionServiceConnection> MakePredictionServiceConnection(
   options = aiplatform_v1_internal::PredictionServiceDefaultOptions(
       location, std::move(options));
   auto background = internal::MakeBackgroundThreadsFactory(options)();
+  auto auth = internal::CreateAuthenticationStrategy(background->cq(), options);
   auto stub = aiplatform_v1_internal::CreateDefaultPredictionServiceStub(
-      background->cq(), options);
+      std::move(auth), options);
   return aiplatform_v1_internal::MakePredictionServiceTracingConnection(
       std::make_shared<aiplatform_v1_internal::PredictionServiceConnectionImpl>(
           std::move(background), std::move(stub), std::move(options)));

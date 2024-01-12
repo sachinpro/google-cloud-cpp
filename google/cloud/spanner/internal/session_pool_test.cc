@@ -13,16 +13,16 @@
 // limitations under the License.
 
 #include "google/cloud/spanner/internal/session_pool.h"
-#include "google/cloud/spanner/internal/clock.h"
 #include "google/cloud/spanner/internal/defaults.h"
 #include "google/cloud/spanner/internal/session.h"
 #include "google/cloud/spanner/options.h"
-#include "google/cloud/spanner/testing/fake_clock.h"
 #include "google/cloud/spanner/testing/mock_spanner_stub.h"
 #include "google/cloud/spanner/testing/status_utils.h"
 #include "google/cloud/spanner/timestamp.h"
 #include "google/cloud/internal/background_threads_impl.h"
+#include "google/cloud/internal/clock.h"
 #include "google/cloud/status.h"
+#include "google/cloud/testing_util/fake_clock.h"
 #include "google/cloud/testing_util/fake_completion_queue_impl.h"
 #include "google/cloud/testing_util/mock_async_response_reader.h"
 #include "google/cloud/testing_util/status_matchers.h"
@@ -44,8 +44,8 @@ namespace spanner_internal {
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 namespace {
 
-using ::google::cloud::spanner_testing::FakeSteadyClock;
 using ::google::cloud::testing_util::FakeCompletionQueueImpl;
+using ::google::cloud::testing_util::FakeSteadyClock;
 using ::google::cloud::testing_util::StatusIs;
 using ::google::protobuf::TextFormat;
 using ::testing::_;
@@ -547,6 +547,12 @@ TEST_F(SessionPoolTest, SessionRefresh) {
   auto s2 = pool->Allocate();
   ASSERT_STATUS_OK(s2);
   EXPECT_EQ("s2", (*s2)->session_name());
+
+  // Cancel all pending operations, satisfying any remaining futures. When
+  // compiling with exceptions disabled the destructors eventually invoke
+  // `std::abort()`. On real programs, shutting down the completion queue
+  // will have the same effect.
+  impl->SimulateCompletion(false);
 }
 
 TEST_F(SessionPoolTest, SessionRefreshNotFound) {
@@ -604,6 +610,12 @@ TEST_F(SessionPoolTest, SessionRefreshNotFound) {
   auto s3 = pool->Allocate();
   ASSERT_STATUS_OK(s3);
   EXPECT_EQ("s3", (*s3)->session_name());
+
+  // Cancel all pending operations, satisfying any remaining futures. When
+  // compiling with exceptions disabled the destructors eventually invoke
+  // `std::abort()`. In non-test programs, the completion queue does this
+  // automatically as part of its shutdown.
+  impl->SimulateCompletion(false);
 }
 
 }  // namespace

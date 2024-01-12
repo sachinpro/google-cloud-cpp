@@ -16,7 +16,7 @@
 #include "google/cloud/pubsub/internal/defaults.h"
 #include "google/cloud/pubsub/message.h"
 #include "google/cloud/pubsub/options.h"
-#include "google/cloud/pubsub/testing/mock_message_batch.h"
+#include "google/cloud/pubsub/testing/mock_batch_sink.h"
 #include "google/cloud/pubsub/testing/mock_publisher_stub.h"
 #include "google/cloud/pubsub/testing/test_retry_policies.h"
 #include "google/cloud/internal/api_client_header.h"
@@ -27,6 +27,7 @@
 #include "google/cloud/testing_util/scoped_log.h"
 #include "google/cloud/testing_util/status_matchers.h"
 #include "google/cloud/testing_util/validate_metadata.h"
+#include "google/cloud/testing_util/validate_propagator.h"
 #include <gmock/gmock.h>
 
 namespace google {
@@ -38,21 +39,17 @@ namespace {
 using ::google::cloud::testing_util::AsyncSequencer;
 using ::google::cloud::testing_util::IsOk;
 using ::google::cloud::testing_util::StatusIs;
-using ::testing::_;
 using ::testing::AtLeast;
 using ::testing::Contains;
 using ::testing::HasSubstr;
 
 std::shared_ptr<PublisherConnection> MakeTestPublisherConnection(
     Topic topic, std::shared_ptr<pubsub_internal::PublisherStub> mock,
-    Options opts = {},
-    std::shared_ptr<pubsub_internal::MessageBatch> message_batch =
-        std::make_shared<pubsub_internal::NoOpMessageBatch>()) {
+    Options opts = {}) {
   opts = pubsub_internal::DefaultPublisherOptions(
       pubsub_testing::MakeTestOptions(std::move(opts)));
   return pubsub_internal::MakeTestPublisherConnection(
-      std::move(topic), std::move(opts), {std::move(mock)},
-      std::move(message_batch));
+      std::move(topic), std::move(opts), {std::move(mock)});
 }
 
 TEST(PublisherConnectionTest, Basic) {
@@ -348,7 +345,7 @@ using ::google::cloud::testing_util::DisableTracing;
 using ::google::cloud::testing_util::EnableTracing;
 using ::google::cloud::testing_util::InstallSpanCatcher;
 using ::google::cloud::testing_util::SpanNamed;
-using ::google::cloud::testing_util::ThereIsAnActiveSpan;
+using ::google::cloud::testing_util::ValidatePropagator;
 using ::testing::IsEmpty;
 using ::testing::UnorderedElementsAre;
 
@@ -357,45 +354,28 @@ TEST(MakePublisherConnectionTest, TracingEnabled) {
   auto mock = std::make_shared<pubsub_testing::MockPublisherStub>();
   Topic const topic("test-project", "test-topic");
 
-  auto mock_message_batch =
-      std::make_shared<pubsub_testing::MockMessageBatch>();
-  std::promise<void> is_publish_complete;
-  EXPECT_CALL(*mock_message_batch, SaveMessage(_)).Times(1);
-  EXPECT_CALL(*mock_message_batch, Flush).WillOnce([&] {
-    // Batch sink span should still be active when Flush is called.
-    EXPECT_TRUE(ThereIsAnActiveSpan());
-    return [&](auto) {
-      // Batch sink span should no longer be active. Wait until the lambda
-      // returned from Flush is executed to GetSpans.
-      is_publish_complete.set_value();
-    };
-  });
-
   EXPECT_CALL(*mock, AsyncPublish)
-      .WillOnce([&](google::cloud::CompletionQueue&, auto,
+      .WillOnce([&](google::cloud::CompletionQueue&, auto context,
                     google::pubsub::v1::PublishRequest const&) {
+        ValidatePropagator(*context);
         google::pubsub::v1::PublishResponse response;
         response.add_message_ids("test-message-id-0");
         return make_ready_future(make_status_or(response));
       });
-  auto publisher = MakeTestPublisherConnection(
-      topic, mock, EnableTracing(Options{}), mock_message_batch);
+  auto publisher =
+      MakeTestPublisherConnection(topic, mock, EnableTracing(Options{}));
 
   auto response =
       publisher->Publish({MessageBuilder{}.SetData("test-data-0").Build()})
           .get();
   publisher->Flush({});
 
-  // Wait until the BatchSink span ends before calling `GetSpans`.
-  is_publish_complete.get_future().get();
-
   auto spans = span_catcher->GetSpans();
   EXPECT_THAT(
       spans,
       UnorderedElementsAre(
-          SpanNamed("projects/test-project/topics/test-topic send"),
-          SpanNamed("publisher flow control"), SpanNamed("publish scheduler"),
-          SpanNamed("BatchSink::AsyncPublish"),
+          SpanNamed("test-topic create"), SpanNamed("publisher flow control"),
+          SpanNamed("publisher batching"), SpanNamed("test-topic publish"),
           SpanNamed("google.pubsub.v1.Publisher/Publish"),
           SpanNamed("pubsub::BatchingPublisherConnection::Flush"),
           SpanNamed("pubsub::FlowControlledPublisherConnection::Flush"),

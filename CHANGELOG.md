@@ -4,6 +4,78 @@
 breaking changes in the upcoming 3.x release. This release is scheduled for
 2024-12 or 2025-01.
 
+## v2.21.0 - TBD
+
+## v2.20.0 - 2024-01
+
+### New Libraries
+
+We are happy to announce the following GA libraries. Unless specifically noted,
+the APIs in these libraries are stable, and are ready for production use.
+
+- [Cloud Quotas](/google/cloud/cloudquotas/README.md)
+
+### [AI Platform/Vertex AI](/google/cloud/aiplatform/README.md)
+
+- feat(aiplatform): add new service proto file ([#13325](https://github.com/googleapis/google-cloud-cpp/pull/13325))
+
+### [Bigtable](/google/cloud/bigtable/README.md)
+
+- fix(bigtable): use FQDN ([#13305](https://github.com/googleapis/google-cloud-cpp/pull/13305))
+
+### [OpenTelemetry](/google/cloud/opentelemetry/README.md)
+
+- feat(otel): capture gRPC response metadata in traces ([#13278](https://github.com/googleapis/google-cloud-cpp/pull/13278))
+
+### [Pub/Sub](/google/cloud/pubsub/README.md)
+
+- fix(pubsub): get future value before returning ([#13241](https://github.com/googleapis/google-cloud-cpp/pull/13241))
+- fix(pubsub): pass by reference explicitly ([#13220](https://github.com/googleapis/google-cloud-cpp/pull/13220))
+
+### [Common Libraries](/google/cloud/README.md)
+
+- fix(common): returnable argument to `.then()` ([#13316](https://github.com/googleapis/google-cloud-cpp/pull/13316))
+- feat(common): read-write streaming RPCs metadata ([#13228](https://github.com/googleapis/google-cloud-cpp/pull/13228))
+- fix: respect logging format env var in `compute`, `sql` ([#13368](https://github.com/googleapis/google-cloud-cpp/pull/13368))
+
+## v2.19.0 - 2023-12
+
+### New Libraries
+
+We are happy to announce the following GA libraries. Unless specifically noted,
+the APIs in these libraries are stable, and are ready for production use.
+
+- [Distributed Cloud Edge Network API](/google/cloud/edgenetwork/README.md)
+- [Cloud SQL Admin API](/google/cloud/sql/README.md)
+- [Telecom Network Automation API](google/cloud/telcoautomation/README.md)
+
+### [Bigtable](/google/cloud/bigtable/README.md)
+
+- feat(bigtable): throttling for AsyncBulkApply ([#13203](https://github.com/googleapis/google-cloud-cpp/pull/13203))
+- fix(bigtable): async context propagation for tracing ([#13156](https://github.com/googleapis/google-cloud-cpp/pull/13156))
+- feat(bigtable): support BulkApply throttling ([#13124](https://github.com/googleapis/google-cloud-cpp/pull/13124))
+
+### [OpenTelemetry](/google/cloud/opentelemetry/README.md)
+
+- feat(otel): add Makefile ([#13177](https://github.com/googleapis/google-cloud-cpp/pull/13177))
+- fix(otel): detach context when single-threaded ([#13154](https://github.com/googleapis/google-cloud-cpp/pull/13154))
+- fix(otel): reconnect async traces (e.g. LROs) ([#13147](https://github.com/googleapis/google-cloud-cpp/pull/13147))
+
+### [Spanner](/google/cloud/spanner/README.md)
+
+- feat: add PG.OID type ([#13127](https://github.com/googleapis/google-cloud-cpp/pull/13127))
+- feat(spanner): control replicas/regions used in non-transactional reads ([#13031](https://github.com/googleapis/google-cloud-cpp/pull/13031))
+
+### [Vertex AI](/google/cloud/aiplatform/README.md)
+
+- feat(aiplatform): generate new services ([#13150](https://github.com/googleapis/google-cloud-cpp/pull/13150))
+
+### [Common Libraries](/google/cloud/README.md)
+
+- fix(common): use FQDN for the metadata service ([#13139](https://github.com/googleapis/google-cloud-cpp/pull/13139))
+- feat(common): add GrpcCompressionAlgorithmOption ([#13108](https://github.com/googleapis/google-cloud-cpp/pull/13108))
+- doc: fix cliffhanger ([#13033](https://github.com/googleapis/google-cloud-cpp/pull/13033))
+
 ## v2.18.0 - 2023-11
 
 ### New Libraries

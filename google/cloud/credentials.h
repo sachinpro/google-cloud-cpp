@@ -131,8 +131,8 @@ std::shared_ptr<Credentials> MakeGoogleDefaultCredentials(Options opts = {});
  * Creates credentials with a fixed access token.
  *
  * These credentials are useful when using an out-of-band mechanism to fetch
- * access tokens. Note that access tokens are time limited, you will need to
- * manually refresh the tokens created by the
+ * access tokens. Note that access tokens are time limited. You will need to
+ * manually refresh the tokens, and pass the new `Credentials` to a new client.
  *
  * @see https://cloud.google.com/docs/authentication for more information on
  *     authentication in GCP.
@@ -374,19 +374,6 @@ using UnifiedCredentialsOptionList =
                DelegatesOption, ScopesOption, TracingComponentsOption,
                UnifiedCredentialsOption>;
 
-namespace internal {
-
-/**
- * Use an insecure channel for AccessToken authentication.
- *
- * This is useful when testing against emulators, where it is impossible to
- * create a secure channel.
- */
-struct UseInsecureChannelOption {
-  using Type = bool;
-};
-
-}  // namespace internal
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END
 }  // namespace cloud
 }  // namespace google
