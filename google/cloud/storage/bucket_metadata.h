@@ -21,11 +21,13 @@
 #include "google/cloud/storage/bucket_cors_entry.h"
 #include "google/cloud/storage/bucket_custom_placement_config.h"
 #include "google/cloud/storage/bucket_encryption.h"
+#include "google/cloud/storage/bucket_hierarchical_namespace.h"
 #include "google/cloud/storage/bucket_iam_configuration.h"
 #include "google/cloud/storage/bucket_lifecycle.h"
 #include "google/cloud/storage/bucket_logging.h"
 #include "google/cloud/storage/bucket_retention_policy.h"
 #include "google/cloud/storage/bucket_rpo.h"
+#include "google/cloud/storage/bucket_soft_delete_policy.h"
 #include "google/cloud/storage/bucket_versioning.h"
 #include "google/cloud/storage/bucket_website.h"
 #include "google/cloud/storage/internal/patch_builder.h"
@@ -210,6 +212,30 @@ class BucketMetadata {
     etag_ = std::move(v);
     return *this;
   }
+
+  /**
+   * @name Get and set the hierarchical namespaces configuration.
+   */
+  ///@{
+  bool has_hierarchical_namespace() const {
+    return hierarchical_namespace_.has_value();
+  }
+  BucketHierarchicalNamespace const& hierarchical_namespace() const {
+    return *hierarchical_namespace_;
+  }
+  absl::optional<BucketHierarchicalNamespace> const&
+  hierarchical_namespace_as_optional() const {
+    return hierarchical_namespace_;
+  }
+  BucketMetadata& set_hierarchical_namespace(BucketHierarchicalNamespace v) {
+    hierarchical_namespace_ = std::move(v);
+    return *this;
+  }
+  BucketMetadata& reset_hierarchical_namespace() {
+    hierarchical_namespace_.reset();
+    return *this;
+  }
+  ///@}
 
   /**
    * @name Get and set the IAM configuration.
@@ -464,6 +490,42 @@ class BucketMetadata {
   }
   ///@}
 
+  /// @name Accessors and modifiers for the soft delete policy.
+  ///@{
+  bool has_soft_delete_policy() const {
+    return soft_delete_policy_.has_value();
+  }
+  BucketSoftDeletePolicy const& soft_delete_policy() const {
+    return *soft_delete_policy_;
+  }
+  absl::optional<BucketSoftDeletePolicy> const& soft_delete_policy_as_optional()
+      const {
+    return soft_delete_policy_;
+  }
+  BucketMetadata& set_soft_delete_policy(BucketSoftDeletePolicy v) {
+    soft_delete_policy_ = std::move(v);
+    return *this;
+  }
+
+  /**
+   * Sets the soft delete policy.
+   *
+   * The retention period is the only writable attribute in a retention policy.
+   * This function makes it easier to set the retention policy when the
+   * `BucketMetadata` object is used to update or patch the bucket.
+   */
+  BucketMetadata& set_soft_delete_policy(
+      std::chrono::seconds retention_duration) {
+    return set_soft_delete_policy(BucketSoftDeletePolicy{
+        retention_duration, std::chrono::system_clock::time_point{}});
+  }
+
+  BucketMetadata& reset_soft_delete_policy() {
+    soft_delete_policy_.reset();
+    return *this;
+  }
+  ///@}
+
   /// @name Access and modify the default storage class attribute.
   ///@{
   std::string const& storage_class() const { return storage_class_; }
@@ -575,6 +637,7 @@ class BucketMetadata {
   bool default_event_based_hold_ = false;
   absl::optional<BucketEncryption> encryption_;
   std::string etag_;
+  absl::optional<BucketHierarchicalNamespace> hierarchical_namespace_;
   absl::optional<BucketIamConfiguration> iam_configuration_;
   std::string id_;
   std::string kind_;
@@ -590,6 +653,7 @@ class BucketMetadata {
   absl::optional<BucketRetentionPolicy> retention_policy_;
   std::string rpo_;
   std::string self_link_;
+  absl::optional<BucketSoftDeletePolicy> soft_delete_policy_;
   std::string storage_class_;
   std::chrono::system_clock::time_point time_created_;
   std::chrono::system_clock::time_point updated_;
@@ -652,6 +716,12 @@ class BucketMetadataPatchBuilder {
       BucketIamConfiguration const& v);
   BucketMetadataPatchBuilder& ResetIamConfiguration();
 
+  /// Sets a new hierarchical namespace configuration.
+  BucketMetadataPatchBuilder& SetHierarchicalNamespace(
+      BucketHierarchicalNamespace const& v);
+  /// Resets the hierarchical namespace configuration
+  BucketMetadataPatchBuilder& ResetHierarchicalNamespace();
+
   BucketMetadataPatchBuilder& SetEncryption(BucketEncryption const& v);
   BucketMetadataPatchBuilder& ResetEncryption();
 
@@ -682,6 +752,17 @@ class BucketMetadataPatchBuilder {
 
   BucketMetadataPatchBuilder& SetRpo(std::string const& v);
   BucketMetadataPatchBuilder& ResetRpo();
+
+  BucketMetadataPatchBuilder& SetSoftDeletePolicy(
+      BucketSoftDeletePolicy const& v);
+  BucketMetadataPatchBuilder& SetSoftDeletePolicy(
+      std::chrono::seconds retention_duration) {
+    // This is the only parameter that the application can set, so make it easy
+    // for them to set it.
+    return SetSoftDeletePolicy(BucketSoftDeletePolicy{
+        retention_duration, std::chrono::system_clock::time_point{}});
+  }
+  BucketMetadataPatchBuilder& ResetSoftDeletePolicy();
 
   BucketMetadataPatchBuilder& SetStorageClass(std::string const& v);
   BucketMetadataPatchBuilder& ResetStorageClass();

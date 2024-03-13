@@ -28,6 +28,7 @@
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -40,6 +41,12 @@ FeatureOnlineStoreServiceConnection::~FeatureOnlineStoreServiceConnection() =
 StatusOr<google::cloud::aiplatform::v1::FetchFeatureValuesResponse>
 FeatureOnlineStoreServiceConnection::FetchFeatureValues(
     google::cloud::aiplatform::v1::FetchFeatureValuesRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StatusOr<google::cloud::aiplatform::v1::SearchNearestEntitiesResponse>
+FeatureOnlineStoreServiceConnection::SearchNearestEntities(
+    google::cloud::aiplatform::v1::SearchNearestEntitiesRequest const&) {
   return Status(StatusCode::kUnimplemented, "not implemented");
 }
 

@@ -23,6 +23,7 @@
 #include "google/cloud/testing_util/mock_completion_queue_impl.h"
 #include "google/cloud/testing_util/opentelemetry_matchers.h"
 #include "google/cloud/testing_util/status_matchers.h"
+#include "google/cloud/testing_util/validate_metadata.h"
 #include <gmock/gmock.h>
 #include <chrono>
 
@@ -40,9 +41,13 @@ using ::google::cloud::bigtable::testing::MockBigtableStub;
 using ::google::cloud::testing_util::MockBackoffPolicy;
 using ::google::cloud::testing_util::MockCompletionQueueImpl;
 using ::google::cloud::testing_util::StatusIs;
+using ::testing::ByMove;
+using ::testing::Contains;
 using ::testing::ElementsAre;
 using ::testing::HasSubstr;
 using ::testing::MockFunction;
+using ::testing::Pair;
+using ::testing::Return;
 
 auto constexpr kNumRetries = 2;
 auto const* const kTableName =
@@ -71,10 +76,15 @@ absl::optional<v2::SampleRowKeysResponse> MakeResponse(std::string row_key,
   return absl::make_optional(r);
 };
 
-TEST(AsyncSampleRowKeysTest, Simple) {
+class AsyncSampleRowKeysTest : public ::testing::Test {
+ protected:
+  testing_util::ValidateMetadataFixture metadata_fixture_;
+};
+
+TEST_F(AsyncSampleRowKeysTest, Simple) {
   auto mock = std::make_shared<MockBigtableStub>();
   EXPECT_CALL(*mock, AsyncSampleRowKeys)
-      .WillOnce([](CompletionQueue const&, auto,
+      .WillOnce([](CompletionQueue const&, auto, auto,
                    v2::SampleRowKeysRequest const& request) {
         EXPECT_EQ(kAppProfile, request.app_profile_id());
         EXPECT_EQ(kTableName, request.table_name());
@@ -109,9 +119,10 @@ TEST(AsyncSampleRowKeysTest, Simple) {
   internal::OptionsSpan span(
       Options{}.set<internal::GrpcSetupOption>(mock_setup.AsStdFunction()));
 
-  auto sor = AsyncRowSampler::Create(cq, mock, std::move(retry),
-                                     std::move(mock_b), kAppProfile, kTableName)
-                 .get();
+  auto sor =
+      AsyncRowSampler::Create(cq, mock, std::move(retry), std::move(mock_b),
+                              false, kAppProfile, kTableName)
+          .get();
 
   ASSERT_STATUS_OK(sor);
   auto samples = RowKeySampleVectors(*sor);
@@ -119,11 +130,12 @@ TEST(AsyncSampleRowKeysTest, Simple) {
   EXPECT_THAT(samples.offset_bytes, ElementsAre(11, 22));
 }
 
-TEST(AsyncSampleRowKeysTest, RetryResetsSamples) {
+TEST_F(AsyncSampleRowKeysTest, RetryResetsSamples) {
   auto mock = std::make_shared<MockBigtableStub>();
   EXPECT_CALL(*mock, AsyncSampleRowKeys)
-      .WillOnce([](CompletionQueue const&, auto,
-                   v2::SampleRowKeysRequest const& request) {
+      .WillOnce([this](CompletionQueue const&, auto context, auto,
+                       v2::SampleRowKeysRequest const& request) {
+        metadata_fixture_.SetServerMetadata(*context, {});
         EXPECT_EQ(kAppProfile, request.app_profile_id());
         EXPECT_EQ(kTableName, request.table_name());
         auto stream = std::make_unique<MockAsyncSampleRowKeysStream>();
@@ -143,7 +155,7 @@ TEST(AsyncSampleRowKeysTest, RetryResetsSamples) {
         });
         return stream;
       })
-      .WillOnce([](CompletionQueue const&, auto,
+      .WillOnce([](CompletionQueue const&, auto, auto,
                    v2::SampleRowKeysRequest const& request) {
         EXPECT_EQ(kAppProfile, request.app_profile_id());
         EXPECT_EQ(kTableName, request.table_name());
@@ -179,9 +191,10 @@ TEST(AsyncSampleRowKeysTest, RetryResetsSamples) {
   internal::OptionsSpan span(
       Options{}.set<internal::GrpcSetupOption>(mock_setup.AsStdFunction()));
 
-  auto sor = AsyncRowSampler::Create(cq, mock, std::move(retry),
-                                     std::move(mock_b), kAppProfile, kTableName)
-                 .get();
+  auto sor =
+      AsyncRowSampler::Create(cq, mock, std::move(retry), std::move(mock_b),
+                              false, kAppProfile, kTableName)
+          .get();
 
   ASSERT_STATUS_OK(sor);
   auto samples = RowKeySampleVectors(*sor);
@@ -189,12 +202,13 @@ TEST(AsyncSampleRowKeysTest, RetryResetsSamples) {
   EXPECT_THAT(samples.offset_bytes, ElementsAre(22));
 }
 
-TEST(AsyncSampleRowKeysTest, TooManyFailures) {
+TEST_F(AsyncSampleRowKeysTest, TooManyFailures) {
   auto mock = std::make_shared<MockBigtableStub>();
   EXPECT_CALL(*mock, AsyncSampleRowKeys)
       .Times(kNumRetries + 1)
-      .WillRepeatedly([](CompletionQueue const&, auto,
-                         v2::SampleRowKeysRequest const& request) {
+      .WillRepeatedly([this](CompletionQueue const&, auto context, auto,
+                             v2::SampleRowKeysRequest const& request) {
+        metadata_fixture_.SetServerMetadata(*context, {});
         EXPECT_EQ(kAppProfile, request.app_profile_id());
         EXPECT_EQ(kTableName, request.table_name());
         auto stream = std::make_unique<MockAsyncSampleRowKeysStream>();
@@ -226,18 +240,107 @@ TEST(AsyncSampleRowKeysTest, TooManyFailures) {
   internal::OptionsSpan span(
       Options{}.set<internal::GrpcSetupOption>(mock_setup.AsStdFunction()));
 
-  auto sor = AsyncRowSampler::Create(cq, mock, std::move(retry),
-                                     std::move(mock_b), kAppProfile, kTableName)
-                 .get();
+  auto sor =
+      AsyncRowSampler::Create(cq, mock, std::move(retry), std::move(mock_b),
+                              false, kAppProfile, kTableName)
+          .get();
 
   EXPECT_THAT(sor, StatusIs(StatusCode::kUnavailable, HasSubstr("try again")));
 }
 
-TEST(AsyncSampleRowKeysTest, TimerError) {
+TEST_F(AsyncSampleRowKeysTest, RetryInfoHeeded) {
   auto mock = std::make_shared<MockBigtableStub>();
   EXPECT_CALL(*mock, AsyncSampleRowKeys)
-      .WillOnce([](CompletionQueue const&, auto,
-                   v2::SampleRowKeysRequest const& request) {
+      .WillOnce([this](CompletionQueue const&, auto context, auto,
+                       v2::SampleRowKeysRequest const&) {
+        metadata_fixture_.SetServerMetadata(*context, {});
+        auto stream = std::make_unique<MockAsyncSampleRowKeysStream>();
+        EXPECT_CALL(*stream, Start).WillOnce([] {
+          return make_ready_future(false);
+        });
+        EXPECT_CALL(*stream, Finish).WillOnce([] {
+          auto status = internal::ResourceExhaustedError("try again");
+          internal::SetRetryInfo(status, internal::RetryInfo{ms(10)});
+          return make_ready_future(status);
+        });
+        return stream;
+      })
+      .WillOnce([this](CompletionQueue const&, auto context, auto,
+                       v2::SampleRowKeysRequest const&) {
+        metadata_fixture_.SetServerMetadata(*context, {});
+        auto stream = std::make_unique<MockAsyncSampleRowKeysStream>();
+        EXPECT_CALL(*stream, Start).WillOnce([] {
+          return make_ready_future(true);
+        });
+        EXPECT_CALL(*stream, Read)
+            .WillOnce(
+                [] { return make_ready_future(MakeResponse("returned", 22)); })
+            .WillOnce([] {
+              return make_ready_future(
+                  absl::optional<v2::SampleRowKeysResponse>{});
+            });
+        EXPECT_CALL(*stream, Finish).WillOnce([] {
+          return make_ready_future(Status{});
+        });
+        return stream;
+      });
+
+  auto mock_cq = std::make_shared<MockCompletionQueueImpl>();
+  EXPECT_CALL(*mock_cq, MakeRelativeTimer(std::chrono::nanoseconds(ms(10))))
+      .WillOnce(Return(ByMove(make_ready_future(
+          make_status_or(std::chrono::system_clock::now())))));
+  CompletionQueue cq(mock_cq);
+
+  auto retry = DataLimitedErrorCountRetryPolicy(kNumRetries).clone();
+  auto mock_b = std::make_unique<MockBackoffPolicy>();
+  EXPECT_CALL(*mock_b, OnCompletion);
+
+  auto sor =
+      AsyncRowSampler::Create(cq, mock, std::move(retry), std::move(mock_b),
+                              true, kAppProfile, kTableName)
+          .get();
+  EXPECT_STATUS_OK(sor);
+}
+
+TEST_F(AsyncSampleRowKeysTest, RetryInfoIgnored) {
+  auto mock = std::make_shared<MockBigtableStub>();
+  EXPECT_CALL(*mock, AsyncSampleRowKeys)
+      .WillOnce([this](CompletionQueue const&, auto context, auto,
+                       v2::SampleRowKeysRequest const&) {
+        metadata_fixture_.SetServerMetadata(*context, {});
+        auto stream = std::make_unique<MockAsyncSampleRowKeysStream>();
+        EXPECT_CALL(*stream, Start).WillOnce([] {
+          return make_ready_future(false);
+        });
+        EXPECT_CALL(*stream, Finish).WillOnce([] {
+          auto status = internal::ResourceExhaustedError("try again");
+          internal::SetRetryInfo(status, internal::RetryInfo{ms(10)});
+          return make_ready_future(status);
+        });
+        return stream;
+      });
+
+  auto mock_cq = std::make_shared<MockCompletionQueueImpl>();
+  EXPECT_CALL(*mock_cq, MakeRelativeTimer).Times(0);
+  CompletionQueue cq(mock_cq);
+
+  auto retry = DataLimitedErrorCountRetryPolicy(kNumRetries).clone();
+  auto mock_b = std::make_unique<MockBackoffPolicy>();
+  EXPECT_CALL(*mock_b, OnCompletion).Times(0);
+
+  auto sor =
+      AsyncRowSampler::Create(cq, mock, std::move(retry), std::move(mock_b),
+                              false, kAppProfile, kTableName)
+          .get();
+  EXPECT_THAT(sor, StatusIs(StatusCode::kResourceExhausted));
+}
+
+TEST_F(AsyncSampleRowKeysTest, TimerError) {
+  auto mock = std::make_shared<MockBigtableStub>();
+  EXPECT_CALL(*mock, AsyncSampleRowKeys)
+      .WillOnce([this](CompletionQueue const&, auto context, auto,
+                       v2::SampleRowKeysRequest const& request) {
+        metadata_fixture_.SetServerMetadata(*context);
         EXPECT_EQ(kAppProfile, request.app_profile_id());
         EXPECT_EQ(kTableName, request.table_name());
         auto stream = std::make_unique<MockAsyncSampleRowKeysStream>();
@@ -267,9 +370,10 @@ TEST(AsyncSampleRowKeysTest, TimerError) {
   internal::OptionsSpan span(
       Options{}.set<internal::GrpcSetupOption>(mock_setup.AsStdFunction()));
 
-  auto sor = AsyncRowSampler::Create(cq, mock, std::move(retry),
-                                     std::move(mock_b), kAppProfile, kTableName)
-                 .get();
+  auto sor =
+      AsyncRowSampler::Create(cq, mock, std::move(retry), std::move(mock_b),
+                              false, kAppProfile, kTableName)
+          .get();
   // If the TimerFuture returns a bad status, it is almost always because the
   // call has been cancelled. So it is more informative for the sampler to
   // return "call cancelled" than to pass along the exact error.
@@ -277,12 +381,12 @@ TEST(AsyncSampleRowKeysTest, TimerError) {
               StatusIs(StatusCode::kCancelled, HasSubstr("call cancelled")));
 }
 
-TEST(AsyncSampleRowKeysTest, CancelAfterSuccess) {
+TEST_F(AsyncSampleRowKeysTest, CancelAfterSuccess) {
   promise<absl::optional<v2::SampleRowKeysResponse>> p;
 
   auto mock = std::make_shared<MockBigtableStub>();
   EXPECT_CALL(*mock, AsyncSampleRowKeys)
-      .WillOnce([&p](CompletionQueue const&, auto,
+      .WillOnce([&p](CompletionQueue const&, auto, auto,
                      v2::SampleRowKeysRequest const& request) {
         EXPECT_EQ(kAppProfile, request.app_profile_id());
         EXPECT_EQ(kTableName, request.table_name());
@@ -314,8 +418,9 @@ TEST(AsyncSampleRowKeysTest, CancelAfterSuccess) {
   internal::OptionsSpan span(
       Options{}.set<internal::GrpcSetupOption>(mock_setup.AsStdFunction()));
 
-  auto fut = AsyncRowSampler::Create(
-      cq, mock, std::move(retry), std::move(mock_b), kAppProfile, kTableName);
+  auto fut =
+      AsyncRowSampler::Create(cq, mock, std::move(retry), std::move(mock_b),
+                              false, kAppProfile, kTableName);
   // Cancel the call after performing the one and only read of this test stream.
   fut.cancel();
   // Proceed with the rest of the stream. In this test, there are no more
@@ -328,12 +433,12 @@ TEST(AsyncSampleRowKeysTest, CancelAfterSuccess) {
   EXPECT_THAT(samples.offset_bytes, ElementsAre(11));
 }
 
-TEST(AsyncSampleRowKeysTest, CancelMidStream) {
+TEST_F(AsyncSampleRowKeysTest, CancelMidStream) {
   promise<absl::optional<v2::SampleRowKeysResponse>> p;
 
   auto mock = std::make_shared<MockBigtableStub>();
   EXPECT_CALL(*mock, AsyncSampleRowKeys)
-      .WillOnce([&p](CompletionQueue const&, auto,
+      .WillOnce([&p](CompletionQueue const&, auto, auto,
                      v2::SampleRowKeysRequest const& request) {
         EXPECT_EQ(kAppProfile, request.app_profile_id());
         EXPECT_EQ(kTableName, request.table_name());
@@ -377,8 +482,9 @@ TEST(AsyncSampleRowKeysTest, CancelMidStream) {
   internal::OptionsSpan span(
       Options{}.set<internal::GrpcSetupOption>(mock_setup.AsStdFunction()));
 
-  auto fut = AsyncRowSampler::Create(
-      cq, mock, std::move(retry), std::move(mock_b), kAppProfile, kTableName);
+  auto fut =
+      AsyncRowSampler::Create(cq, mock, std::move(retry), std::move(mock_b),
+                              false, kAppProfile, kTableName);
   // Cancel the call after performing one read of this test stream.
   fut.cancel();
   // Proceed with the rest of the stream. In this test, there are more responses
@@ -389,7 +495,7 @@ TEST(AsyncSampleRowKeysTest, CancelMidStream) {
               StatusIs(StatusCode::kCancelled, HasSubstr("User cancelled")));
 }
 
-TEST(AsyncSampleRowKeysTest, CurrentOptionsContinuedOnRetries) {
+TEST_F(AsyncSampleRowKeysTest, CurrentOptionsContinuedOnRetries) {
   struct TestOption {
     using Type = int;
   };
@@ -397,19 +503,20 @@ TEST(AsyncSampleRowKeysTest, CurrentOptionsContinuedOnRetries) {
   auto mock = std::make_shared<MockBigtableStub>();
   EXPECT_CALL(*mock, AsyncSampleRowKeys)
       .Times(2)
-      .WillRepeatedly(
-          [](CompletionQueue const&, auto, v2::SampleRowKeysRequest const&) {
-            EXPECT_EQ(5, internal::CurrentOptions().get<TestOption>());
-            auto stream = std::make_unique<MockAsyncSampleRowKeysStream>();
-            EXPECT_CALL(*stream, Start).WillOnce([] {
-              return make_ready_future(false);
-            });
-            EXPECT_CALL(*stream, Finish).WillOnce([] {
-              return make_ready_future(
-                  Status(StatusCode::kUnavailable, "try again"));
-            });
-            return stream;
-          });
+      .WillRepeatedly([this](CompletionQueue const&, auto context, auto,
+                             v2::SampleRowKeysRequest const&) {
+        EXPECT_EQ(5, internal::CurrentOptions().get<TestOption>());
+        metadata_fixture_.SetServerMetadata(*context);
+        auto stream = std::make_unique<MockAsyncSampleRowKeysStream>();
+        EXPECT_CALL(*stream, Start).WillOnce([] {
+          return make_ready_future(false);
+        });
+        EXPECT_CALL(*stream, Finish).WillOnce([] {
+          return make_ready_future(
+              Status(StatusCode::kUnavailable, "try again"));
+        });
+        return stream;
+      });
 
   promise<StatusOr<std::chrono::system_clock::time_point>> timer_promise;
   auto mock_cq = std::make_shared<MockCompletionQueueImpl>();
@@ -429,13 +536,65 @@ TEST(AsyncSampleRowKeysTest, CurrentOptionsContinuedOnRetries) {
       Options{}
           .set<internal::GrpcSetupOption>(mock_setup.AsStdFunction())
           .set<TestOption>(5));
-  auto fut = AsyncRowSampler::Create(
-      cq, mock, std::move(retry), std::move(mock_b), kAppProfile, kTableName);
+  auto fut =
+      AsyncRowSampler::Create(cq, mock, std::move(retry), std::move(mock_b),
+                              false, kAppProfile, kTableName);
 
   // Simulate the timer being satisfied in a thread with different prevailing
   // options than the calling thread.
   internal::OptionsSpan clear(Options{});
   timer_promise.set_value(make_status_or(std::chrono::system_clock::now()));
+}
+
+TEST_F(AsyncSampleRowKeysTest, BigtableCookie) {
+  auto mock = std::make_shared<MockBigtableStub>();
+  EXPECT_CALL(*mock, AsyncSampleRowKeys)
+      .WillOnce([this](CompletionQueue const&, auto context, auto,
+                       v2::SampleRowKeysRequest const&) {
+        // Return a bigtable cookie in the first request.
+        metadata_fixture_.SetServerMetadata(
+            *context, {{}, {{"x-goog-cbt-cookie-routing", "routing"}}});
+        auto stream = std::make_unique<MockAsyncSampleRowKeysStream>();
+        EXPECT_CALL(*stream, Start).WillOnce([] {
+          return make_ready_future(false);
+        });
+        EXPECT_CALL(*stream, Finish).WillOnce([] {
+          return make_ready_future(internal::UnavailableError("try again"));
+        });
+        return stream;
+      })
+      .WillOnce([this](CompletionQueue const&, auto context, auto,
+                       v2::SampleRowKeysRequest const&) {
+        // Verify that the next request includes the bigtable cookie from above.
+        auto headers = metadata_fixture_.GetMetadata(*context);
+        EXPECT_THAT(headers,
+                    Contains(Pair("x-goog-cbt-cookie-routing", "routing")));
+        auto stream = std::make_unique<MockAsyncSampleRowKeysStream>();
+        EXPECT_CALL(*stream, Start).WillOnce([] {
+          return make_ready_future(false);
+        });
+        EXPECT_CALL(*stream, Finish).WillOnce([] {
+          return make_ready_future(internal::PermissionDeniedError("fail"));
+        });
+        return stream;
+      });
+
+  auto mock_cq = std::make_shared<MockCompletionQueueImpl>();
+  EXPECT_CALL(*mock_cq, MakeRelativeTimer).WillOnce([] {
+    return make_ready_future(make_status_or(std::chrono::system_clock::now()));
+  });
+  CompletionQueue cq(mock_cq);
+
+  auto retry = DataLimitedErrorCountRetryPolicy(kNumRetries).clone();
+  auto mock_b = std::make_unique<MockBackoffPolicy>();
+  EXPECT_CALL(*mock_b, OnCompletion).Times(1);
+
+  auto sor =
+      AsyncRowSampler::Create(cq, mock, std::move(retry), std::move(mock_b),
+                              false, kAppProfile, kTableName)
+          .get();
+
+  EXPECT_THAT(sor, StatusIs(StatusCode::kPermissionDenied, HasSubstr("fail")));
 }
 
 #ifdef GOOGLE_CLOUD_CPP_HAVE_OPENTELEMETRY
@@ -448,13 +607,14 @@ using ::testing::SizeIs;
 using ErrorStream =
     internal::AsyncStreamingReadRpcError<v2::SampleRowKeysResponse>;
 
-TEST(AsyncSampleRowKeysTest, TracedBackoff) {
+TEST_F(AsyncSampleRowKeysTest, TracedBackoff) {
   auto span_catcher = testing_util::InstallSpanCatcher();
 
   auto mock = std::make_shared<MockBigtableStub>();
   EXPECT_CALL(*mock, AsyncSampleRowKeys)
       .Times(kNumRetries + 1)
-      .WillRepeatedly([] {
+      .WillRepeatedly([this](auto&, auto context, auto, auto const&) {
+        metadata_fixture_.SetServerMetadata(*context, {});
         return std::make_unique<ErrorStream>(
             internal::UnavailableError("try again"));
       });
@@ -466,14 +626,15 @@ TEST(AsyncSampleRowKeysTest, TracedBackoff) {
 
   internal::OptionsSpan o(EnableTracing(Options{}));
   (void)AsyncRowSampler::Create(background.cq(), mock, std::move(retry),
-                                std::move(mock_b), kAppProfile, kTableName)
+                                std::move(mock_b), false, kAppProfile,
+                                kTableName)
       .get();
 
   EXPECT_THAT(span_catcher->GetSpans(),
               AllOf(SizeIs(kNumRetries), Each(SpanNamed("Async Backoff"))));
 }
 
-TEST(AsyncSampleRowKeysTest, CallSpanActiveThroughout) {
+TEST_F(AsyncSampleRowKeysTest, CallSpanActiveThroughout) {
   auto span_catcher = testing_util::InstallSpanCatcher();
 
   auto span = internal::MakeSpan("span");
@@ -481,7 +642,8 @@ TEST(AsyncSampleRowKeysTest, CallSpanActiveThroughout) {
   auto mock = std::make_shared<MockBigtableStub>();
   EXPECT_CALL(*mock, AsyncSampleRowKeys)
       .Times(kNumRetries + 1)
-      .WillRepeatedly([span] {
+      .WillRepeatedly([this, span](auto&, auto context, auto, auto const&) {
+        metadata_fixture_.SetServerMetadata(*context, {});
         EXPECT_THAT(span, IsActive());
         return std::make_unique<ErrorStream>(
             internal::UnavailableError("try again"));
@@ -495,7 +657,8 @@ TEST(AsyncSampleRowKeysTest, CallSpanActiveThroughout) {
   internal::OTelScope scope(span);
   internal::OptionsSpan o(EnableTracing(Options{}));
   auto f = AsyncRowSampler::Create(background.cq(), mock, std::move(retry),
-                                   std::move(mock_b), kAppProfile, kTableName);
+                                   std::move(mock_b), false, kAppProfile,
+                                   kTableName);
 
   auto overlay = opentelemetry::trace::Scope(internal::MakeSpan("overlay"));
   (void)f.get();

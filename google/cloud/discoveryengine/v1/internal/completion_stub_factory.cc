@@ -30,6 +30,7 @@
 #include "google/cloud/options.h"
 #include <google/cloud/discoveryengine/v1/completion_service.grpc.pb.h>
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -45,7 +46,8 @@ std::shared_ptr<CompletionServiceStub> CreateDefaultCompletionServiceStub(
       google::cloud::discoveryengine::v1::CompletionService::NewStub(channel);
   std::shared_ptr<CompletionServiceStub> stub =
       std::make_shared<DefaultCompletionServiceStub>(
-          std::move(service_grpc_stub));
+          std::move(service_grpc_stub),
+          google::longrunning::Operations::NewStub(channel));
 
   if (auth->RequiresConfigureContext()) {
     stub = std::make_shared<CompletionServiceAuth>(std::move(auth),

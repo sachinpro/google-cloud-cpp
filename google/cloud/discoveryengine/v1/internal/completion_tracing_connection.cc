@@ -19,6 +19,7 @@
 #include "google/cloud/discoveryengine/v1/internal/completion_tracing_connection.h"
 #include "google/cloud/internal/opentelemetry.h"
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -38,6 +39,32 @@ CompletionServiceTracingConnection::CompleteQuery(
       "discoveryengine_v1::CompletionServiceConnection::CompleteQuery");
   auto scope = opentelemetry::trace::Scope(span);
   return internal::EndSpan(*span, child_->CompleteQuery(request));
+}
+
+future<StatusOr<google::cloud::discoveryengine::v1::
+                    ImportSuggestionDenyListEntriesResponse>>
+CompletionServiceTracingConnection::ImportSuggestionDenyListEntries(
+    google::cloud::discoveryengine::v1::
+        ImportSuggestionDenyListEntriesRequest const& request) {
+  auto span = internal::MakeSpan(
+      "discoveryengine_v1::CompletionServiceConnection::"
+      "ImportSuggestionDenyListEntries");
+  internal::OTelScope scope(span);
+  return internal::EndSpan(std::move(span),
+                           child_->ImportSuggestionDenyListEntries(request));
+}
+
+future<StatusOr<
+    google::cloud::discoveryengine::v1::PurgeSuggestionDenyListEntriesResponse>>
+CompletionServiceTracingConnection::PurgeSuggestionDenyListEntries(
+    google::cloud::discoveryengine::v1::
+        PurgeSuggestionDenyListEntriesRequest const& request) {
+  auto span = internal::MakeSpan(
+      "discoveryengine_v1::CompletionServiceConnection::"
+      "PurgeSuggestionDenyListEntries");
+  internal::OTelScope scope(span);
+  return internal::EndSpan(std::move(span),
+                           child_->PurgeSuggestionDenyListEntries(request));
 }
 
 #endif  // GOOGLE_CLOUD_CPP_HAVE_OPENTELEMETRY

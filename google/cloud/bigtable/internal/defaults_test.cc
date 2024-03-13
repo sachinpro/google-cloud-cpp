@@ -15,9 +15,10 @@
 #include "google/cloud/bigtable/internal/defaults.h"
 #include "google/cloud/bigtable/internal/client_options_defaults.h"
 #include "google/cloud/bigtable/options.h"
-#include "google/cloud/connection_options.h"
+#include "google/cloud/common_options.h"
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/background_threads_impl.h"
+#include "google/cloud/opentelemetry_options.h"
 #include "google/cloud/status.h"
 #include "google/cloud/testing_util/chrono_output.h"
 #include "google/cloud/testing_util/scoped_environment.h"
@@ -45,18 +46,21 @@ using mins = std::chrono::minutes;
 TEST(OptionsTest, Defaults) {
   ScopedEnvironment user_project("GOOGLE_CLOUD_CPP_USER_PROJECT",
                                  absl::nullopt);
+  ScopedEnvironment tracing("GOOGLE_CLOUD_CPP_OPENTELEMETRY_TRACING",
+                            absl::nullopt);
   ScopedEnvironment emulator_host("BIGTABLE_EMULATOR_HOST", absl::nullopt);
   ScopedEnvironment instance_emulator_host(
       "BIGTABLE_INSTANCE_ADMIN_EMULATOR_HOST", absl::nullopt);
 
   auto opts = DefaultOptions();
-  EXPECT_EQ("bigtable.googleapis.com.", opts.get<DataEndpointOption>());
-  EXPECT_EQ("bigtableadmin.googleapis.com.", opts.get<AdminEndpointOption>());
-  EXPECT_EQ("bigtableadmin.googleapis.com.",
+  EXPECT_EQ("bigtable.googleapis.com", opts.get<DataEndpointOption>());
+  EXPECT_EQ("bigtableadmin.googleapis.com", opts.get<AdminEndpointOption>());
+  EXPECT_EQ("bigtableadmin.googleapis.com",
             opts.get<InstanceAdminEndpointOption>());
   EXPECT_EQ(typeid(grpc::GoogleDefaultCredentials()),
             typeid(opts.get<GrpcCredentialOption>()));
   EXPECT_FALSE(opts.has<UserProjectOption>());
+  EXPECT_FALSE(opts.has<OpenTelemetryTracingOption>());
 
   auto args = google::cloud::internal::MakeChannelArguments(opts);
   // Check that the pool domain is not set by default
@@ -208,6 +212,12 @@ TEST(OptionsTest, DataUserProjectOption) {
   EXPECT_EQ(options.get<UserProjectOption>(), "env-project");
 }
 
+TEST(OptionsTest, DataOpenTelemetryOption) {
+  auto env = ScopedEnvironment("GOOGLE_CLOUD_CPP_OPENTELEMETRY_TRACING", "on");
+  auto options = DefaultDataOptions(Options{});
+  EXPECT_TRUE(options.get<OpenTelemetryTracingOption>());
+}
+
 TEST(OptionsTest, DataAuthorityOption) {
   auto options = DefaultDataOptions(Options{});
   EXPECT_EQ(options.get<AuthorityOption>(), "bigtable.googleapis.com");
@@ -217,12 +227,22 @@ TEST(OptionsTest, DataAuthorityOption) {
   EXPECT_EQ(options.get<AuthorityOption>(), "custom-endpoint.googleapis.com");
 }
 
+TEST(OptionsTest, DataEnableServerRetriesOption) {
+  auto options = DefaultDataOptions(Options{});
+  EXPECT_TRUE(options.get<EnableServerRetriesOption>());
+
+  options = DefaultDataOptions(Options{}.set<EnableServerRetriesOption>(false));
+  EXPECT_FALSE(options.get<EnableServerRetriesOption>());
+}
+
 TEST(OptionsTest, UniverseDomain) {
   auto options =
       Options{}.set<google::cloud::internal::UniverseDomainOption>("ud.net");
 
-  EXPECT_EQ(DefaultDataOptions(options).get<EndpointOption>(),
-            "bigtable.ud.net");
+  auto data_options = DefaultDataOptions(options);
+  EXPECT_EQ(data_options.get<EndpointOption>(), "bigtable.ud.net");
+  EXPECT_EQ(data_options.get<AuthorityOption>(), "bigtable.ud.net");
+
   EXPECT_EQ(DefaultTableAdminOptions(options).get<EndpointOption>(),
             "bigtableadmin.ud.net");
   EXPECT_EQ(DefaultInstanceAdminOptions(options).get<EndpointOption>(),
@@ -233,9 +253,12 @@ TEST(OptionsTest, EndpointOptionsOverrideUniverseDomain) {
   auto options =
       Options{}
           .set<google::cloud::internal::UniverseDomainOption>("ud.net")
-          .set<EndpointOption>("data.googleapis.com");
-  EXPECT_EQ(DefaultDataOptions(options).get<EndpointOption>(),
-            "data.googleapis.com");
+          .set<EndpointOption>("data-endpoint.googleapis.com")
+          .set<AuthorityOption>("data-authority.googleapis.com");
+  auto data_options = DefaultDataOptions(options);
+  EXPECT_EQ(data_options.get<EndpointOption>(), "data-endpoint.googleapis.com");
+  EXPECT_EQ(data_options.get<AuthorityOption>(),
+            "data-authority.googleapis.com");
 }
 
 TEST(OptionsTest, BigtableEndpointOptionsOverrideUniverseDomain) {
@@ -288,8 +311,8 @@ TEST(EndpointEnvTest, InstanceEmulatorEnvOnly) {
                                       "instance-emulator-host:9000");
 
   auto opts = DefaultOptions();
-  EXPECT_EQ("bigtable.googleapis.com.", opts.get<DataEndpointOption>());
-  EXPECT_EQ("bigtableadmin.googleapis.com.", opts.get<AdminEndpointOption>());
+  EXPECT_EQ("bigtable.googleapis.com", opts.get<DataEndpointOption>());
+  EXPECT_EQ("bigtableadmin.googleapis.com", opts.get<AdminEndpointOption>());
   EXPECT_EQ("instance-emulator-host:9000",
             opts.get<InstanceAdminEndpointOption>());
 }
@@ -362,8 +385,8 @@ TEST(EndpointEnvTest, DirectPathEnabled) {
             opts.get<DataEndpointOption>());
   EXPECT_EQ("directpath-bigtable.googleapis.com", opts.get<AuthorityOption>());
   // Admin endpoints are not affected.
-  EXPECT_EQ("bigtableadmin.googleapis.com.", opts.get<AdminEndpointOption>());
-  EXPECT_EQ("bigtableadmin.googleapis.com.",
+  EXPECT_EQ("bigtableadmin.googleapis.com", opts.get<AdminEndpointOption>());
+  EXPECT_EQ("bigtableadmin.googleapis.com",
             opts.get<InstanceAdminEndpointOption>());
   EXPECT_EQ(1, opts.get<GrpcNumChannelsOption>());
 }
@@ -374,7 +397,7 @@ TEST(EndpointEnvTest, DirectPathNoMatch) {
                                 "bigtable-not,almost-bigtable");
 
   auto opts = DefaultDataOptions(Options{});
-  EXPECT_EQ("bigtable.googleapis.com.", opts.get<EndpointOption>());
+  EXPECT_EQ("bigtable.googleapis.com", opts.get<EndpointOption>());
   EXPECT_EQ("bigtable.googleapis.com", opts.get<AuthorityOption>());
 }
 

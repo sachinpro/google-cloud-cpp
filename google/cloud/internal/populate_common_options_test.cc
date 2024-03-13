@@ -44,7 +44,7 @@ TEST(PopulateCommonOptions, Simple) {
   auto actual =
       PopulateCommonOptions(Options{}, {}, {}, {}, "default.googleapis.com");
   EXPECT_TRUE(actual.has<EndpointOption>());
-  EXPECT_THAT(actual.get<EndpointOption>(), Eq("default.googleapis.com."));
+  EXPECT_THAT(actual.get<EndpointOption>(), Eq("default.googleapis.com"));
   EXPECT_TRUE(actual.has<AuthorityOption>());
   EXPECT_THAT(actual.get<AuthorityOption>(), Eq("default.googleapis.com"));
   EXPECT_FALSE(actual.has<UserProjectOption>());
@@ -68,7 +68,7 @@ TEST(PopulateCommonOptions, EmptyEndpointEnvVar) {
       PopulateCommonOptions(Options{}, "GOOGLE_CLOUD_CPP_SERVICE_ENDPOINT", {},
                             {}, "default.googleapis.com");
   EXPECT_TRUE(actual.has<EndpointOption>());
-  EXPECT_THAT(actual.get<EndpointOption>(), Eq("default.googleapis.com."));
+  EXPECT_THAT(actual.get<EndpointOption>(), Eq("default.googleapis.com"));
 }
 
 TEST(PopulateCommonOptions, EmptyEmulatorEnvVar) {
@@ -77,7 +77,7 @@ TEST(PopulateCommonOptions, EmptyEmulatorEnvVar) {
       PopulateCommonOptions(Options{}, {}, "GOOGLE_CLOUD_CPP_EMULATOR_ENDPOINT",
                             {}, "default.googleapis.com");
   EXPECT_TRUE(actual.has<EndpointOption>());
-  EXPECT_THAT(actual.get<EndpointOption>(), Eq("default.googleapis.com."));
+  EXPECT_THAT(actual.get<EndpointOption>(), Eq("default.googleapis.com"));
   EXPECT_FALSE(actual.has<UnifiedCredentialsOption>());
 }
 
@@ -128,7 +128,7 @@ TEST(PopulateCommonOptions, EndpointAuthority) {
           } else if (options.has<EndpointOption>()) {
             EXPECT_THAT(actual_endpoint, Eq(options.get<EndpointOption>()));
           } else {
-            EXPECT_THAT(actual_endpoint, Eq("default.googleapis.com."));
+            EXPECT_THAT(actual_endpoint, Eq("default.googleapis.com"));
           }
 
           ASSERT_TRUE(actual.has<AuthorityOption>());
@@ -151,30 +151,58 @@ TEST(PopulateCommonOptions, UniverseDomain) {
       PopulateCommonOptions(Options{}.set<UniverseDomainOption>("my-ud.net"),
                             {}, {}, {}, "default.googleapis.com");
   EXPECT_EQ(actual.get<EndpointOption>(), "default.my-ud.net");
+  EXPECT_EQ(actual.get<AuthorityOption>(), "default.my-ud.net");
 }
 
 TEST(PopulateCommonOptions, EndpointOptionOverridesUniverseDomain) {
   auto actual = PopulateCommonOptions(
       Options{}
-          .set<UniverseDomainOption>("ignored-ud.net")
+          .set<UniverseDomainOption>("test-ud.net")
           .set<EndpointOption>("custom-endpoint.googleapis.com"),
       {}, {}, {}, "default.googleapis.com");
   EXPECT_EQ(actual.get<EndpointOption>(), "custom-endpoint.googleapis.com");
+  EXPECT_EQ(actual.get<AuthorityOption>(), "default.test-ud.net");
+}
+
+TEST(PopulateCommonOptions, AuthorityOptionOverridesUniverseDomain) {
+  auto actual = PopulateCommonOptions(
+      Options{}
+          .set<UniverseDomainOption>("test-ud.net")
+          .set<AuthorityOption>("custom-endpoint.googleapis.com"),
+      {}, {}, {}, "default.googleapis.com");
+  EXPECT_EQ(actual.get<EndpointOption>(), "default.test-ud.net");
+  EXPECT_EQ(actual.get<AuthorityOption>(), "custom-endpoint.googleapis.com");
 }
 
 TEST(PopulateCommonOptions, EnvVarsOverridesUniverseDomain) {
+  ScopedEnvironment authority("AUTHORITY_OPTION",
+                              "authority-env.googleapis.com");
   ScopedEnvironment endpoint("SERVICE_ENDPOINT", "endpoint-env.googleapis.com");
   ScopedEnvironment emulator("SERVICE_EMULATOR", "emulator-env.googleapis.com");
 
   auto actual = PopulateCommonOptions(
-      Options{}.set<UniverseDomainOption>("ignored-ud.net"), "SERVICE_ENDPOINT",
+      Options{}.set<UniverseDomainOption>("test-ud.net"), "SERVICE_ENDPOINT",
       {}, {}, "default.googleapis.com");
   EXPECT_EQ(actual.get<EndpointOption>(), "endpoint-env.googleapis.com");
+  EXPECT_EQ(actual.get<AuthorityOption>(), "default.test-ud.net");
 
   actual = PopulateCommonOptions(
-      Options{}.set<UniverseDomainOption>("ignored-ud.net"), {},
+      Options{}.set<UniverseDomainOption>("test-ud.net"), {},
       "SERVICE_EMULATOR", {}, "default.googleapis.com");
   EXPECT_EQ(actual.get<EndpointOption>(), "emulator-env.googleapis.com");
+  EXPECT_EQ(actual.get<AuthorityOption>(), "default.test-ud.net");
+
+  actual = PopulateCommonOptions(
+      Options{}.set<UniverseDomainOption>("test-ud.net"), {}, {},
+      "AUTHORITY_OPTION", "default.googleapis.com");
+  EXPECT_EQ(actual.get<EndpointOption>(), "default.test-ud.net");
+  EXPECT_EQ(actual.get<AuthorityOption>(), "authority-env.googleapis.com");
+
+  actual = PopulateCommonOptions(
+      Options{}.set<UniverseDomainOption>("test-ud.net"), "SERVICE_ENDPOINT",
+      {}, "AUTHORITY_OPTION", "default.googleapis.com");
+  EXPECT_EQ(actual.get<EndpointOption>(), "endpoint-env.googleapis.com");
+  EXPECT_EQ(actual.get<AuthorityOption>(), "authority-env.googleapis.com");
 }
 
 TEST(PopulateCommonOptions, UserProject) {

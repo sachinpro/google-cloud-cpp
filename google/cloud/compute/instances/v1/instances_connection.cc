@@ -27,6 +27,7 @@
 #include "google/cloud/internal/pagination_range.h"
 #include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -172,6 +173,15 @@ InstancesConnection::ListReferrers(
         ListReferrersRequest) {  // NOLINT(performance-unnecessary-value-param)
   return google::cloud::internal::MakeUnimplementedPaginationRange<
       StreamRange<google::cloud::cpp::compute::v1::Reference>>();
+}
+
+future<StatusOr<google::cloud::cpp::compute::v1::Operation>>
+InstancesConnection::PerformMaintenance(
+    google::cloud::cpp::compute::instances::v1::
+        PerformMaintenanceRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::cpp::compute::v1::Operation>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
 }
 
 future<StatusOr<google::cloud::cpp::compute::v1::Operation>>

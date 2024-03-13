@@ -20,6 +20,7 @@
 #include "google/cloud/internal/opentelemetry.h"
 #include "google/cloud/internal/traced_stream_range.h"
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -221,6 +222,17 @@ InstancesTracingConnection::ListReferrers(
   return internal::MakeTracedStreamRange<
       google::cloud::cpp::compute::v1::Reference>(std::move(span),
                                                   std::move(sr));
+}
+
+future<StatusOr<google::cloud::cpp::compute::v1::Operation>>
+InstancesTracingConnection::PerformMaintenance(
+    google::cloud::cpp::compute::instances::v1::PerformMaintenanceRequest const&
+        request) {
+  auto span = internal::MakeSpan(
+      "compute_instances_v1::InstancesConnection::PerformMaintenance");
+  internal::OTelScope scope(span);
+  return internal::EndSpan(std::move(span),
+                           child_->PerformMaintenance(request));
 }
 
 future<StatusOr<google::cloud::cpp::compute::v1::Operation>>

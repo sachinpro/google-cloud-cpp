@@ -24,6 +24,7 @@
 #include <google/longrunning/operations.pb.h>
 #include <google/spanner/admin/database/v1/spanner_database_admin.pb.h>
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -63,7 +64,7 @@ future<StatusOr<google::longrunning::Operation>>
 DefaultDatabaseAdminRestStub::AsyncCreateDatabase(
     CompletionQueue& cq,
     std::unique_ptr<rest_internal::RestContext> rest_context,
-    Options const& options,
+    google::cloud::internal::ImmutableOptions options,
     google::spanner::admin::database::v1::CreateDatabaseRequest const&
         request) {
   promise<StatusOr<google::longrunning::Operation>> p;
@@ -72,18 +73,21 @@ DefaultDatabaseAdminRestStub::AsyncCreateDatabase(
       [](auto p, auto service, auto request, auto rest_context, auto options) {
         p.set_value(rest_internal::Post<google::longrunning::Operation>(
             *service, *rest_context, request, false,
-            absl::StrCat("/", rest_internal::DetermineApiVersion("v1", options),
+            absl::StrCat("/",
+                         rest_internal::DetermineApiVersion("v1", *options),
                          "/", request.parent(), "/", "databases"),
             rest_internal::TrimEmptyQueryParameters(
                 {std::make_pair("create_statement", request.create_statement()),
                  std::make_pair("database_dialect",
-                                std::to_string(request.database_dialect()))})));
+                                std::to_string(request.database_dialect())),
+                 std::make_pair("proto_descriptors",
+                                request.proto_descriptors())})));
       },
       std::move(p),
       service_,
       request,
       std::move(rest_context),
-      options};
+      std::move(options)};
   return f.then([t = std::move(t), cq](auto f) mutable {
     cq.RunAsync([t = std::move(t)]() mutable { t.join(); });
     return f.get();
@@ -105,7 +109,7 @@ future<StatusOr<google::longrunning::Operation>>
 DefaultDatabaseAdminRestStub::AsyncUpdateDatabase(
     CompletionQueue& cq,
     std::unique_ptr<rest_internal::RestContext> rest_context,
-    Options const& options,
+    google::cloud::internal::ImmutableOptions options,
     google::spanner::admin::database::v1::UpdateDatabaseRequest const&
         request) {
   promise<StatusOr<google::longrunning::Operation>> p;
@@ -114,14 +118,15 @@ DefaultDatabaseAdminRestStub::AsyncUpdateDatabase(
       [](auto p, auto service, auto request, auto rest_context, auto options) {
         p.set_value(rest_internal::Patch<google::longrunning::Operation>(
             *service, *rest_context, request.database(), false,
-            absl::StrCat("/", rest_internal::DetermineApiVersion("v1", options),
+            absl::StrCat("/",
+                         rest_internal::DetermineApiVersion("v1", *options),
                          "/", request.database().name())));
       },
       std::move(p),
       service_,
       request,
       std::move(rest_context),
-      options};
+      std::move(options)};
   return f.then([t = std::move(t), cq](auto f) mutable {
     cq.RunAsync([t = std::move(t)]() mutable { t.join(); });
     return f.get();
@@ -132,7 +137,7 @@ future<StatusOr<google::longrunning::Operation>>
 DefaultDatabaseAdminRestStub::AsyncUpdateDatabaseDdl(
     CompletionQueue& cq,
     std::unique_ptr<rest_internal::RestContext> rest_context,
-    Options const& options,
+    google::cloud::internal::ImmutableOptions options,
     google::spanner::admin::database::v1::UpdateDatabaseDdlRequest const&
         request) {
   promise<StatusOr<google::longrunning::Operation>> p;
@@ -141,16 +146,19 @@ DefaultDatabaseAdminRestStub::AsyncUpdateDatabaseDdl(
       [](auto p, auto service, auto request, auto rest_context, auto options) {
         p.set_value(rest_internal::Patch<google::longrunning::Operation>(
             *service, *rest_context, request, false,
-            absl::StrCat("/", rest_internal::DetermineApiVersion("v1", options),
+            absl::StrCat("/",
+                         rest_internal::DetermineApiVersion("v1", *options),
                          "/", request.database(), "/", "ddl"),
             rest_internal::TrimEmptyQueryParameters(
-                {std::make_pair("operation_id", request.operation_id())})));
+                {std::make_pair("operation_id", request.operation_id()),
+                 std::make_pair("proto_descriptors",
+                                request.proto_descriptors())})));
       },
       std::move(p),
       service_,
       request,
       std::move(rest_context),
-      options};
+      std::move(options)};
   return f.then([t = std::move(t), cq](auto f) mutable {
     cq.RunAsync([t = std::move(t)]() mutable { t.join(); });
     return f.get();
@@ -215,7 +223,7 @@ future<StatusOr<google::longrunning::Operation>>
 DefaultDatabaseAdminRestStub::AsyncCreateBackup(
     CompletionQueue& cq,
     std::unique_ptr<rest_internal::RestContext> rest_context,
-    Options const& options,
+    google::cloud::internal::ImmutableOptions options,
     google::spanner::admin::database::v1::CreateBackupRequest const& request) {
   promise<StatusOr<google::longrunning::Operation>> p;
   future<StatusOr<google::longrunning::Operation>> f = p.get_future();
@@ -223,7 +231,8 @@ DefaultDatabaseAdminRestStub::AsyncCreateBackup(
       [](auto p, auto service, auto request, auto rest_context, auto options) {
         p.set_value(rest_internal::Post<google::longrunning::Operation>(
             *service, *rest_context, request.backup(), false,
-            absl::StrCat("/", rest_internal::DetermineApiVersion("v1", options),
+            absl::StrCat("/",
+                         rest_internal::DetermineApiVersion("v1", *options),
                          "/", request.parent(), "/", "backups"),
             rest_internal::TrimEmptyQueryParameters(
                 {std::make_pair("backup_id", request.backup_id())})));
@@ -232,7 +241,7 @@ DefaultDatabaseAdminRestStub::AsyncCreateBackup(
       service_,
       request,
       std::move(rest_context),
-      options};
+      std::move(options)};
   return f.then([t = std::move(t), cq](auto f) mutable {
     cq.RunAsync([t = std::move(t)]() mutable { t.join(); });
     return f.get();
@@ -243,7 +252,7 @@ future<StatusOr<google::longrunning::Operation>>
 DefaultDatabaseAdminRestStub::AsyncCopyBackup(
     CompletionQueue& cq,
     std::unique_ptr<rest_internal::RestContext> rest_context,
-    Options const& options,
+    google::cloud::internal::ImmutableOptions options,
     google::spanner::admin::database::v1::CopyBackupRequest const& request) {
   promise<StatusOr<google::longrunning::Operation>> p;
   future<StatusOr<google::longrunning::Operation>> f = p.get_future();
@@ -251,7 +260,8 @@ DefaultDatabaseAdminRestStub::AsyncCopyBackup(
       [](auto p, auto service, auto request, auto rest_context, auto options) {
         p.set_value(rest_internal::Post<google::longrunning::Operation>(
             *service, *rest_context, request, false,
-            absl::StrCat("/", rest_internal::DetermineApiVersion("v1", options),
+            absl::StrCat("/",
+                         rest_internal::DetermineApiVersion("v1", *options),
                          "/", request.parent(), "/", "backups", ":copy"),
             rest_internal::TrimEmptyQueryParameters(
                 {std::make_pair("backup_id", request.backup_id()),
@@ -261,7 +271,7 @@ DefaultDatabaseAdminRestStub::AsyncCopyBackup(
       service_,
       request,
       std::move(rest_context),
-      options};
+      std::move(options)};
   return f.then([t = std::move(t), cq](auto f) mutable {
     cq.RunAsync([t = std::move(t)]() mutable { t.join(); });
     return f.get();
@@ -320,7 +330,7 @@ future<StatusOr<google::longrunning::Operation>>
 DefaultDatabaseAdminRestStub::AsyncRestoreDatabase(
     CompletionQueue& cq,
     std::unique_ptr<rest_internal::RestContext> rest_context,
-    Options const& options,
+    google::cloud::internal::ImmutableOptions options,
     google::spanner::admin::database::v1::RestoreDatabaseRequest const&
         request) {
   promise<StatusOr<google::longrunning::Operation>> p;
@@ -329,7 +339,8 @@ DefaultDatabaseAdminRestStub::AsyncRestoreDatabase(
       [](auto p, auto service, auto request, auto rest_context, auto options) {
         p.set_value(rest_internal::Post<google::longrunning::Operation>(
             *service, *rest_context, request, false,
-            absl::StrCat("/", rest_internal::DetermineApiVersion("v1", options),
+            absl::StrCat("/",
+                         rest_internal::DetermineApiVersion("v1", *options),
                          "/", request.parent(), "/", "databases", ":restore"),
             rest_internal::TrimEmptyQueryParameters(
                 {std::make_pair("database_id", request.database_id()),
@@ -339,7 +350,7 @@ DefaultDatabaseAdminRestStub::AsyncRestoreDatabase(
       service_,
       request,
       std::move(rest_context),
-      options};
+      std::move(options)};
   return f.then([t = std::move(t), cq](auto f) mutable {
     cq.RunAsync([t = std::move(t)]() mutable { t.join(); });
     return f.get();
@@ -400,7 +411,7 @@ future<StatusOr<google::longrunning::Operation>>
 DefaultDatabaseAdminRestStub::AsyncGetOperation(
     google::cloud::CompletionQueue& cq,
     std::unique_ptr<rest_internal::RestContext> rest_context,
-    Options const& options,
+    google::cloud::internal::ImmutableOptions options,
     google::longrunning::GetOperationRequest const& request) {
   promise<StatusOr<google::longrunning::Operation>> p;
   future<StatusOr<google::longrunning::Operation>> f = p.get_future();
@@ -409,14 +420,15 @@ DefaultDatabaseAdminRestStub::AsyncGetOperation(
          auto options) {
         p.set_value(rest_internal::Get<google::longrunning::Operation>(
             *operations, *rest_context, request, false,
-            absl::StrCat("/", rest_internal::DetermineApiVersion("v1", options),
+            absl::StrCat("/",
+                         rest_internal::DetermineApiVersion("v1", *options),
                          "/", request.name())));
       },
       std::move(p),
       operations_,
       request,
       std::move(rest_context),
-      options};
+      std::move(options)};
   return f.then([t = std::move(t), cq](auto f) mutable {
     cq.RunAsync([t = std::move(t)]() mutable { t.join(); });
     return f.get();
@@ -426,7 +438,7 @@ DefaultDatabaseAdminRestStub::AsyncGetOperation(
 future<Status> DefaultDatabaseAdminRestStub::AsyncCancelOperation(
     google::cloud::CompletionQueue& cq,
     std::unique_ptr<rest_internal::RestContext> rest_context,
-    Options const& options,
+    google::cloud::internal::ImmutableOptions options,
     google::longrunning::CancelOperationRequest const& request) {
   promise<StatusOr<google::protobuf::Empty>> p;
   future<StatusOr<google::protobuf::Empty>> f = p.get_future();
@@ -435,14 +447,15 @@ future<Status> DefaultDatabaseAdminRestStub::AsyncCancelOperation(
          auto options) {
         p.set_value(rest_internal::Post<google::protobuf::Empty>(
             *operations, *rest_context, request, false,
-            absl::StrCat("/", rest_internal::DetermineApiVersion("v1", options),
+            absl::StrCat("/",
+                         rest_internal::DetermineApiVersion("v1", *options),
                          "/", request.name(), ":cancel")));
       },
       std::move(p),
       operations_,
       request,
       std::move(rest_context),
-      options};
+      std::move(options)};
   return f.then([t = std::move(t), cq](auto f) mutable {
     cq.RunAsync([t = std::move(t)]() mutable { t.join(); });
     return f.get().status();

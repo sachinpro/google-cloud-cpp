@@ -20,6 +20,7 @@
 #include "google/cloud/internal/opentelemetry.h"
 #include "google/cloud/internal/traced_stream_range.h"
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -173,6 +174,49 @@ ConfigTracingConnection::ExportLockInfo(
   auto span = internal::MakeSpan("config_v1::ConfigConnection::ExportLockInfo");
   auto scope = opentelemetry::trace::Scope(span);
   return internal::EndSpan(*span, child_->ExportLockInfo(request));
+}
+
+future<StatusOr<google::cloud::config::v1::Preview>>
+ConfigTracingConnection::CreatePreview(
+    google::cloud::config::v1::CreatePreviewRequest const& request) {
+  auto span = internal::MakeSpan("config_v1::ConfigConnection::CreatePreview");
+  internal::OTelScope scope(span);
+  return internal::EndSpan(std::move(span), child_->CreatePreview(request));
+}
+
+StatusOr<google::cloud::config::v1::Preview>
+ConfigTracingConnection::GetPreview(
+    google::cloud::config::v1::GetPreviewRequest const& request) {
+  auto span = internal::MakeSpan("config_v1::ConfigConnection::GetPreview");
+  auto scope = opentelemetry::trace::Scope(span);
+  return internal::EndSpan(*span, child_->GetPreview(request));
+}
+
+StreamRange<google::cloud::config::v1::Preview>
+ConfigTracingConnection::ListPreviews(
+    google::cloud::config::v1::ListPreviewsRequest request) {
+  auto span = internal::MakeSpan("config_v1::ConfigConnection::ListPreviews");
+  internal::OTelScope scope(span);
+  auto sr = child_->ListPreviews(std::move(request));
+  return internal::MakeTracedStreamRange<google::cloud::config::v1::Preview>(
+      std::move(span), std::move(sr));
+}
+
+future<StatusOr<google::cloud::config::v1::Preview>>
+ConfigTracingConnection::DeletePreview(
+    google::cloud::config::v1::DeletePreviewRequest const& request) {
+  auto span = internal::MakeSpan("config_v1::ConfigConnection::DeletePreview");
+  internal::OTelScope scope(span);
+  return internal::EndSpan(std::move(span), child_->DeletePreview(request));
+}
+
+StatusOr<google::cloud::config::v1::ExportPreviewResultResponse>
+ConfigTracingConnection::ExportPreviewResult(
+    google::cloud::config::v1::ExportPreviewResultRequest const& request) {
+  auto span =
+      internal::MakeSpan("config_v1::ConfigConnection::ExportPreviewResult");
+  auto scope = opentelemetry::trace::Scope(span);
+  return internal::EndSpan(*span, child_->ExportPreviewResult(request));
 }
 
 #endif  // GOOGLE_CLOUD_CPP_HAVE_OPENTELEMETRY

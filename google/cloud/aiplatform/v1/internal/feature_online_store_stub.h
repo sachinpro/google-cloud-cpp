@@ -19,10 +19,12 @@
 #ifndef GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_AIPLATFORM_V1_INTERNAL_FEATURE_ONLINE_STORE_STUB_H
 #define GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_AIPLATFORM_V1_INTERNAL_FEATURE_ONLINE_STORE_STUB_H
 
+#include "google/cloud/options.h"
 #include "google/cloud/status_or.h"
 #include "google/cloud/version.h"
 #include <google/cloud/aiplatform/v1/feature_online_store_service.grpc.pb.h>
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -35,8 +37,14 @@ class FeatureOnlineStoreServiceStub {
 
   virtual StatusOr<google::cloud::aiplatform::v1::FetchFeatureValuesResponse>
   FetchFeatureValues(
-      grpc::ClientContext& context,
+      grpc::ClientContext& context, Options const& options,
       google::cloud::aiplatform::v1::FetchFeatureValuesRequest const&
+          request) = 0;
+
+  virtual StatusOr<google::cloud::aiplatform::v1::SearchNearestEntitiesResponse>
+  SearchNearestEntities(
+      grpc::ClientContext& context, Options const& options,
+      google::cloud::aiplatform::v1::SearchNearestEntitiesRequest const&
           request) = 0;
 };
 
@@ -51,9 +59,15 @@ class DefaultFeatureOnlineStoreServiceStub
 
   StatusOr<google::cloud::aiplatform::v1::FetchFeatureValuesResponse>
   FetchFeatureValues(
-      grpc::ClientContext& context,
+      grpc::ClientContext& context, Options const& options,
       google::cloud::aiplatform::v1::FetchFeatureValuesRequest const& request)
       override;
+
+  StatusOr<google::cloud::aiplatform::v1::SearchNearestEntitiesResponse>
+  SearchNearestEntities(
+      grpc::ClientContext& context, Options const& options,
+      google::cloud::aiplatform::v1::SearchNearestEntitiesRequest const&
+          request) override;
 
  private:
   std::unique_ptr<

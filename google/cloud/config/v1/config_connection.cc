@@ -29,6 +29,7 @@
 #include "google/cloud/internal/pagination_range.h"
 #include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -141,6 +142,40 @@ ConfigConnection::UnlockDeployment(
 
 StatusOr<google::cloud::config::v1::LockInfo> ConfigConnection::ExportLockInfo(
     google::cloud::config::v1::ExportLockInfoRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+future<StatusOr<google::cloud::config::v1::Preview>>
+ConfigConnection::CreatePreview(
+    google::cloud::config::v1::CreatePreviewRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::config::v1::Preview>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
+StatusOr<google::cloud::config::v1::Preview> ConfigConnection::GetPreview(
+    google::cloud::config::v1::GetPreviewRequest const&) {
+  return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+StreamRange<google::cloud::config::v1::Preview> ConfigConnection::ListPreviews(
+    google::cloud::config::v1::
+        ListPreviewsRequest) {  // NOLINT(performance-unnecessary-value-param)
+  return google::cloud::internal::MakeUnimplementedPaginationRange<
+      StreamRange<google::cloud::config::v1::Preview>>();
+}
+
+future<StatusOr<google::cloud::config::v1::Preview>>
+ConfigConnection::DeletePreview(
+    google::cloud::config::v1::DeletePreviewRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::config::v1::Preview>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
+StatusOr<google::cloud::config::v1::ExportPreviewResultResponse>
+ConfigConnection::ExportPreviewResult(
+    google::cloud::config::v1::ExportPreviewResultRequest const&) {
   return Status(StatusCode::kUnimplemented, "not implemented");
 }
 

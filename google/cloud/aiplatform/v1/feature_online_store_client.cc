@@ -18,6 +18,7 @@
 
 #include "google/cloud/aiplatform/v1/feature_online_store_client.h"
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -50,6 +51,14 @@ FeatureOnlineStoreServiceClient::FetchFeatureValues(
     Options opts) {
   internal::OptionsSpan span(internal::MergeOptions(std::move(opts), options_));
   return connection_->FetchFeatureValues(request);
+}
+
+StatusOr<google::cloud::aiplatform::v1::SearchNearestEntitiesResponse>
+FeatureOnlineStoreServiceClient::SearchNearestEntities(
+    google::cloud::aiplatform::v1::SearchNearestEntitiesRequest const& request,
+    Options opts) {
+  internal::OptionsSpan span(internal::MergeOptions(std::move(opts), options_));
+  return connection_->SearchNearestEntities(request);
 }
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END

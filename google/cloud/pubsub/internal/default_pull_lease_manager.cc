@@ -40,16 +40,18 @@ std::chrono::seconds DefaultLeaseExtension(Options const& options) {
 
 DefaultPullLeaseManager::DefaultPullLeaseManager(
     CompletionQueue cq, std::weak_ptr<SubscriberStub> w, Options options,
-    pubsub::Subscription subscription, std::string ack_id, Clock clock)
+    pubsub::Subscription subscription, std::string ack_id,
+    std::shared_ptr<Clock> clock)
     : cq_(std::move(cq)),
       stub_(std::move(w)),
-      options_(std::move(options)),
+      options_(
+          google::cloud::internal::MakeImmutableOptions(std::move(options))),
       subscription_(std::move(subscription)),
       ack_id_(std::move(ack_id)),
       clock_(std::move(clock)),
-      lease_deadline_(DefaultLeaseDeadline(clock_(), options_)),
-      lease_extension_(DefaultLeaseExtension(options_)),
-      current_lease_(clock_() + kMinimalLeaseExtension) {}
+      lease_deadline_(DefaultLeaseDeadline(clock_->Now(), *options_)),
+      lease_extension_(DefaultLeaseExtension(*options_)),
+      current_lease_(clock_->Now() + kMinimalLeaseExtension) {}
 
 DefaultPullLeaseManager::~DefaultPullLeaseManager() {
   if (!timer_.valid()) return;
@@ -59,7 +61,7 @@ DefaultPullLeaseManager::~DefaultPullLeaseManager() {
 void DefaultPullLeaseManager::StartLeaseLoop() {
   auto s = stub_.lock();
   if (!s) return;
-  auto const now = clock_();
+  auto const now = clock_->Now();
 
   // Check if the lease has expired, or is so close to expiring that we cannot
   // extend it. In either case, simply return and stop the loop.
@@ -89,19 +91,20 @@ future<Status> DefaultPullLeaseManager::ExtendLease(
       static_cast<std::int32_t>(extension.count()));
   request.add_ack_ids(ack_id_);
   return internal::AsyncRetryLoop(
-      options_.get<pubsub::RetryPolicyOption>()->clone(),
-      options_.get<pubsub::BackoffPolicyOption>()->clone(),
+      options_->get<pubsub::RetryPolicyOption>()->clone(),
+      options_->get<pubsub::BackoffPolicyOption>()->clone(),
       google::cloud::Idempotency::kIdempotent, cq_,
       [stub = std::move(stub), deadline = now + extension, clock = clock_](
-          auto cq, auto context, auto const& request) {
-        if (deadline < clock()) {
+          auto cq, auto context, auto options, auto const& request) {
+        if (deadline < clock->Now()) {
           return make_ready_future(
               Status(StatusCode::kDeadlineExceeded, "lease already expired"));
         }
         context->set_deadline((std::min)(deadline, context->deadline()));
-        return stub->AsyncModifyAckDeadline(cq, std::move(context), request);
+        return stub->AsyncModifyAckDeadline(cq, std::move(context),
+                                            std::move(options), request);
       },
-      request, __func__);
+      options_, request, __func__);
 }
 
 std::chrono::milliseconds DefaultPullLeaseManager::LeaseRefreshPeriod() const {

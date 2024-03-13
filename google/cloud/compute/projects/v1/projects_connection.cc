@@ -27,6 +27,7 @@
 #include "google/cloud/internal/pagination_range.h"
 #include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -105,6 +106,14 @@ ProjectsConnection::MoveDisk(
 future<StatusOr<google::cloud::cpp::compute::v1::Operation>>
 ProjectsConnection::MoveInstance(
     google::cloud::cpp::compute::projects::v1::MoveInstanceRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::cpp::compute::v1::Operation>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
+future<StatusOr<google::cloud::cpp::compute::v1::Operation>>
+ProjectsConnection::SetCloudArmorTier(google::cloud::cpp::compute::projects::
+                                          v1::SetCloudArmorTierRequest const&) {
   return google::cloud::make_ready_future<
       StatusOr<google::cloud::cpp::compute::v1::Operation>>(
       Status(StatusCode::kUnimplemented, "not implemented"));

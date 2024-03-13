@@ -19,6 +19,7 @@
 #include "google/cloud/aiplatform/v1/internal/feature_online_store_tracing_connection.h"
 #include "google/cloud/internal/opentelemetry.h"
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -40,6 +41,17 @@ FeatureOnlineStoreServiceTracingConnection::FetchFeatureValues(
       "aiplatform_v1::FeatureOnlineStoreServiceConnection::FetchFeatureValues");
   auto scope = opentelemetry::trace::Scope(span);
   return internal::EndSpan(*span, child_->FetchFeatureValues(request));
+}
+
+StatusOr<google::cloud::aiplatform::v1::SearchNearestEntitiesResponse>
+FeatureOnlineStoreServiceTracingConnection::SearchNearestEntities(
+    google::cloud::aiplatform::v1::SearchNearestEntitiesRequest const&
+        request) {
+  auto span = internal::MakeSpan(
+      "aiplatform_v1::FeatureOnlineStoreServiceConnection::"
+      "SearchNearestEntities");
+  auto scope = opentelemetry::trace::Scope(span);
+  return internal::EndSpan(*span, child_->SearchNearestEntities(request));
 }
 
 #endif  // GOOGLE_CLOUD_CPP_HAVE_OPENTELEMETRY

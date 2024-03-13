@@ -20,6 +20,7 @@
 #include "google/cloud/internal/opentelemetry.h"
 #include "google/cloud/internal/traced_stream_range.h"
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -131,6 +132,16 @@ ProjectsTracingConnection::MoveInstance(
       "compute_projects_v1::ProjectsConnection::MoveInstance");
   internal::OTelScope scope(span);
   return internal::EndSpan(std::move(span), child_->MoveInstance(request));
+}
+
+future<StatusOr<google::cloud::cpp::compute::v1::Operation>>
+ProjectsTracingConnection::SetCloudArmorTier(
+    google::cloud::cpp::compute::projects::v1::SetCloudArmorTierRequest const&
+        request) {
+  auto span = internal::MakeSpan(
+      "compute_projects_v1::ProjectsConnection::SetCloudArmorTier");
+  internal::OTelScope scope(span);
+  return internal::EndSpan(std::move(span), child_->SetCloudArmorTier(request));
 }
 
 future<StatusOr<google::cloud::cpp::compute::v1::Operation>>

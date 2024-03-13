@@ -18,6 +18,7 @@
 
 GOOGLE_CLOUD_CPP_EXPERIMENTAL_LIBRARIES = [
     "pubsublite",
+    "storagecontrol",
 ]
 
 GOOGLE_CLOUD_CPP_TRANSITION_LIBRARIES = [
@@ -33,6 +34,7 @@ GOOGLE_CLOUD_CPP_GA_LIBRARIES = [
     "apigeeconnect",
     "apikeys",
     "appengine",
+    "apphub",
     "artifactregistry",
     "asset",
     "assuredworkloads",
@@ -47,6 +49,7 @@ GOOGLE_CLOUD_CPP_GA_LIBRARIES = [
     "certificatemanager",
     "channel",
     "cloudbuild",
+    "cloudcontrolspartner",
     "cloudquotas",
     "commerce",
     "composer",
@@ -196,8 +199,10 @@ GOOGLE_CLOUD_CPP_GA_LIBRARIES = [
     "secretmanager",
     "securesourcemanager",
     "securitycenter",
+    "securitycentermanagement",
     "servicecontrol",
     "servicedirectory",
+    "servicehealth",
     "servicemanagement",
     "serviceusage",
     "shell",

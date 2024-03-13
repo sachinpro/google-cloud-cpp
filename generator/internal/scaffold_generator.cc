@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "generator/internal/scaffold_generator.h"
+#include "generator/internal/codegen_utils.h"
 #include "google/cloud/internal/absl_str_join_quiet.h"
 #include "google/cloud/internal/absl_str_replace_quiet.h"
 #include "google/cloud/internal/filesystem.h"
@@ -25,11 +26,6 @@
 #include <fstream>
 #include <iterator>
 #include <regex>
-#ifdef _WIN32
-#include <direct.h>
-#else
-#include <sys/stat.h>
-#endif  // _WIN32
 
 namespace google {
 namespace cloud {
@@ -118,7 +114,7 @@ nlohmann::json LoadApiIndex(std::string const& googleapis_path) {
 }
 
 std::map<std::string, std::string> ScaffoldVars(
-    std::string const& googleapis_path, nlohmann::json const& index,
+    std::string const& yaml_root, nlohmann::json const& index,
     google::cloud::cpp::generator::ServiceConfiguration const& service,
     bool experimental) {
   std::map<std::string, std::string> vars;
@@ -130,8 +126,14 @@ std::map<std::string, std::string> ScaffoldVars(
     vars.emplace("title", api.value("title", ""));
     vars.emplace("description", api.value("description", ""));
     vars.emplace("directory", api.value("directory", ""));
+    vars.emplace("service_config_yaml_name",
+                 absl::StrCat(api.value("directory", ""), "/",
+                              api.value("configFile", "")));
     vars.emplace("nameInServiceConfig", api.value("nameInServiceConfig", ""));
-    vars.emplace("configFile", api.value("configFile", ""));
+  }
+  if (!service.override_service_config_yaml_name().empty()) {
+    vars.emplace("service_config_yaml_name",
+                 service.override_service_config_yaml_name());
   }
   auto const library = LibraryName(service.product_path());
   vars["copyright_year"] = service.initial_copyright_year();
@@ -153,18 +155,16 @@ std::map<std::string, std::string> ScaffoldVars(
                      "to change without notice.\n\nPlease,"
                    : "While this library is **GA**, please";
 
-  // Try to load the service config YAML file. On failure just return the
-  // existing vars.
-  auto const config_file = vars.find("configFile");
-  auto const directory = vars.find("directory");
-  if (config_file == vars.end() || directory == vars.end()) {
+  // Find out if the service config YAML is configured.
+  auto path = ServiceConfigYamlPath(yaml_root, vars);
+  if (path.empty()) {
     GCP_LOG(WARNING) << "Missing directory and/or YAML config file name for: "
                      << service.service_proto_path();
     return vars;
   }
 
-  auto const path =
-      googleapis_path + "/" + directory->second + "/" + config_file->second;
+  // Try to load the service config YAML file. On failure just return the
+  // existing vars.
   auto status = google::cloud::internal::status(path);
   if (!exists(status)) {
     GCP_LOG(WARNING) << "Cannot find YAML service config file (" << path
@@ -213,12 +213,11 @@ std::map<std::string, std::string> ScaffoldVars(
   return vars;
 }
 
-void MakeDirectory(std::string const& path) {
-#if _WIN32
-  _mkdir(path.c_str());
-#else
-  mkdir(path.c_str(), 0755);
-#endif  // _WIN32
+std::string ServiceConfigYamlPath(
+    std::string const& root, std::map<std::string, std::string> const& vars) {
+  auto const name = vars.find("service_config_yaml_name");
+  if (name == vars.end()) return {};
+  return absl::StrCat(root, "/", name->second);
 }
 
 void GenerateMetadata(

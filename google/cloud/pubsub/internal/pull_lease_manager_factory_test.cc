@@ -17,6 +17,7 @@
 #include "google/cloud/pubsub/testing/mock_subscriber_stub.h"
 #include "google/cloud/pubsub/testing/test_retry_policies.h"
 #include "google/cloud/testing_util/async_sequencer.h"
+#include "google/cloud/testing_util/fake_clock.h"
 #include "google/cloud/testing_util/mock_completion_queue_impl.h"
 #include "google/cloud/testing_util/opentelemetry_matchers.h"
 #include "google/cloud/testing_util/status_matchers.h"
@@ -28,11 +29,9 @@ namespace pubsub_internal {
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 namespace {
 
-using MockClock =
-    ::testing::MockFunction<std::chrono::system_clock::time_point()>;
-
 using ::google::cloud::pubsub_testing::MockSubscriberStub;
 using ::google::cloud::testing_util::AsyncSequencer;
+using ::google::cloud::testing_util::FakeSystemClock;
 using ::google::pubsub::v1::ModifyAckDeadlineRequest;
 using ::testing::_;
 using ::testing::AllOf;
@@ -75,16 +74,16 @@ TEST(DefaultPullLeaseManager, ExtendLeaseDeadlineSimple) {
                kLeaseExtension.count()),
       Property(&ModifyAckDeadlineRequest::subscription,
                subscription.FullName()));
-  EXPECT_CALL(*mock, AsyncModifyAckDeadline(_, _, request_matcher))
+  EXPECT_CALL(*mock, AsyncModifyAckDeadline(_, _, _, request_matcher))
       .WillOnce(Return(ByMove(make_ready_future(Status{}))));
   AsyncSequencer<bool> aseq;
   auto cq = MakeMockCompletionQueue(aseq);
   auto current_time = std::chrono::system_clock::now();
-  MockClock clock;
-  EXPECT_CALL(clock, Call).WillRepeatedly([&] { return current_time; });
-  auto manager = MakePullLeaseManager(std::move(cq), std::move(mock),
-                                      subscription, "test-ack-id",
-                                      MakeTestOptions(), clock.AsStdFunction());
+  auto clock = std::make_shared<FakeSystemClock>();
+  clock->SetTime(current_time);
+  auto manager =
+      MakePullLeaseManager(std::move(cq), std::move(mock), subscription,
+                           "test-ack-id", MakeTestOptions(), std::move(clock));
 
   auto status = manager->ExtendLease(mock, current_time, kLeaseExtension);
   EXPECT_STATUS_OK(status.get());
@@ -116,16 +115,16 @@ TEST(DefaultPullLeaseManager, TracingEnabled) {
                kLeaseExtension.count()),
       Property(&ModifyAckDeadlineRequest::subscription,
                subscription.FullName()));
-  EXPECT_CALL(*mock, AsyncModifyAckDeadline(_, _, request_matcher))
+  EXPECT_CALL(*mock, AsyncModifyAckDeadline(_, _, _, request_matcher))
       .WillOnce(Return(ByMove(make_ready_future(Status{}))));
   AsyncSequencer<bool> aseq;
   auto cq = MakeMockCompletionQueue(aseq);
   auto current_time = std::chrono::system_clock::now();
-  MockClock clock;
-  EXPECT_CALL(clock, Call).WillRepeatedly([&] { return current_time; });
+  auto clock = std::make_shared<FakeSystemClock>();
+  clock->SetTime(current_time);
   auto manager = MakePullLeaseManager(
       std::move(cq), std::move(mock), subscription, "test-ack-id",
-      EnableTracing(MakeTestOptions()), clock.AsStdFunction());
+      EnableTracing(MakeTestOptions()), std::move(clock));
 
   auto status = manager->ExtendLease(mock, current_time, kLeaseExtension);
   EXPECT_STATUS_OK(status.get());
@@ -134,7 +133,7 @@ TEST(DefaultPullLeaseManager, TracingEnabled) {
   EXPECT_THAT(spans, Contains(AllOf(
                          SpanHasInstrumentationScope(), SpanKindIsClient(),
                          SpanWithStatus(opentelemetry::trace::StatusCode::kOk),
-                         SpanNamed("test-subscription extend"))));
+                         SpanNamed("test-subscription modack"))));
 }
 
 TEST(DefaultPullLeaseManager, TracingDisabled) {
@@ -151,16 +150,16 @@ TEST(DefaultPullLeaseManager, TracingDisabled) {
                kLeaseExtension.count()),
       Property(&ModifyAckDeadlineRequest::subscription,
                subscription.FullName()));
-  EXPECT_CALL(*mock, AsyncModifyAckDeadline(_, _, request_matcher))
+  EXPECT_CALL(*mock, AsyncModifyAckDeadline(_, _, _, request_matcher))
       .WillOnce(Return(ByMove(make_ready_future(Status{}))));
   AsyncSequencer<bool> aseq;
   auto cq = MakeMockCompletionQueue(aseq);
   auto current_time = std::chrono::system_clock::now();
-  MockClock clock;
-  EXPECT_CALL(clock, Call).WillRepeatedly([&] { return current_time; });
+  auto clock = std::make_shared<FakeSystemClock>();
+  clock->SetTime(current_time);
   auto manager = MakePullLeaseManager(
       std::move(cq), std::move(mock), subscription, "test-ack-id",
-      DisableTracing(MakeTestOptions()), clock.AsStdFunction());
+      DisableTracing(MakeTestOptions()), std::move(clock));
 
   auto status = manager->ExtendLease(mock, current_time, kLeaseExtension);
   EXPECT_STATUS_OK(status.get());

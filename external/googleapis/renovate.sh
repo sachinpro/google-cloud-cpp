@@ -36,7 +36,7 @@ SHA256=$(sha256sum "${DOWNLOAD}" | sed "s/ .*//")
 PIPERORIGIN_REVID=
 REV_COMMIT="${COMMIT}"
 until grep -q "/googleapis/archive/${REV_COMMIT}\.tar" bazel/workspace0.bzl; do
-  gh api "repos/${REPO}/commits/${REV_COMMIT}" >"${DOWNLOAD}"
+  curl -fsSL -H "Accept: application/json" "https://api.github.com/repos/${REPO}/commits/${REV_COMMIT}" -o "${DOWNLOAD}"
   PIPERORIGIN_REVID=$(jq --raw-output .commit.message <"${DOWNLOAD}" |
     grep PiperOrigin-RevId:) && break
   REV_COMMIT=$(jq --raw-output '.parents[0].sha' <"${DOWNLOAD}")
@@ -69,12 +69,10 @@ if git diff --quiet bazel/google_cloud_cpp_deps.bzl \
   exit 0
 fi
 
-banner "Updating the protodeps/protolists"
-external/googleapis/update_libraries.sh
-
 banner "Regenerating libraries"
 # generate-libraries fails if it creates a diff, so ignore its status.
-ci/cloudbuild/build.sh --docker --trigger=generate-libraries-pr || true
+TRIGGER_TYPE='pr' ci/cloudbuild/build.sh \
+  --docker --trigger=generate-libraries-pr || true
 
 banner "Creating commits"
 git commit -m"chore: update googleapis SHA circa $(date +%Y-%m-%d)" \

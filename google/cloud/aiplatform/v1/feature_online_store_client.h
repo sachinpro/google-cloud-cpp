@@ -26,6 +26,7 @@
 #include "google/cloud/status_or.h"
 #include "google/cloud/version.h"
 #include <memory>
+#include <string>
 
 namespace google {
 namespace cloud {
@@ -33,7 +34,7 @@ namespace aiplatform_v1 {
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 
 ///
-/// FeatureOnlineStoreServiceClient
+/// A service for fetching feature values from the online store.
 ///
 /// @par Equality
 ///
@@ -108,8 +109,8 @@ class FeatureOnlineStoreServiceClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.aiplatform.v1.FetchFeatureValuesRequest]: @googleapis_reference_link{google/cloud/aiplatform/v1/feature_online_store_service.proto#L73}
-  /// [google.cloud.aiplatform.v1.FetchFeatureValuesResponse]: @googleapis_reference_link{google/cloud/aiplatform/v1/feature_online_store_service.proto#L95}
+  /// [google.cloud.aiplatform.v1.FetchFeatureValuesRequest]: @googleapis_reference_link{google/cloud/aiplatform/v1/feature_online_store_service.proto#L96}
+  /// [google.cloud.aiplatform.v1.FetchFeatureValuesResponse]: @googleapis_reference_link{google/cloud/aiplatform/v1/feature_online_store_service.proto#L118}
   ///
   // clang-format on
   StatusOr<google::cloud::aiplatform::v1::FetchFeatureValuesResponse>
@@ -141,13 +142,48 @@ class FeatureOnlineStoreServiceClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.aiplatform.v1.FetchFeatureValuesRequest]: @googleapis_reference_link{google/cloud/aiplatform/v1/feature_online_store_service.proto#L73}
-  /// [google.cloud.aiplatform.v1.FetchFeatureValuesResponse]: @googleapis_reference_link{google/cloud/aiplatform/v1/feature_online_store_service.proto#L95}
+  /// [google.cloud.aiplatform.v1.FetchFeatureValuesRequest]: @googleapis_reference_link{google/cloud/aiplatform/v1/feature_online_store_service.proto#L96}
+  /// [google.cloud.aiplatform.v1.FetchFeatureValuesResponse]: @googleapis_reference_link{google/cloud/aiplatform/v1/feature_online_store_service.proto#L118}
   ///
   // clang-format on
   StatusOr<google::cloud::aiplatform::v1::FetchFeatureValuesResponse>
   FetchFeatureValues(
       google::cloud::aiplatform::v1::FetchFeatureValuesRequest const& request,
+      Options opts = {});
+
+  // clang-format off
+  ///
+  /// Search the nearest entities under a FeatureView.
+  /// Search only works for indexable feature view; if a feature view isn't
+  /// indexable, returns Invalid argument response.
+  ///
+  /// @param request Unary RPCs, such as the one wrapped by this
+  ///     function, receive a single `request` proto message which includes all
+  ///     the inputs for the RPC. In this case, the proto message is a
+  ///     [google.cloud.aiplatform.v1.SearchNearestEntitiesRequest].
+  ///     Proto messages are converted to C++ classes by Protobuf, using the
+  ///     [Protobuf mapping rules].
+  /// @param opts Optional. Override the class-level options, such as retry and
+  ///     backoff policies.
+  /// @return the result of the RPC. The response message type
+  ///     ([google.cloud.aiplatform.v1.SearchNearestEntitiesResponse])
+  ///     is mapped to a C++ class using the [Protobuf mapping rules].
+  ///     If the request fails, the [`StatusOr`] contains the error details.
+  ///
+  /// [Protobuf mapping rules]: https://protobuf.dev/reference/cpp/cpp-generated/
+  /// [input iterator requirements]: https://en.cppreference.com/w/cpp/named_req/InputIterator
+  /// [`std::string`]: https://en.cppreference.com/w/cpp/string/basic_string
+  /// [`future`]: @ref google::cloud::future
+  /// [`StatusOr`]: @ref google::cloud::StatusOr
+  /// [`Status`]: @ref google::cloud::Status
+  /// [google.cloud.aiplatform.v1.SearchNearestEntitiesRequest]: @googleapis_reference_link{google/cloud/aiplatform/v1/feature_online_store_service.proto#L221}
+  /// [google.cloud.aiplatform.v1.SearchNearestEntitiesResponse]: @googleapis_reference_link{google/cloud/aiplatform/v1/feature_online_store_service.proto#L264}
+  ///
+  // clang-format on
+  StatusOr<google::cloud::aiplatform::v1::SearchNearestEntitiesResponse>
+  SearchNearestEntities(
+      google::cloud::aiplatform::v1::SearchNearestEntitiesRequest const&
+          request,
       Options opts = {});
 
  private:

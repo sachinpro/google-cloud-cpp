@@ -27,13 +27,14 @@ set(GOOGLE_CLOUD_CPP_LEGACY_FEATURES
 # Protobuf messages. We do not bother to have an internal library that depends
 # on Protobuf but not gRPC. So these libraries must depend on
 # `google_cloud_cpp_grpc_utils`.
-set(GOOGLE_CLOUD_CPP_REST_ONLY_FEATURES
-    "oauth2;storage;experimental-bigquery_rest")
+set(GOOGLE_CLOUD_CPP_NO_GRPC_FEATURES
+    # cmake-format: sort
+    "experimental-bigquery_rest" "mocks" "oauth2" "storage")
 
 set(GOOGLE_CLOUD_CPP_EXPERIMENTAL_LIBRARIES
     # cmake-format: sort
     "pubsublite" # This is WIP, it needs a number of hand-crafted APIs.
-)
+    "storagecontrol")
 
 set(GOOGLE_CLOUD_CPP_TRANSITION_LIBRARIES # cmake-format: sort
 )
@@ -49,6 +50,7 @@ set(GOOGLE_CLOUD_CPP_GA_LIBRARIES
     "apigeeconnect"
     "apikeys"
     "appengine"
+    "apphub"
     "artifactregistry"
     "asset"
     "assuredworkloads"
@@ -63,6 +65,7 @@ set(GOOGLE_CLOUD_CPP_GA_LIBRARIES
     "certificatemanager"
     "channel"
     "cloudbuild"
+    "cloudcontrolspartner"
     "cloudquotas"
     "commerce"
     "composer"
@@ -136,8 +139,10 @@ set(GOOGLE_CLOUD_CPP_GA_LIBRARIES
     "secretmanager"
     "securesourcemanager"
     "securitycenter"
+    "securitycentermanagement"
     "servicecontrol"
     "servicedirectory"
+    "servicehealth"
     "servicemanagement"
     "serviceusage"
     "shell"
@@ -350,7 +355,7 @@ macro (google_cloud_cpp_enable_cleanup)
     list(REMOVE_DUPLICATES GOOGLE_CLOUD_CPP_ENABLE)
 
     set(grpc_features ${GOOGLE_CLOUD_CPP_ENABLE})
-    list(REMOVE_ITEM grpc_features ${GOOGLE_CLOUD_CPP_REST_ONLY_FEATURES})
+    list(REMOVE_ITEM grpc_features ${GOOGLE_CLOUD_CPP_NO_GRPC_FEATURES})
     if (grpc_features)
         set(GOOGLE_CLOUD_CPP_ENABLE_GRPC ON)
     endif ()
@@ -364,6 +369,7 @@ macro (google_cloud_cpp_enable_cleanup)
         OR (oauth2 IN_LIST GOOGLE_CLOUD_CPP_ENABLE)
         OR (opentelemetry IN_LIST GOOGLE_CLOUD_CPP_ENABLE)
         OR (sql IN_LIST GOOGLE_CLOUD_CPP_ENABLE)
+        OR (universe_domain IN_LIST GOOGLE_CLOUD_CPP_ENABLE)
         OR (generator IN_LIST GOOGLE_CLOUD_CPP_ENABLE))
         set(GOOGLE_CLOUD_CPP_ENABLE_REST ON)
     endif ()
@@ -388,6 +394,8 @@ function (google_cloud_cpp_enable_features)
                 add_subdirectory(google/cloud/bigquery)
             endif ()
         elseif ("${feature}" STREQUAL "experimental-http-transcoding")
+            continue()
+        elseif ("${feature}" STREQUAL "universe_domain")
             continue()
         elseif ("${feature}" MATCHES "^compute_.*")
             if (NOT compute_added)

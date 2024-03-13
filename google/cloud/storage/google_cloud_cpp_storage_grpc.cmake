@@ -47,6 +47,9 @@ else ()
         async/reader.cc
         async/reader.h
         async/reader_connection.h
+        async/rewriter.cc
+        async/rewriter.h
+        async/rewriter_connection.h
         async/token.h
         async/writer.cc
         async/writer.h
@@ -72,6 +75,10 @@ else ()
         internal/async/reader_connection_impl.h
         internal/async/reader_connection_tracing.cc
         internal/async/reader_connection_tracing.h
+        internal/async/rewriter_connection_impl.cc
+        internal/async/rewriter_connection_impl.h
+        internal/async/rewriter_connection_tracing.cc
+        internal/async/rewriter_connection_tracing.h
         internal/async/token_impl.cc
         internal/async/token_impl.h
         internal/async/write_payload_fwd.h
@@ -212,69 +219,74 @@ install(
 google_cloud_cpp_install_headers(google_cloud_cpp_storage_grpc
                                  include/google/cloud/storage)
 
-# Create a header-only library for the mocks. We use a CMake `INTERFACE` library
-# for these, a regular library would not work on macOS (where the library needs
-# at least one .o file). Unfortunately INTERFACE libraries are a bit weird in
-# that they need absolute paths for their sources.
-add_library(google_cloud_cpp_storage_grpc_mocks INTERFACE)
-set(google_cloud_cpp_storage_grpc_mocks_hdrs
-    # cmake-format: sort
-    mocks/mock_async_connection.h mocks/mock_async_reader_connection.h
-    mocks/mock_async_writer_connection.h)
-export_list_to_bazel("google_cloud_cpp_storage_grpc_mocks.bzl"
-                     "google_cloud_cpp_storage_grpc_mocks_hdrs" YEAR "2023")
-target_link_libraries(
-    google_cloud_cpp_storage_grpc_mocks
-    INTERFACE google-cloud-cpp::experimental-storage_grpc GTest::gmock)
-set_target_properties(
-    google_cloud_cpp_storage_grpc_mocks
-    PROPERTIES EXPORT_NAME "google-cloud-cpp::experimental-storage_grpc_mocks")
-target_include_directories(
-    google_cloud_cpp_storage_grpc_mocks
-    INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
-              $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
-              $<INSTALL_INTERFACE:include>)
-target_compile_options(google_cloud_cpp_storage_grpc_mocks
-                       INTERFACE ${GOOGLE_CLOUD_CPP_EXCEPTIONS_FLAG})
-add_library(google-cloud-cpp::experimental-storage_grpc_mocks ALIAS
-            google_cloud_cpp_storage_grpc_mocks)
+if (GOOGLE_CLOUD_CPP_WITH_MOCKS)
+    # Create a header-only library for the mocks. We use a CMake `INTERFACE`
+    # library for these, a regular library would not work on macOS (where the
+    # library needs at least one .o file). Unfortunately INTERFACE libraries are
+    # a bit weird in that they need absolute paths for their sources.
+    add_library(google_cloud_cpp_storage_grpc_mocks INTERFACE)
+    set(google_cloud_cpp_storage_grpc_mocks_hdrs
+        # cmake-format: sort
+        mocks/mock_async_connection.h
+        mocks/mock_async_reader_connection.h
+        mocks/mock_async_rewriter_connection.h
+        mocks/mock_async_writer_connection.h)
+    export_list_to_bazel("google_cloud_cpp_storage_grpc_mocks.bzl"
+                         "google_cloud_cpp_storage_grpc_mocks_hdrs" YEAR "2023")
+    target_link_libraries(
+        google_cloud_cpp_storage_grpc_mocks
+        INTERFACE google-cloud-cpp::experimental-storage_grpc GTest::gmock)
+    set_target_properties(
+        google_cloud_cpp_storage_grpc_mocks
+        PROPERTIES EXPORT_NAME
+                   "google-cloud-cpp::experimental-storage_grpc_mocks")
+    target_include_directories(
+        google_cloud_cpp_storage_grpc_mocks
+        INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+                  $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+                  $<INSTALL_INTERFACE:include>)
+    target_compile_options(google_cloud_cpp_storage_grpc_mocks
+                           INTERFACE ${GOOGLE_CLOUD_CPP_EXCEPTIONS_FLAG})
+    add_library(google-cloud-cpp::experimental-storage_grpc_mocks ALIAS
+                google_cloud_cpp_storage_grpc_mocks)
 
-install(
-    EXPORT storage_grpc_mocks-targets
-    DESTINATION
-        "${CMAKE_INSTALL_LIBDIR}/cmake/google_cloud_cpp_storage_grpc_mocks"
-    COMPONENT google_cloud_cpp_development)
+    install(
+        FILES ${google_cloud_cpp_storage_grpc_mocks_hdrs}
+        DESTINATION "include/google/cloud/storage/mocks"
+        COMPONENT google_cloud_cpp_development)
 
-install(
-    TARGETS google_cloud_cpp_storage_grpc_mocks
-    EXPORT storage_grpc_mocks-targets
-    COMPONENT google_cloud_cpp_development)
+    install(
+        EXPORT storage_grpc_mocks-targets
+        DESTINATION
+            "${CMAKE_INSTALL_LIBDIR}/cmake/google_cloud_cpp_storage_grpc_mocks"
+        COMPONENT google_cloud_cpp_development)
 
-install(
-    FILES ${google_cloud_cpp_storage_grpc_mocks_hdrs}
-    DESTINATION "include/google/cloud/storage/mocks"
-    COMPONENT google_cloud_cpp_development)
+    install(
+        TARGETS google_cloud_cpp_storage_grpc_mocks
+        EXPORT storage_grpc_mocks-targets
+        COMPONENT google_cloud_cpp_development)
 
-google_cloud_cpp_add_pkgconfig(
-    storage_grpc_mocks "Google Cloud Storage (gRPC) Mocks"
-    "Mocks for the Google Cloud Storage (gRPC) C++ Client Library"
-    "google_cloud_cpp_storage" " gmock_main")
+    google_cloud_cpp_add_pkgconfig(
+        storage_grpc_mocks "Google Cloud Storage (gRPC) Mocks"
+        "Mocks for the Google Cloud Storage (gRPC) C++ Client Library"
+        "google_cloud_cpp_storage" " gmock_main")
 
-# Create and install the CMake configuration files.
-configure_file("mocks-config.cmake.in"
-               "google_cloud_cpp_storage_grpc_mocks-config.cmake" @ONLY)
-write_basic_package_version_file(
-    "google_cloud_cpp_storage_grpc_mocks-config-version.cmake"
-    VERSION ${PROJECT_VERSION}
-    COMPATIBILITY ExactVersion)
+    # Create and install the CMake configuration files.
+    configure_file("mocks-config.cmake.in"
+                   "google_cloud_cpp_storage_grpc_mocks-config.cmake" @ONLY)
+    write_basic_package_version_file(
+        "google_cloud_cpp_storage_grpc_mocks-config-version.cmake"
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY ExactVersion)
 
-install(
-    FILES
-        "${CMAKE_CURRENT_BINARY_DIR}/google_cloud_cpp_storage_grpc_mocks-config.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/google_cloud_cpp_storage_grpc_mocks-config-version.cmake"
-    DESTINATION
-        "${CMAKE_INSTALL_LIBDIR}/cmake/google_cloud_cpp_storage_grpc_mocks"
-    COMPONENT google_cloud_cpp_development)
+    install(
+        FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/google_cloud_cpp_storage_grpc_mocks-config.cmake"
+            "${CMAKE_CURRENT_BINARY_DIR}/google_cloud_cpp_storage_grpc_mocks-config-version.cmake"
+        DESTINATION
+            "${CMAKE_INSTALL_LIBDIR}/cmake/google_cloud_cpp_storage_grpc_mocks"
+        COMPONENT google_cloud_cpp_development)
+endif ()
 
 if (BUILD_TESTING AND GOOGLE_CLOUD_CPP_STORAGE_ENABLE_GRPC)
     # This is a bit weird, we add an additional link library to
@@ -286,6 +298,7 @@ if (BUILD_TESTING AND GOOGLE_CLOUD_CPP_STORAGE_ENABLE_GRPC)
         # cmake-format: sort
         async/client_test.cc
         async/reader_test.cc
+        async/rewriter_test.cc
         async/token_test.cc
         async/writer_test.cc
         grpc_plugin_test.cc
@@ -298,6 +311,8 @@ if (BUILD_TESTING AND GOOGLE_CLOUD_CPP_STORAGE_ENABLE_GRPC)
         internal/async/read_payload_impl_test.cc
         internal/async/reader_connection_impl_test.cc
         internal/async/reader_connection_tracing_test.cc
+        internal/async/rewriter_connection_impl_test.cc
+        internal/async/rewriter_connection_tracing_test.cc
         internal/async/write_payload_impl_test.cc
         internal/async/writer_connection_buffered_test.cc
         internal/async/writer_connection_finalized_test.cc
@@ -323,7 +338,6 @@ if (BUILD_TESTING AND GOOGLE_CLOUD_CPP_STORAGE_ENABLE_GRPC)
         internal/grpc/sign_blob_request_parser_test.cc
         internal/grpc/split_write_object_data_test.cc
         internal/grpc/stub_acl_test.cc
-        internal/grpc/stub_failures_test.cc
         internal/grpc/stub_insert_object_media_test.cc
         internal/grpc/stub_read_object_test.cc
         internal/grpc/stub_test.cc

@@ -18,8 +18,6 @@
 #include "google/cloud/pubsub/publisher.h"
 #include "google/cloud/pubsub/schema_client.h"
 #include "google/cloud/pubsub/subscriber.h"
-#include "google/cloud/pubsub/subscription_admin_client.h"
-#include "google/cloud/pubsub/topic_admin_client.h"
 #include "google/cloud/testing_util/example_driver.h"
 #include <string>
 #include <vector>
@@ -42,21 +40,6 @@ using SubscriberCommand =
 google::cloud::testing_util::Commands::value_type CreateSubscriberCommand(
     std::string const& name, std::vector<std::string> const& arg_names,
     SubscriberCommand const& command);
-
-using TopicAdminCommand = std::function<void(pubsub::TopicAdminClient,
-                                             std::vector<std::string> const&)>;
-
-google::cloud::testing_util::Commands::value_type CreateTopicAdminCommand(
-    std::string const& name, std::vector<std::string> const& arg_names,
-    TopicAdminCommand const& command);
-
-using SubscriptionAdminCommand = std::function<void(
-    pubsub::SubscriptionAdminClient, std::vector<std::string> const&)>;
-
-google::cloud::testing_util::Commands::value_type
-CreateSubscriptionAdminCommand(std::string const& name,
-                               std::vector<std::string> const& arg_names,
-                               SubscriptionAdminCommand const& command);
 
 using SchemaServiceCommand = std::function<void(
     pubsub::SchemaServiceClient, std::vector<std::string> const&)>;
@@ -89,6 +72,18 @@ std::pair<std::string, std::string> CommitSchemaWithRevisionsForTesting(
 // tests are cleaning up schemas in parallel, then the delete call might fail.
 void CleanupSchemas(google::cloud::pubsub::SchemaServiceClient& schema_admin,
                     std::string const& project_id, absl::Time const& time_now);
+
+class Cleanup {
+ public:
+  Cleanup() = default;
+  ~Cleanup() {
+    for (auto i = actions_.rbegin(); i != actions_.rend(); ++i) (*i)();
+  }
+  void Defer(std::function<void()> f) { actions_.push_back(std::move(f)); }
+
+ private:
+  std::vector<std::function<void()>> actions_;
+};
 
 }  // namespace examples
 }  // namespace pubsub

@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+load(":spanner_client_integration_tests.bzl", "spanner_client_integration_tests")
+
 package(default_visibility = ["//visibility:private"])
 
 licenses(["notice"])  # Apache 2.0
-
-load(":spanner_client_integration_tests.bzl", "spanner_client_integration_tests")
 
 [cc_test(
     name = test.replace("/", "_").replace(".cc", ""),
@@ -29,6 +29,7 @@ load(":spanner_client_integration_tests.bzl", "spanner_client_integration_tests"
         "//:common",
         "//:spanner",
         "//:spanner_mocks",
+        "//google/cloud/spanner:singer_cc_proto",
         "//google/cloud/spanner:spanner_client_testing_private",
         "//google/cloud/testing_util:google_cloud_cpp_testing_grpc_private",
         "//google/cloud/testing_util:google_cloud_cpp_testing_private",

@@ -53,6 +53,8 @@ std::string FeaturesMetadata() {
     proto.set_last_scanned_row_responses(true);
     proto.set_mutate_rows_rate_limit(true);
     proto.set_mutate_rows_rate_limit2(true);
+    proto.set_routing_cookie(true);
+    proto.set_retry_info(true);
     return internal::UrlsafeBase64Encode(proto.SerializeAsString());
   }());
   return *kFeatures;

@@ -31,6 +31,7 @@ namespace {
 using ::testing::ElementsAre;
 using ::testing::HasSubstr;
 using ::testing::Not;
+using ::testing::Optional;
 
 BucketMetadata CreateBucketMetadataForTest() {
   // This metadata object has some impossible combination of fields in it. The
@@ -106,6 +107,9 @@ BucketMetadata CreateBucketMetadataForTest() {
         "defaultKmsKeyName": "projects/test-project-name/locations/us-central1/keyRings/test-keyring-name/cryptoKeys/test-key-name"
       },
       "etag": "XYZ=",
+      "hierarchicalNamespace": {
+        "enabled": true
+      },
       "iamConfiguration": {
         "uniformBucketLevelAccess": {
           "enabled": true,
@@ -160,6 +164,10 @@ BucketMetadata CreateBucketMetadataForTest() {
       },
       "rpo": "DEFAULT",
       "selfLink": "https://storage.googleapis.com/storage/v1/b/test-bucket",
+      "softDeletePolicy": {
+        "retentionDurationSeconds": 604800,
+        "effectiveTime": "2024-02-15T12:34:56Z"
+      },
       "storageClass": "STANDARD",
       "timeCreated": "2018-05-19T19:31:14Z",
       "updated": "2018-05-19T19:31:24Z",
@@ -211,6 +219,10 @@ TEST(BucketMetadataTest, Parse) {
       "test-keyring-name/cryptoKeys/test-key-name",
       actual.encryption().default_kms_key_name);
   EXPECT_EQ("XYZ=", actual.etag());
+  // hierarchicalNamespace
+  ASSERT_TRUE(actual.has_hierarchical_namespace());
+  ASSERT_TRUE(actual.hierarchical_namespace_as_optional().has_value());
+  ASSERT_EQ(actual.hierarchical_namespace(), BucketHierarchicalNamespace{true});
   ASSERT_TRUE(actual.has_iam_configuration());
   ASSERT_TRUE(
       actual.iam_configuration().uniform_bucket_level_access.has_value());
@@ -282,6 +294,14 @@ TEST(BucketMetadataTest, Parse) {
 
   EXPECT_EQ("https://storage.googleapis.com/storage/v1/b/test-bucket",
             actual.self_link());
+
+  // soft_delete_policy
+  ASSERT_THAT(actual.soft_delete_policy_as_optional(),
+              Optional(BucketSoftDeletePolicy{
+                  std::chrono::seconds(604800),
+                  google::cloud::internal::ParseRfc3339("2024-02-15T12:34:56Z")
+                      .value()}));
+
   EXPECT_EQ(storage_class::Standard(), actual.storage_class());
   // Use `date -u +%s --date='2018-05-19T19:31:14Z'` to get the magic number:
   auto magic_timestamp = 1526758274L;
@@ -348,6 +368,12 @@ TEST(BucketMetadataTest, IOStream) {
               HasSubstr("projects/test-project-name/locations/us-central1/"
                         "keyRings/test-keyring-name/cryptoKeys/test-key-name"));
 
+  // hierarchical_namespace()
+  EXPECT_THAT(
+      actual,
+      HasSubstr(
+          "hierarchical_namespace=BucketHierarchicalNamespace={enabled=true}"));
+
   // iam_policy()
   EXPECT_THAT(actual, HasSubstr("BucketIamConfiguration={"));
   EXPECT_THAT(actual, HasSubstr("locked_time=2020-01-02T03:04:05Z"));
@@ -379,6 +405,12 @@ TEST(BucketMetadataTest, IOStream) {
 
   // rpo()
   EXPECT_THAT(actual, HasSubstr("rpo=DEFAULT"));
+
+  // soft_delete_policy()
+  EXPECT_THAT(
+      actual,
+      HasSubstr("soft_delete_policy=BucketSoftDeletePolicy={retention_duration="
+                "604800s, effective_time=2024-02-15T12:34:56Z}"));
 
   // versioning()
   EXPECT_THAT(actual, HasSubstr("versioning.enabled=true"));
@@ -446,6 +478,11 @@ TEST(BucketMetadataTest, ToJsonString) {
       "projects/test-project-name/locations/us-central1/keyRings/"
       "test-keyring-name/cryptoKeys/test-key-name",
       actual["encryption"].value("defaultKmsKeyName", ""));
+
+  // hierarchical_namespace()
+  ASSERT_EQ(1, actual.count("hierarchicalNamespace"));
+  EXPECT_EQ(actual["hierarchicalNamespace"],
+            nlohmann::json({{"enabled", true}}));
 
   // iam_configuration()
   ASSERT_EQ(1U, actual.count("iamConfiguration"));
@@ -515,6 +552,14 @@ TEST(BucketMetadataTest, ToJsonString) {
   // rpo()
   EXPECT_TRUE(actual.contains("rpo"));
   EXPECT_EQ("DEFAULT", actual.value("rpo", ""));
+
+  // soft_delete_policy()
+  EXPECT_TRUE(actual.contains("softDeletePolicy"));
+  // The effectiveTime field is only set by the service and should not be sent
+  // in requests. Therefore, `ToJsonString()` does not output its value.
+  auto const expected_soft_delete_policy =
+      nlohmann::json{{"retentionDurationSeconds", 604800}};
+  EXPECT_EQ(expected_soft_delete_policy, actual["softDeletePolicy"]);
 
   // storage_class()
   ASSERT_EQ("STANDARD", actual.value("storageClass", ""));
@@ -720,6 +765,25 @@ TEST(BucketMetadataTest, SetDefaultObjectAcl) {
   EXPECT_NE(expected, copy);
 }
 
+/// @test Verify we can change the Hierarchical Namespace configuration.
+TEST(BucketMetadataTest, SetHierarchicalNamespace) {
+  auto expected = CreateBucketMetadataForTest();
+  auto copy = expected;
+  copy.set_hierarchical_namespace(BucketHierarchicalNamespace{false});
+  ASSERT_TRUE(copy.has_hierarchical_namespace());
+  EXPECT_EQ(copy.hierarchical_namespace(), BucketHierarchicalNamespace{false});
+  EXPECT_NE(expected, copy);
+}
+
+/// @test Verify we can reset the Hierarchical Namespace configuration.
+TEST(BucketMetadataTest, ResetHierarchicalNamespace) {
+  auto expected = CreateBucketMetadataForTest();
+  auto copy = expected;
+  copy.reset_hierarchical_namespace();
+  ASSERT_FALSE(copy.has_hierarchical_namespace());
+  EXPECT_NE(expected, copy);
+}
+
 /// @test Verify we can change the IAM Configuration in BucketMetadata.
 TEST(BucketMetadataTest, SetIamConfigurationUBLA) {
   auto expected = CreateBucketMetadataForTest();
@@ -874,6 +938,33 @@ TEST(BucketMetadataTest, SetRPO) {
   std::ostringstream os;
   os << copy;
   EXPECT_THAT(os.str(), HasSubstr("rpo=ASYNC_TURBO"));
+}
+
+/// @test Verify we can change the soft delete policy in BucketMetadata.
+TEST(BucketMetadataTest, SetSoftDeletePolicy) {
+  auto expected = CreateBucketMetadataForTest();
+  BucketSoftDeletePolicy change{
+      std::chrono::seconds(3600),
+      google::cloud::internal::ParseRfc3339("2024-02-15T23:45:60Z").value(),
+  };
+  auto copy = expected;
+  copy.set_soft_delete_policy(change);
+  ASSERT_THAT(copy.soft_delete_policy_as_optional(), Optional(change));
+  EXPECT_EQ(change, copy.soft_delete_policy());
+  EXPECT_NE(expected, copy);
+}
+
+/// @test Verify we can change the soft delete policy in BucketMetadata.
+TEST(BucketMetadataTest, ResetSoftDeletePolicy) {
+  auto expected = CreateBucketMetadataForTest();
+  EXPECT_TRUE(expected.has_soft_delete_policy());
+  auto copy = expected;
+  copy.reset_soft_delete_policy();
+  EXPECT_FALSE(copy.has_soft_delete_policy());
+  EXPECT_NE(expected, copy);
+  std::ostringstream os;
+  os << copy;
+  EXPECT_THAT(os.str(), Not(HasSubstr("soft_delete_policy=")));
 }
 
 /// @test Verify we can clear the versioning field in BucketMetadata.
@@ -1172,6 +1263,26 @@ TEST(BucketMetadataPatchBuilder, ResetIamConfiguration) {
   ASSERT_TRUE(json["iamConfiguration"].is_null()) << json;
 }
 
+TEST(BucketMetadataPatchBuilder, SetHierarchicalNamespace) {
+  BucketMetadataPatchBuilder builder;
+  builder.SetHierarchicalNamespace(BucketHierarchicalNamespace{true});
+
+  auto actual = builder.BuildPatch();
+  auto json = nlohmann::json::parse(actual);
+  ASSERT_EQ(1U, json.count("hierarchicalNamespace")) << json;
+  ASSERT_EQ(json["hierarchicalNamespace"], nlohmann::json({{"enabled", true}}));
+}
+
+TEST(BucketMetadataPatchBuilder, ResetHierarchicalNamespace) {
+  BucketMetadataPatchBuilder builder;
+  builder.ResetHierarchicalNamespace();
+
+  auto actual = builder.BuildPatch();
+  auto json = nlohmann::json::parse(actual);
+  ASSERT_EQ(1U, json.count("hierarchicalNamespace")) << json;
+  ASSERT_TRUE(json["hierarhicalNamespace"].is_null()) << json;
+}
+
 TEST(BucketMetadataPatchBuilder, SetEncryption) {
   BucketMetadataPatchBuilder builder;
   std::string expected =
@@ -1375,6 +1486,30 @@ TEST(BucketMetadataPatchBuilder, ResetRpo) {
   auto json = nlohmann::json::parse(actual);
   ASSERT_TRUE(json.contains("rpo")) << json;
   ASSERT_TRUE(json["rpo"].is_null()) << json;
+}
+
+TEST(BucketMetadataPatchBuilder, SetSoftDeletePolicy) {
+  BucketMetadataPatchBuilder builder;
+  builder.SetSoftDeletePolicy(BucketSoftDeletePolicy{
+      std::chrono::seconds(604800),
+      google::cloud::internal::ParseRfc3339("2024-03-01T12:00:00Z").value()});
+
+  auto actual_patch = builder.BuildPatch();
+  auto actual_json = nlohmann::json::parse(actual_patch);
+  auto expected_json =
+      nlohmann::json{{"softDeletePolicy",
+                      nlohmann::json{{"retentionDurationSeconds", 604800}}}};
+  EXPECT_EQ(expected_json, actual_json);
+}
+
+TEST(BucketMetadataPatchBuilder, ResetSoftDeletePolicy) {
+  BucketMetadataPatchBuilder builder;
+  builder.ResetSoftDeletePolicy();
+
+  auto actual = builder.BuildPatch();
+  auto json = nlohmann::json::parse(actual);
+  ASSERT_EQ(1U, json.count("softDeletePolicy")) << json;
+  ASSERT_TRUE(json["softDeletePolicy"].is_null()) << json;
 }
 
 TEST(BucketMetadataPatchBuilder, SetStorageClass) {

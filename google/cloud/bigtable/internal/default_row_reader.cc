@@ -15,7 +15,7 @@
 #include "google/cloud/bigtable/internal/default_row_reader.h"
 #include "google/cloud/bigtable/table.h"
 #include "google/cloud/grpc_error_delegate.h"
-#include <thread>
+#include "google/cloud/internal/retry_loop_helpers.h"
 
 namespace google {
 namespace cloud {
@@ -27,7 +27,8 @@ DefaultRowReader::DefaultRowReader(
     std::string table_name, bigtable::RowSet row_set, std::int64_t rows_limit,
     bigtable::Filter filter, bool reverse,
     std::unique_ptr<bigtable::DataRetryPolicy> retry_policy,
-    std::unique_ptr<BackoffPolicy> backoff_policy)
+    std::unique_ptr<BackoffPolicy> backoff_policy, bool enable_server_retries,
+    Sleeper sleeper)
     : stub_(std::move(stub)),
       app_profile_id_(std::move(app_profile_id)),
       table_name_(std::move(table_name)),
@@ -36,7 +37,9 @@ DefaultRowReader::DefaultRowReader(
       filter_(std::move(filter)),
       reverse_(reverse),
       retry_policy_(std::move(retry_policy)),
-      backoff_policy_(std::move(backoff_policy)) {}
+      backoff_policy_(std::move(backoff_policy)),
+      enable_server_retries_(enable_server_retries),
+      sleeper_(std::move(sleeper)) {}
 
 void DefaultRowReader::MakeRequest() {
   response_ = {};
@@ -58,9 +61,10 @@ void DefaultRowReader::MakeRequest() {
   }
 
   auto const& options = internal::CurrentOptions();
-  auto context = std::make_shared<grpc::ClientContext>();
-  internal::ConfigureContext(*context, options);
-  stream_ = stub_->ReadRows(std::move(context), options, request);
+  context_ = std::make_shared<grpc::ClientContext>();
+  internal::ConfigureContext(*context_, options);
+  retry_context_.PreCall(*context_);
+  stream_ = stub_->ReadRows(context_, options, request);
   stream_is_open_ = true;
 
   parser_ = bigtable::internal::ReadRowsParserFactory().Create(reverse_);
@@ -74,6 +78,8 @@ bool DefaultRowReader::NextChunk() {
     if (absl::holds_alternative<Status>(v)) {
       last_status_ = absl::get<Status>(std::move(v));
       response_ = {};
+      retry_context_.PostCall(*context_);
+      context_.reset();
       return false;
     }
     response_ = absl::get<google::bigtable::v2::ReadRowsResponse>(std::move(v));
@@ -122,10 +128,11 @@ absl::variant<Status, bigtable::Row> DefaultRowReader::Advance() {
     // If we receive an error, but the retryable set is empty, stop.
     if (row_set_.IsEmpty()) return Status{};
 
-    if (!retry_policy_->OnFailure(status)) return status;
-
-    auto delay = backoff_policy_->OnCompletion();
-    std::this_thread::sleep_for(delay);
+    auto delay = internal::Backoff(status, "AsyncReadRows", *retry_policy_,
+                                   *backoff_policy_, Idempotency::kIdempotent,
+                                   enable_server_retries_);
+    if (!delay) return std::move(delay).status();
+    sleeper_(*delay);
 
     // If we reach this place, we failed and need to restart the call.
     MakeRequest();
@@ -175,6 +182,7 @@ void DefaultRowReader::Cancel() {
       stream_->Read())) {
   }
 
+  context_.reset();
   stream_is_open_ = false;
 }
 

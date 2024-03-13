@@ -33,7 +33,6 @@ namespace storage_internal {
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 namespace {
 
-using ::google::cloud::internal::CurrentOptions;
 using ::google::cloud::storage::testing::MockAsyncBidiWriteObjectStream;
 using ::google::cloud::storage::testing::MockAsyncInsertStream;
 using ::google::cloud::storage::testing::MockAsyncObjectMediaStream;
@@ -42,9 +41,12 @@ using ::google::cloud::storage::testing::canonical_errors::PermanentError;
 using ::google::cloud::storage::testing::canonical_errors::TransientError;
 using ::google::cloud::testing_util::AsyncSequencer;
 using ::google::cloud::testing_util::IsOk;
+using ::google::cloud::testing_util::IsOkAndHolds;
 using ::google::cloud::testing_util::StatusIs;
 using ::google::cloud::testing_util::ValidateMetadataFixture;
 using ::testing::_;
+using ::testing::AllOf;
+using ::testing::Field;
 using ::testing::HasSubstr;
 using ::testing::Pair;
 using ::testing::UnorderedElementsAre;
@@ -139,9 +141,10 @@ TEST_F(AsyncConnectionImplTest, AsyncInsertObject) {
       })
       .WillOnce([&](CompletionQueue const&,
                     // NOLINTNEXTLINE(performance-unnecessary-value-param)
-                    std::shared_ptr<grpc::ClientContext> context) {
-        // TODO(#12359) - use the explicit `options` when available.
-        EXPECT_EQ(CurrentOptions().get<AuthorityOption>(), kAuthority);
+                    std::shared_ptr<grpc::ClientContext> context,
+                    // NOLINTNEXTLINE(performance-unnecessary-value-param)
+                    internal::ImmutableOptions options) {
+        EXPECT_EQ(options->get<AuthorityOption>(), kAuthority);
         auto metadata = GetMetadata(*context);
         EXPECT_THAT(metadata,
                     UnorderedElementsAre(
@@ -310,10 +313,12 @@ TEST_F(AsyncConnectionImplTest, AsyncReadObject) {
       .WillOnce([&](CompletionQueue const&,
                     // NOLINTNEXTLINE(performance-unnecessary-value-param)
                     std::shared_ptr<grpc::ClientContext> context,
+                    // NOLINTNEXTLINE(performance-unnecessary-value-param)
+                    google::cloud::internal::ImmutableOptions options,
                     google::storage::v2::ReadObjectRequest const& request) {
         // Verify at least one option is initialized with the correct
         // values.
-        EXPECT_EQ(CurrentOptions().get<AuthorityOption>(), kAuthority);
+        EXPECT_EQ(options->get<AuthorityOption>(), kAuthority);
         auto metadata = GetMetadata(*context);
         EXPECT_THAT(metadata, UnorderedElementsAre(
                                   Pair("x-goog-quota-user", "test-quota-user"),
@@ -439,7 +444,7 @@ TEST_F(AsyncConnectionImplTest, UnbufferedUploadNewUpload) {
         });
       })
       .WillOnce(
-          [&](auto&, auto,
+          [&](auto&, auto, auto,
               google::storage::v2::StartResumableWriteRequest const& request) {
             auto const& spec = request.write_object_spec();
             EXPECT_TRUE(spec.has_if_generation_match());
@@ -574,7 +579,7 @@ TEST_F(AsyncConnectionImplTest, UnbufferedUploadResumeUpload) {
         });
       })
       .WillOnce(
-          [&](auto&, auto,
+          [&](auto&, auto, auto,
               google::storage::v2::QueryWriteStatusRequest const& request) {
             EXPECT_EQ(request.upload_id(), "test-upload-id");
 
@@ -700,7 +705,7 @@ TEST_F(AsyncConnectionImplTest, UnbufferedUploadResumeFinalizedUpload) {
         });
       })
       .WillOnce(
-          [&](auto&, auto,
+          [&](auto&, auto, auto,
               google::storage::v2::QueryWriteStatusRequest const& request) {
             EXPECT_EQ(request.upload_id(), "test-upload-id");
 
@@ -953,7 +958,7 @@ TEST_F(AsyncConnectionImplTest, BufferedUploadNewUpload) {
         });
       })
       .WillOnce(
-          [&](auto&, auto,
+          [&](auto&, auto, auto,
               google::storage::v2::StartResumableWriteRequest const& request) {
             auto const& spec = request.write_object_spec();
             EXPECT_TRUE(spec.has_if_generation_match());
@@ -1074,7 +1079,7 @@ TEST_F(AsyncConnectionImplTest, BufferedUploadNewUploadResume) {
         });
       })
       .WillOnce(
-          [&](auto&, auto,
+          [&](auto&, auto, auto,
               google::storage::v2::StartResumableWriteRequest const& request) {
             auto const& spec = request.write_object_spec();
             EXPECT_TRUE(spec.has_if_generation_match());
@@ -1099,7 +1104,7 @@ TEST_F(AsyncConnectionImplTest, BufferedUploadNewUploadResume) {
         });
       })
       .WillOnce(
-          [&](auto&, auto,
+          [&](auto&, auto, auto,
               google::storage::v2::QueryWriteStatusRequest const& request) {
             EXPECT_EQ(request.upload_id(), "test-upload-id");
 
@@ -1262,10 +1267,11 @@ TEST_F(AsyncConnectionImplTest, DeleteObject) {
         });
       })
       .WillOnce([&](CompletionQueue&, auto context,
+                    google::cloud::internal::ImmutableOptions const& options,
                     google::storage::v2::DeleteObjectRequest const& request) {
         // Verify at least one option is initialized with the correct
         // values.
-        EXPECT_EQ(CurrentOptions().get<AuthorityOption>(), kAuthority);
+        EXPECT_EQ(options->get<AuthorityOption>(), kAuthority);
         auto metadata = GetMetadata(*context);
         EXPECT_THAT(metadata, UnorderedElementsAre(
                                   Pair("x-goog-quota-user", "test-quota-user"),
@@ -1343,6 +1349,53 @@ TEST_F(AsyncConnectionImplTest, AsyncDeleteObjectTooManyTransients) {
 
   auto response = pending.get();
   EXPECT_THAT(response, StatusIs(TransientError().code()));
+}
+
+// For RewriteObject just validate the basic functionality. The tests for
+// `RewriterConnectionImpl` are the important ones.
+TEST_F(AsyncConnectionImplTest, RewriteObject) {
+  using ::google::cloud::storage_experimental::RewriteObjectRequest;
+  using ::google::cloud::storage_experimental::RewriteObjectResponse;
+
+  AsyncSequencer<bool> sequencer;
+  auto mock = std::make_shared<storage::testing::MockStorageStub>();
+  EXPECT_CALL(*mock, AsyncRewriteObject)
+      .WillOnce([&] {
+        return sequencer.PushBack("RewriteObject(1)").then([](auto) {
+          return StatusOr<google::storage::v2::RewriteResponse>(
+              TransientError());
+        });
+      })
+      .WillOnce([&] {
+        return sequencer.PushBack("RewriteObject(2)").then([](auto) {
+          google::storage::v2::RewriteResponse response;
+          response.set_total_bytes_rewritten(1000);
+          response.set_object_size(3000);
+          response.set_rewrite_token("test-rewrite-token");
+          return make_status_or(response);
+        });
+      });
+
+  auto match_progress = [](int rewritten, int size) {
+    return AllOf(
+        Field(&RewriteObjectResponse::total_bytes_rewritten, rewritten),
+        Field(&RewriteObjectResponse::object_size, size),
+        Field(&RewriteObjectResponse::rewrite_token, "test-rewrite-token"));
+  };
+
+  internal::AutomaticallyCreatedBackgroundThreads pool(1);
+  auto connection = MakeTestConnection(pool.cq(), mock);
+  auto rewriter = connection->RewriteObject(
+      {RewriteObjectRequest(), connection->options()});
+
+  auto r1 = rewriter->Iterate();
+  auto next = sequencer.PopFrontWithName();
+  EXPECT_EQ(next.second, "RewriteObject(1)");
+  next.first.set_value(true);
+  next = sequencer.PopFrontWithName();
+  EXPECT_EQ(next.second, "RewriteObject(2)");
+  next.first.set_value(true);
+  EXPECT_THAT(r1.get(), IsOkAndHolds(match_progress(1000, 3000)));
 }
 
 }  // namespace

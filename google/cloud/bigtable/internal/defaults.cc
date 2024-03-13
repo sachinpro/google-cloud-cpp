@@ -18,10 +18,12 @@
 #include "google/cloud/bigtable/options.h"
 #include "google/cloud/common_options.h"
 #include "google/cloud/connection_options.h"
+#include "google/cloud/credentials.h"
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/getenv.h"
 #include "google/cloud/internal/service_endpoint.h"
 #include "google/cloud/internal/user_agent_prefix.h"
+#include "google/cloud/opentelemetry_options.h"
 #include "google/cloud/options.h"
 #include "absl/algorithm/container.h"
 #include "absl/strings/str_split.h"
@@ -125,17 +127,17 @@ int DefaultConnectionPoolSize() {
 Options HandleUniverseDomain(Options opts) {
   if (!opts.has<DataEndpointOption>()) {
     auto ep = google::cloud::internal::UniverseDomainEndpoint(
-        "bigtable.googleapis.com.", opts);
+        "bigtable.googleapis.com", opts);
     opts.set<DataEndpointOption>(std::move(ep));
   }
   if (!opts.has<AdminEndpointOption>()) {
     auto ep = google::cloud::internal::UniverseDomainEndpoint(
-        "bigtableadmin.googleapis.com.", opts);
+        "bigtableadmin.googleapis.com", opts);
     opts.set<AdminEndpointOption>(std::move(ep));
   }
   if (!opts.has<InstanceAdminEndpointOption>()) {
     auto ep = google::cloud::internal::UniverseDomainEndpoint(
-        "bigtableadmin.googleapis.com.", opts);
+        "bigtableadmin.googleapis.com", opts);
     opts.set<InstanceAdminEndpointOption>(std::move(ep));
   }
   return opts;
@@ -190,11 +192,14 @@ Options DefaultOptions(Options opts) {
   // options are always set as a result of calling this function.
   opts = HandleUniverseDomain(std::move(opts));
 
+  if (!opts.has<UnifiedCredentialsOption>() &&
+      !opts.has<GrpcCredentialOption>()) {
+    opts.set<GrpcCredentialOption>(emulator ? grpc::InsecureChannelCredentials()
+                                            : grpc::GoogleDefaultCredentials());
+  }
+
   // Fill any missing default values.
   auto defaults = Options{}
-                      .set<GrpcCredentialOption>(
-                          emulator ? grpc::InsecureChannelCredentials()
-                                   : grpc::GoogleDefaultCredentials())
                       .set<TracingComponentsOption>(
                           ::google::cloud::internal::DefaultTracingComponents())
                       .set<GrpcTracingOptionsOption>(
@@ -221,8 +226,14 @@ Options DefaultDataOptions(Options opts) {
   if (user_project && !user_project->empty()) {
     opts.set<UserProjectOption>(*std::move(user_project));
   }
+  auto tracing = GetEnv("GOOGLE_CLOUD_CPP_OPENTELEMETRY_TRACING");
+  if (tracing && !tracing->empty()) {
+    opts.set<OpenTelemetryTracingOption>(true);
+  }
   if (!opts.has<AuthorityOption>()) {
-    opts.set<AuthorityOption>("bigtable.googleapis.com");
+    auto ep = google::cloud::internal::UniverseDomainEndpoint(
+        "bigtable.googleapis.com", opts);
+    opts.set<AuthorityOption>(std::move(ep));
   }
   if (!opts.has<bigtable::DataRetryPolicyOption>()) {
     opts.set<bigtable::DataRetryPolicyOption>(
@@ -239,6 +250,9 @@ Options DefaultDataOptions(Options opts) {
   if (!opts.has<bigtable::IdempotentMutationPolicyOption>()) {
     opts.set<bigtable::IdempotentMutationPolicyOption>(
         bigtable::DefaultIdempotentMutationPolicy());
+  }
+  if (!opts.has<EnableServerRetriesOption>()) {
+    opts.set<EnableServerRetriesOption>(true);
   }
   opts = DefaultOptions(std::move(opts));
   return opts.set<EndpointOption>(opts.get<DataEndpointOption>());

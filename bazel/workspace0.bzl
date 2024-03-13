@@ -85,10 +85,10 @@ def gl_cpp_workspace0(name = None):
         http_archive,
         name = "build_bazel_rules_apple",
         urls = [
-            "https://storage.googleapis.com/cloud-cpp-community-archive/build_bazel_rules_apple/rules_apple.3.1.1.tar.gz",
-            "https://github.com/bazelbuild/rules_apple/releases/download/3.1.1/rules_apple.3.1.1.tar.gz",
+            "https://storage.googleapis.com/cloud-cpp-community-archive/build_bazel_rules_apple/rules_apple.3.3.0.tar.gz",
+            "https://github.com/bazelbuild/rules_apple/releases/download/3.3.0/rules_apple.3.3.0.tar.gz",
         ],
-        sha256 = "34c41bfb59cdaea29ac2df5a2fa79e5add609c71bb303b2ebb10985f93fa20e7",
+        sha256 = "65eafafe94b8573e74160b7f587d091a0fa34d69e6d2c41c4afb1eef140383ec",
     )
 
     # Load Abseil
@@ -96,11 +96,11 @@ def gl_cpp_workspace0(name = None):
         http_archive,
         name = "com_google_absl",
         urls = [
-            "https://storage.googleapis.com/cloud-cpp-community-archive/com_google_absl/20230802.1.tar.gz",
-            "https://github.com/abseil/abseil-cpp/archive/20230802.1.tar.gz",
+            "https://storage.googleapis.com/cloud-cpp-community-archive/com_google_absl/20240116.1.tar.gz",
+            "https://github.com/abseil/abseil-cpp/archive/20240116.1.tar.gz",
         ],
-        sha256 = "987ce98f02eefbaf930d6e38ab16aa05737234d7afbab2d5c4ea7adbe50c28ed",
-        strip_prefix = "abseil-cpp-20230802.1",
+        sha256 = "3c743204df78366ad2eaf236d6631d83f6bc928d1705dd0000b872e53b73dc6a",
+        strip_prefix = "abseil-cpp-20240116.1",
     )
 
     # Load a version of googletest that we know works. This is needed to create
@@ -121,11 +121,11 @@ def gl_cpp_workspace0(name = None):
         http_archive,
         name = "com_google_googleapis",
         urls = [
-            "https://storage.googleapis.com/cloud-cpp-community-archive/com_google_googleapis/8d89c311624529a33a22033a18c168a35cf8ea7e.tar.gz",
-            "https://github.com/googleapis/googleapis/archive/8d89c311624529a33a22033a18c168a35cf8ea7e.tar.gz",
+            "https://storage.googleapis.com/cloud-cpp-community-archive/com_google_googleapis/9868a57470a969ffa1d21194a5c05d7a6e4e98cc.tar.gz",
+            "https://github.com/googleapis/googleapis/archive/9868a57470a969ffa1d21194a5c05d7a6e4e98cc.tar.gz",
         ],
-        sha256 = "851f0b7484a0bb3f68bb7f19225b209edfe279a4b710dd945d8146ab75877930",
-        strip_prefix = "googleapis-8d89c311624529a33a22033a18c168a35cf8ea7e",
+        sha256 = "c88131915fe4510280af0296974ba6c31ccd5d0fa7cbe242baa43d894abbae53",
+        strip_prefix = "googleapis-9868a57470a969ffa1d21194a5c05d7a6e4e98cc",
         build_file = Label("//bazel:googleapis.BUILD"),
         # Scaffolding for patching googleapis after download. For example:
         #   patches = ["googleapis.patch"]
@@ -142,11 +142,11 @@ def gl_cpp_workspace0(name = None):
         http_archive,
         name = "com_google_protobuf",
         urls = [
-            "https://storage.googleapis.com/cloud-cpp-community-archive/com_google_protobuf/v25.2.tar.gz",
-            "https://github.com/protocolbuffers/protobuf/archive/v25.2.tar.gz",
+            "https://storage.googleapis.com/cloud-cpp-community-archive/com_google_protobuf/v25.3.tar.gz",
+            "https://github.com/protocolbuffers/protobuf/archive/v25.3.tar.gz",
         ],
-        sha256 = "8ff511a64fc46ee792d3fe49a5a1bcad6f7dc50dfbba5a28b0e5b979c17f9871",
-        strip_prefix = "protobuf-25.2",
+        sha256 = "d19643d265b978383352b3143f04c0641eea75a75235c111cc01a1350173180e",
+        strip_prefix = "protobuf-25.3",
     )
 
     # Load BoringSSL. This could be automatically loaded by gRPC. But as of
@@ -170,11 +170,11 @@ def gl_cpp_workspace0(name = None):
         http_archive,
         name = "com_github_grpc_grpc",
         urls = [
-            "https://storage.googleapis.com/cloud-cpp-community-archive/com_github_grpc_grpc/v1.60.0.tar.gz",
-            "https://github.com/grpc/grpc/archive/v1.60.0.tar.gz",
+            "https://storage.googleapis.com/cloud-cpp-community-archive/com_github_grpc_grpc/v1.62.1.tar.gz",
+            "https://github.com/grpc/grpc/archive/v1.62.1.tar.gz",
         ],
-        sha256 = "437068b8b777d3b339da94d3498f1dc20642ac9bfa76db43abdd522186b1542b",
-        strip_prefix = "grpc-1.60.0",
+        sha256 = "c9f9ae6e4d6f40464ee9958be4068087881ed6aa37e30d0e64d40ed7be39dd01",
+        strip_prefix = "grpc-1.62.1",
     )
 
     # We use the cc_proto_library() rule from @com_google_protobuf, which
@@ -236,11 +236,11 @@ def gl_cpp_workspace0(name = None):
         http_archive,
         name = "io_opentelemetry_cpp",
         urls = [
-            "https://storage.googleapis.com/cloud-cpp-community-archive/io_opentelemetry_cpp/v1.13.0.tar.gz",
-            "https://github.com/open-telemetry/opentelemetry-cpp/archive/v1.13.0.tar.gz",
+            "https://storage.googleapis.com/cloud-cpp-community-archive/io_opentelemetry_cpp/v1.14.2.tar.gz",
+            "https://github.com/open-telemetry/opentelemetry-cpp/archive/v1.14.2.tar.gz",
         ],
-        sha256 = "7735cc56507149686e6019e06f588317099d4522480be5f38a2a09ec69af1706",
-        strip_prefix = "opentelemetry-cpp-1.13.0",
+        sha256 = "c7e7801c9f6228751cdb9dd4724d0f04777ed53f524c8828e73bf4c9f894e0bd",
+        strip_prefix = "opentelemetry-cpp-1.14.2",
         repo_mapping = {
             "@curl": "@com_github_curl_curl",
             "@com_github_google_benchmark": "@com_github_benchmark",

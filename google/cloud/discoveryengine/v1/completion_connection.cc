@@ -28,6 +28,7 @@
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/unified_grpc_credentials.h"
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -40,6 +41,28 @@ StatusOr<google::cloud::discoveryengine::v1::CompleteQueryResponse>
 CompletionServiceConnection::CompleteQuery(
     google::cloud::discoveryengine::v1::CompleteQueryRequest const&) {
   return Status(StatusCode::kUnimplemented, "not implemented");
+}
+
+future<StatusOr<google::cloud::discoveryengine::v1::
+                    ImportSuggestionDenyListEntriesResponse>>
+CompletionServiceConnection::ImportSuggestionDenyListEntries(
+    google::cloud::discoveryengine::v1::
+        ImportSuggestionDenyListEntriesRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::discoveryengine::v1::
+                   ImportSuggestionDenyListEntriesResponse>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
+}
+
+future<StatusOr<
+    google::cloud::discoveryengine::v1::PurgeSuggestionDenyListEntriesResponse>>
+CompletionServiceConnection::PurgeSuggestionDenyListEntries(
+    google::cloud::discoveryengine::v1::
+        PurgeSuggestionDenyListEntriesRequest const&) {
+  return google::cloud::make_ready_future<
+      StatusOr<google::cloud::discoveryengine::v1::
+                   PurgeSuggestionDenyListEntriesResponse>>(
+      Status(StatusCode::kUnimplemented, "not implemented"));
 }
 
 std::shared_ptr<CompletionServiceConnection> MakeCompletionServiceConnection(

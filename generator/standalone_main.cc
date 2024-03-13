@@ -69,6 +69,7 @@ using ::google::cloud::generator_internal::LibraryPath;
 using ::google::cloud::generator_internal::LoadApiIndex;
 using ::google::cloud::generator_internal::SafeReplaceAll;
 using ::google::cloud::generator_internal::ScaffoldVars;
+using ::google::cloud::generator_internal::ServiceConfigYamlPath;
 
 struct CommandLineArgs {
   std::string config_file;
@@ -166,6 +167,13 @@ int WriteInstallDirectories(
     }
     auto const lib = LibraryName(product_path);
     install_directories.push_back("./lib64/cmake/google_cloud_cpp_" + lib);
+    // Note that storage does not have a public-facing mocks library. Only
+    // GCS+gRPC does.
+    // TODO(#5782) - install mocks for compute
+    if (lib != "compute" && lib != "storage") {
+      install_directories.push_back("./lib64/cmake/google_cloud_cpp_" + lib +
+                                    "_mocks");
+    }
   }
   std::sort(install_directories.begin(), install_directories.end());
   auto end =
@@ -207,12 +215,15 @@ std::vector<std::future<google::cloud::Status>> GenerateCodeFromProtos(
     CommandLineArgs const& generator_args,
     google::protobuf::RepeatedPtrField<
         google::cloud::cpp::generator::ServiceConfiguration> const& services) {
+  auto const yaml_root = generator_args.golden_proto_path.empty()
+                             ? generator_args.googleapis_proto_path
+                             : generator_args.golden_proto_path;
+
   std::vector<std::future<google::cloud::Status>> tasks;
   auto const api_index = LoadApiIndex(generator_args.googleapis_proto_path);
   for (auto const& service : services) {
-    auto scaffold_vars =
-        ScaffoldVars(generator_args.googleapis_proto_path, api_index, service,
-                     generator_args.experimental_scaffold);
+    auto scaffold_vars = ScaffoldVars(yaml_root, api_index, service,
+                                      generator_args.experimental_scaffold);
     auto const generate_scaffold =
         LibraryPath(service.product_path()) == generator_args.scaffold;
     if (generate_scaffold) {
@@ -346,6 +357,12 @@ std::vector<std::future<google::cloud::Status>> GenerateCodeFromProtos(
       args.emplace_back(
           absl::StrCat("--cpp_codegen_opt=service_name_to_comment=", kv.first,
                        "=", kv.second));
+    }
+
+    auto path = ServiceConfigYamlPath(yaml_root, scaffold_vars);
+    if (!path.empty()) {
+      args.emplace_back(absl::StrCat("--cpp_codegen_opt=service_config_yaml=",
+                                     std::move(path)));
     }
 
     GCP_LOG(INFO) << "Generating service code using: "

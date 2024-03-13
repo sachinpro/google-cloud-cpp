@@ -28,6 +28,7 @@
 #include <google/longrunning/operations.grpc.pb.h>
 #include <map>
 #include <memory>
+#include <string>
 
 namespace google {
 namespace cloud {
@@ -117,8 +118,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.ListOrchestrationClustersRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L891}
-  /// [google.cloud.telcoautomation.v1.OrchestrationCluster]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L483}
+  /// [google.cloud.telcoautomation.v1.ListOrchestrationClustersRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L904}
+  /// [google.cloud.telcoautomation.v1.OrchestrationCluster]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L493}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::OrchestrationCluster>
@@ -156,8 +157,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.ListOrchestrationClustersRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L891}
-  /// [google.cloud.telcoautomation.v1.OrchestrationCluster]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L483}
+  /// [google.cloud.telcoautomation.v1.ListOrchestrationClustersRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L904}
+  /// [google.cloud.telcoautomation.v1.OrchestrationCluster]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L493}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::OrchestrationCluster>
@@ -184,8 +185,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.GetOrchestrationClusterRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L927}
-  /// [google.cloud.telcoautomation.v1.OrchestrationCluster]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L483}
+  /// [google.cloud.telcoautomation.v1.GetOrchestrationClusterRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L940}
+  /// [google.cloud.telcoautomation.v1.OrchestrationCluster]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L493}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::OrchestrationCluster>
@@ -214,8 +215,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.GetOrchestrationClusterRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L927}
-  /// [google.cloud.telcoautomation.v1.OrchestrationCluster]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L483}
+  /// [google.cloud.telcoautomation.v1.GetOrchestrationClusterRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L940}
+  /// [google.cloud.telcoautomation.v1.OrchestrationCluster]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L493}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::OrchestrationCluster>
@@ -253,8 +254,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.CreateOrchestrationClusterRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L938}
-  /// [google.cloud.telcoautomation.v1.OrchestrationCluster]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L483}
+  /// [google.cloud.telcoautomation.v1.CreateOrchestrationClusterRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L951}
+  /// [google.cloud.telcoautomation.v1.OrchestrationCluster]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L493}
   ///
   // clang-format on
   future<StatusOr<google::cloud::telcoautomation::v1::OrchestrationCluster>>
@@ -294,8 +295,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.CreateOrchestrationClusterRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L938}
-  /// [google.cloud.telcoautomation.v1.OrchestrationCluster]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L483}
+  /// [google.cloud.telcoautomation.v1.CreateOrchestrationClusterRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L951}
+  /// [google.cloud.telcoautomation.v1.OrchestrationCluster]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L493}
   ///
   // clang-format on
   future<StatusOr<google::cloud::telcoautomation::v1::OrchestrationCluster>>
@@ -329,8 +330,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.DeleteOrchestrationClusterRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L973}
-  /// [google.cloud.telcoautomation.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1591}
+  /// [google.cloud.telcoautomation.v1.DeleteOrchestrationClusterRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L986}
+  /// [google.cloud.telcoautomation.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1604}
   ///
   // clang-format on
   future<StatusOr<google::cloud::telcoautomation::v1::OperationMetadata>>
@@ -366,8 +367,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.DeleteOrchestrationClusterRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L973}
-  /// [google.cloud.telcoautomation.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1591}
+  /// [google.cloud.telcoautomation.v1.DeleteOrchestrationClusterRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L986}
+  /// [google.cloud.telcoautomation.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1604}
   ///
   // clang-format on
   future<StatusOr<google::cloud::telcoautomation::v1::OperationMetadata>>
@@ -403,8 +404,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.EdgeSlm]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L536}
-  /// [google.cloud.telcoautomation.v1.ListEdgeSlmsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L999}
+  /// [google.cloud.telcoautomation.v1.EdgeSlm]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L546}
+  /// [google.cloud.telcoautomation.v1.ListEdgeSlmsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1012}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::EdgeSlm> ListEdgeSlms(
@@ -442,8 +443,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.EdgeSlm]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L536}
-  /// [google.cloud.telcoautomation.v1.ListEdgeSlmsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L999}
+  /// [google.cloud.telcoautomation.v1.EdgeSlm]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L546}
+  /// [google.cloud.telcoautomation.v1.ListEdgeSlmsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1012}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::EdgeSlm> ListEdgeSlms(
@@ -468,8 +469,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.EdgeSlm]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L536}
-  /// [google.cloud.telcoautomation.v1.GetEdgeSlmRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1035}
+  /// [google.cloud.telcoautomation.v1.EdgeSlm]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L546}
+  /// [google.cloud.telcoautomation.v1.GetEdgeSlmRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1048}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::EdgeSlm> GetEdgeSlm(
@@ -498,8 +499,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.EdgeSlm]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L536}
-  /// [google.cloud.telcoautomation.v1.GetEdgeSlmRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1035}
+  /// [google.cloud.telcoautomation.v1.EdgeSlm]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L546}
+  /// [google.cloud.telcoautomation.v1.GetEdgeSlmRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1048}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::EdgeSlm> GetEdgeSlm(
@@ -535,8 +536,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.CreateEdgeSlmRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1046}
-  /// [google.cloud.telcoautomation.v1.EdgeSlm]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L536}
+  /// [google.cloud.telcoautomation.v1.CreateEdgeSlmRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1059}
+  /// [google.cloud.telcoautomation.v1.EdgeSlm]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L546}
   ///
   // clang-format on
   future<StatusOr<google::cloud::telcoautomation::v1::EdgeSlm>> CreateEdgeSlm(
@@ -574,8 +575,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.CreateEdgeSlmRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1046}
-  /// [google.cloud.telcoautomation.v1.EdgeSlm]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L536}
+  /// [google.cloud.telcoautomation.v1.CreateEdgeSlmRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1059}
+  /// [google.cloud.telcoautomation.v1.EdgeSlm]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L546}
   ///
   // clang-format on
   future<StatusOr<google::cloud::telcoautomation::v1::EdgeSlm>> CreateEdgeSlm(
@@ -607,8 +608,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.DeleteEdgeSlmRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1080}
-  /// [google.cloud.telcoautomation.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1591}
+  /// [google.cloud.telcoautomation.v1.DeleteEdgeSlmRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1093}
+  /// [google.cloud.telcoautomation.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1604}
   ///
   // clang-format on
   future<StatusOr<google::cloud::telcoautomation::v1::OperationMetadata>>
@@ -644,8 +645,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.DeleteEdgeSlmRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1080}
-  /// [google.cloud.telcoautomation.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1591}
+  /// [google.cloud.telcoautomation.v1.DeleteEdgeSlmRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1093}
+  /// [google.cloud.telcoautomation.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1604}
   ///
   // clang-format on
   future<StatusOr<google::cloud::telcoautomation::v1::OperationMetadata>>
@@ -675,8 +676,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.CreateBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1106}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.CreateBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1119}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Blueprint> CreateBlueprint(
@@ -707,8 +708,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.CreateBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1106}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.CreateBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1119}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Blueprint> CreateBlueprint(
@@ -735,8 +736,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.UpdateBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1125}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.UpdateBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1138}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Blueprint> UpdateBlueprint(
@@ -766,8 +767,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.UpdateBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1125}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.UpdateBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1138}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Blueprint> UpdateBlueprint(
@@ -796,8 +797,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.GetBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1136}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.GetBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1149}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Blueprint> GetBlueprint(
@@ -826,8 +827,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.GetBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1136}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.GetBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1149}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Blueprint> GetBlueprint(
@@ -853,7 +854,7 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.DeleteBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1155}
+  /// [google.cloud.telcoautomation.v1.DeleteBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1168}
   ///
   // clang-format on
   Status DeleteBlueprint(std::string const& name, Options opts = {});
@@ -879,7 +880,7 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.DeleteBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1155}
+  /// [google.cloud.telcoautomation.v1.DeleteBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1168}
   ///
   // clang-format on
   Status DeleteBlueprint(
@@ -915,8 +916,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.ListBlueprintsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1169}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.ListBlueprintsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1182}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::Blueprint> ListBlueprints(
@@ -954,8 +955,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.ListBlueprintsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1169}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.ListBlueprintsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1182}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::Blueprint> ListBlueprints(
@@ -981,8 +982,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.ApproveBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1204}
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
+  /// [google.cloud.telcoautomation.v1.ApproveBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1217}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Blueprint> ApproveBlueprint(
@@ -1011,8 +1012,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.ApproveBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1204}
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
+  /// [google.cloud.telcoautomation.v1.ApproveBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1217}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Blueprint> ApproveBlueprint(
@@ -1038,8 +1039,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.ProposeBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1216}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.ProposeBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1229}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Blueprint> ProposeBlueprint(
@@ -1068,8 +1069,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.ProposeBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1216}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.ProposeBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1229}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Blueprint> ProposeBlueprint(
@@ -1095,8 +1096,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.RejectBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1227}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.RejectBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1240}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Blueprint> RejectBlueprint(
@@ -1125,8 +1126,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.RejectBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1227}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.RejectBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1240}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Blueprint> RejectBlueprint(
@@ -1160,8 +1161,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.ListBlueprintRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1238}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.ListBlueprintRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1251}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::Blueprint>
@@ -1199,8 +1200,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.ListBlueprintRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1238}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.ListBlueprintRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1251}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::Blueprint>
@@ -1244,8 +1245,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.SearchBlueprintRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1266}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.SearchBlueprintRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1279}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::Blueprint>
@@ -1284,8 +1285,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L621}
-  /// [google.cloud.telcoautomation.v1.SearchBlueprintRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1266}
+  /// [google.cloud.telcoautomation.v1.Blueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L631}
+  /// [google.cloud.telcoautomation.v1.SearchBlueprintRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1279}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::Blueprint>
@@ -1331,8 +1332,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
-  /// [google.cloud.telcoautomation.v1.SearchDeploymentRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1485}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
+  /// [google.cloud.telcoautomation.v1.SearchDeploymentRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1498}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::Deployment>
@@ -1371,8 +1372,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
-  /// [google.cloud.telcoautomation.v1.SearchDeploymentRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1485}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
+  /// [google.cloud.telcoautomation.v1.SearchDeploymentRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1498}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::Deployment>
@@ -1401,8 +1402,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.DiscardBlueprintChangesRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1306}
-  /// [google.cloud.telcoautomation.v1.DiscardBlueprintChangesResponse]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1317}
+  /// [google.cloud.telcoautomation.v1.DiscardBlueprintChangesRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1319}
+  /// [google.cloud.telcoautomation.v1.DiscardBlueprintChangesResponse]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1330}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::DiscardBlueprintChangesResponse>
@@ -1433,8 +1434,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.DiscardBlueprintChangesRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1306}
-  /// [google.cloud.telcoautomation.v1.DiscardBlueprintChangesResponse]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1317}
+  /// [google.cloud.telcoautomation.v1.DiscardBlueprintChangesRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1319}
+  /// [google.cloud.telcoautomation.v1.DiscardBlueprintChangesResponse]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1330}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::DiscardBlueprintChangesResponse>
@@ -1473,8 +1474,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.ListPublicBlueprintsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1320}
-  /// [google.cloud.telcoautomation.v1.PublicBlueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L720}
+  /// [google.cloud.telcoautomation.v1.ListPublicBlueprintsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1333}
+  /// [google.cloud.telcoautomation.v1.PublicBlueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L730}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::PublicBlueprint>
@@ -1513,8 +1514,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.ListPublicBlueprintsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1320}
-  /// [google.cloud.telcoautomation.v1.PublicBlueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L720}
+  /// [google.cloud.telcoautomation.v1.ListPublicBlueprintsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1333}
+  /// [google.cloud.telcoautomation.v1.PublicBlueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L730}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::PublicBlueprint>
@@ -1540,8 +1541,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.GetPublicBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1350}
-  /// [google.cloud.telcoautomation.v1.PublicBlueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L720}
+  /// [google.cloud.telcoautomation.v1.GetPublicBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1363}
+  /// [google.cloud.telcoautomation.v1.PublicBlueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L730}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::PublicBlueprint>
@@ -1570,8 +1571,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.GetPublicBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1350}
-  /// [google.cloud.telcoautomation.v1.PublicBlueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L720}
+  /// [google.cloud.telcoautomation.v1.GetPublicBlueprintRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1363}
+  /// [google.cloud.telcoautomation.v1.PublicBlueprint]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L730}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::PublicBlueprint>
@@ -1602,8 +1603,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.CreateDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1361}
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
+  /// [google.cloud.telcoautomation.v1.CreateDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1374}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Deployment> CreateDeployment(
@@ -1634,8 +1635,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.CreateDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1361}
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
+  /// [google.cloud.telcoautomation.v1.CreateDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1374}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Deployment> CreateDeployment(
@@ -1663,8 +1664,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
-  /// [google.cloud.telcoautomation.v1.UpdateDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1380}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
+  /// [google.cloud.telcoautomation.v1.UpdateDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1393}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Deployment> UpdateDeployment(
@@ -1694,8 +1695,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
-  /// [google.cloud.telcoautomation.v1.UpdateDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1380}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
+  /// [google.cloud.telcoautomation.v1.UpdateDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1393}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Deployment> UpdateDeployment(
@@ -1726,8 +1727,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
-  /// [google.cloud.telcoautomation.v1.GetDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1391}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
+  /// [google.cloud.telcoautomation.v1.GetDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1404}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Deployment> GetDeployment(
@@ -1756,8 +1757,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
-  /// [google.cloud.telcoautomation.v1.GetDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1391}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
+  /// [google.cloud.telcoautomation.v1.GetDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1404}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Deployment> GetDeployment(
@@ -1781,7 +1782,7 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.RemoveDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1411}
+  /// [google.cloud.telcoautomation.v1.RemoveDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1424}
   ///
   // clang-format on
   Status RemoveDeployment(std::string const& name, Options opts = {});
@@ -1808,7 +1809,7 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.RemoveDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1411}
+  /// [google.cloud.telcoautomation.v1.RemoveDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1424}
   ///
   // clang-format on
   Status RemoveDeployment(
@@ -1845,8 +1846,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
-  /// [google.cloud.telcoautomation.v1.ListDeploymentsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1422}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
+  /// [google.cloud.telcoautomation.v1.ListDeploymentsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1435}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::Deployment> ListDeployments(
@@ -1884,8 +1885,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
-  /// [google.cloud.telcoautomation.v1.ListDeploymentsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1422}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
+  /// [google.cloud.telcoautomation.v1.ListDeploymentsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1435}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::Deployment> ListDeployments(
@@ -1919,8 +1920,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
-  /// [google.cloud.telcoautomation.v1.ListDeploymentRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1457}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
+  /// [google.cloud.telcoautomation.v1.ListDeploymentRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1470}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::Deployment>
@@ -1958,8 +1959,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
-  /// [google.cloud.telcoautomation.v1.ListDeploymentRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1457}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
+  /// [google.cloud.telcoautomation.v1.ListDeploymentRevisionsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1470}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::Deployment>
@@ -1988,8 +1989,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.DiscardDeploymentChangesRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1526}
-  /// [google.cloud.telcoautomation.v1.DiscardDeploymentChangesResponse]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1537}
+  /// [google.cloud.telcoautomation.v1.DiscardDeploymentChangesRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1539}
+  /// [google.cloud.telcoautomation.v1.DiscardDeploymentChangesResponse]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1550}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::DiscardDeploymentChangesResponse>
@@ -2020,8 +2021,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.DiscardDeploymentChangesRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1526}
-  /// [google.cloud.telcoautomation.v1.DiscardDeploymentChangesResponse]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1537}
+  /// [google.cloud.telcoautomation.v1.DiscardDeploymentChangesRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1539}
+  /// [google.cloud.telcoautomation.v1.DiscardDeploymentChangesResponse]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1550}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::DiscardDeploymentChangesResponse>
@@ -2048,8 +2049,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.ApplyDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1542}
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
+  /// [google.cloud.telcoautomation.v1.ApplyDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1555}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Deployment> ApplyDeployment(
@@ -2078,8 +2079,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.ApplyDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1542}
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
+  /// [google.cloud.telcoautomation.v1.ApplyDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1555}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Deployment> ApplyDeployment(
@@ -2104,8 +2105,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.ComputeDeploymentStatusRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1553}
-  /// [google.cloud.telcoautomation.v1.ComputeDeploymentStatusResponse]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1564}
+  /// [google.cloud.telcoautomation.v1.ComputeDeploymentStatusRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1566}
+  /// [google.cloud.telcoautomation.v1.ComputeDeploymentStatusResponse]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1577}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::ComputeDeploymentStatusResponse>
@@ -2134,8 +2135,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.ComputeDeploymentStatusRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1553}
-  /// [google.cloud.telcoautomation.v1.ComputeDeploymentStatusResponse]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1564}
+  /// [google.cloud.telcoautomation.v1.ComputeDeploymentStatusRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1566}
+  /// [google.cloud.telcoautomation.v1.ComputeDeploymentStatusResponse]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1577}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::ComputeDeploymentStatusResponse>
@@ -2164,8 +2165,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
-  /// [google.cloud.telcoautomation.v1.RollbackDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1577}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
+  /// [google.cloud.telcoautomation.v1.RollbackDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1590}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Deployment> RollbackDeployment(
@@ -2196,8 +2197,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L752}
-  /// [google.cloud.telcoautomation.v1.RollbackDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1577}
+  /// [google.cloud.telcoautomation.v1.Deployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L762}
+  /// [google.cloud.telcoautomation.v1.RollbackDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1590}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::Deployment> RollbackDeployment(
@@ -2223,8 +2224,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.GetHydratedDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1621}
-  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L851}
+  /// [google.cloud.telcoautomation.v1.GetHydratedDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1634}
+  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L864}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::HydratedDeployment>
@@ -2253,8 +2254,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.GetHydratedDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1621}
-  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L851}
+  /// [google.cloud.telcoautomation.v1.GetHydratedDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1634}
+  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L864}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::HydratedDeployment>
@@ -2290,8 +2291,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L851}
-  /// [google.cloud.telcoautomation.v1.ListHydratedDeploymentsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1632}
+  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L864}
+  /// [google.cloud.telcoautomation.v1.ListHydratedDeploymentsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1645}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::HydratedDeployment>
@@ -2329,8 +2330,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L851}
-  /// [google.cloud.telcoautomation.v1.ListHydratedDeploymentsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1632}
+  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L864}
+  /// [google.cloud.telcoautomation.v1.ListHydratedDeploymentsRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1645}
   ///
   // clang-format on
   StreamRange<google::cloud::telcoautomation::v1::HydratedDeployment>
@@ -2359,8 +2360,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L851}
-  /// [google.cloud.telcoautomation.v1.UpdateHydratedDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1663}
+  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L864}
+  /// [google.cloud.telcoautomation.v1.UpdateHydratedDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1676}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::HydratedDeployment>
@@ -2392,8 +2393,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L851}
-  /// [google.cloud.telcoautomation.v1.UpdateHydratedDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1663}
+  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L864}
+  /// [google.cloud.telcoautomation.v1.UpdateHydratedDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1676}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::HydratedDeployment>
@@ -2420,8 +2421,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.ApplyHydratedDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1675}
-  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L851}
+  /// [google.cloud.telcoautomation.v1.ApplyHydratedDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1688}
+  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L864}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::HydratedDeployment>
@@ -2450,8 +2451,8 @@ class TelcoAutomationClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.telcoautomation.v1.ApplyHydratedDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1675}
-  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L851}
+  /// [google.cloud.telcoautomation.v1.ApplyHydratedDeploymentRequest]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L1688}
+  /// [google.cloud.telcoautomation.v1.HydratedDeployment]: @googleapis_reference_link{google/cloud/telcoautomation/v1/telcoautomation.proto#L864}
   ///
   // clang-format on
   StatusOr<google::cloud::telcoautomation::v1::HydratedDeployment>

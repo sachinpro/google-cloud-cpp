@@ -18,6 +18,7 @@
 #include "google/cloud/pubsub/options.h"
 #include "google/cloud/internal/async_retry_loop.h"
 #include <google/pubsub/v1/pubsub.pb.h>
+#include <memory>
 
 namespace google {
 namespace cloud {
@@ -36,7 +37,22 @@ DefaultPullAckHandler::DefaultPullAckHandler(CompletionQueue cq,
       ack_id_(std::move(ack_id)),
       delivery_attempt_(delivery_attempt),
       lease_manager_(
-          MakePullLeaseManager(cq_, stub_, subscription_, ack_id_, options)) {}
+          MakePullLeaseManager(cq_, stub_, subscription_, ack_id_, options)) {
+  initialize();
+}
+
+DefaultPullAckHandler::DefaultPullAckHandler(
+    CompletionQueue cq, std::weak_ptr<SubscriberStub> w,
+    pubsub::Subscription subscription, std::string ack_id,
+    std::int32_t delivery_attempt, std::shared_ptr<PullLeaseManager> manager)
+    : cq_(std::move(cq)),
+      stub_(std::move(w)),
+      subscription_(std::move(subscription)),
+      ack_id_(std::move(ack_id)),
+      delivery_attempt_(delivery_attempt),
+      lease_manager_(std::move(manager)) {
+  initialize();
+}
 
 DefaultPullAckHandler::~DefaultPullAckHandler() = default;
 
@@ -49,10 +65,12 @@ future<Status> DefaultPullAckHandler::ack() {
         std::make_unique<ExactlyOnceRetryPolicy>(ack_id_),
         ExactlyOnceBackoffPolicy(), google::cloud::Idempotency::kIdempotent,
         cq_,
-        [stub = std::move(s)](auto cq, auto context, auto const& request) {
-          return stub->AsyncAcknowledge(cq, std::move(context), request);
+        [stub = std::move(s)](auto cq, auto context, auto options,
+                              auto const& request) {
+          return stub->AsyncAcknowledge(cq, std::move(context),
+                                        std::move(options), request);
         },
-        request, __func__);
+        google::cloud::internal::MakeImmutableOptions({}), request, __func__);
   }
   return make_ready_future(
       Status(StatusCode::kFailedPrecondition, "session already shutdown"));
@@ -68,10 +86,12 @@ future<Status> DefaultPullAckHandler::nack() {
         std::make_unique<ExactlyOnceRetryPolicy>(ack_id_),
         ExactlyOnceBackoffPolicy(), google::cloud::Idempotency::kIdempotent,
         cq_,
-        [stub = std::move(s)](auto cq, auto context, auto const& request) {
-          return stub->AsyncModifyAckDeadline(cq, std::move(context), request);
+        [stub = std::move(s)](auto cq, auto context, auto options,
+                              auto const& request) {
+          return stub->AsyncModifyAckDeadline(cq, std::move(context),
+                                              std::move(options), request);
         },
-        request, __func__);
+        google::cloud::internal::MakeImmutableOptions({}), request, __func__);
   }
   return make_ready_future(
       Status(StatusCode::kFailedPrecondition, "session already shutdown"));

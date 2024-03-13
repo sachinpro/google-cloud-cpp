@@ -22,7 +22,9 @@
 #include "google/cloud/internal/populate_common_options.h"
 #include "google/cloud/internal/rest_options.h"
 #include "google/cloud/internal/rest_response.h"
+#include "google/cloud/internal/service_endpoint.h"
 #include "google/cloud/log.h"
+#include "google/cloud/opentelemetry_options.h"
 #include "absl/strings/str_split.h"
 #include <cstdlib>
 #include <set>
@@ -169,11 +171,16 @@ Options ApplyPolicy(Options opts, IdempotencyPolicy const& p) {
 
 Options DefaultOptions(std::shared_ptr<oauth2::Credentials> credentials,
                        Options opts) {
+  auto gcs_ep = google::cloud::internal::UniverseDomainEndpoint(
+      "https://storage.googleapis.com", opts);
+  auto iam_ep = absl::StrCat(google::cloud::internal::UniverseDomainEndpoint(
+                                 "https://iamcredentials.googleapis.com", opts),
+                             "/v1");
   auto o =
       Options{}
           .set<Oauth2CredentialsOption>(std::move(credentials))
-          .set<RestEndpointOption>("https://storage.googleapis.com")
-          .set<IamEndpointOption>("https://iamcredentials.googleapis.com/v1")
+          .set<RestEndpointOption>(std::move(gcs_ep))
+          .set<IamEndpointOption>(std::move(iam_ep))
           .set<TargetApiVersionOption>("v1")
           .set<ConnectionPoolSizeOption>(DefaultConnectionPoolSize())
           .set<DownloadBufferSizeOption>(
@@ -217,12 +224,17 @@ Options DefaultOptions(std::shared_ptr<oauth2::Credentials> credentials,
                                                                 "/iamapi");
   }
 
-  auto tracing = GetEnv("CLOUD_STORAGE_ENABLE_TRACING");
-  if (tracing.has_value()) {
-    for (auto c : absl::StrSplit(*tracing, ',')) {
+  auto logging = GetEnv("CLOUD_STORAGE_ENABLE_TRACING");
+  if (logging) {
+    for (auto c : absl::StrSplit(*logging, ',')) {
       GCP_LOG(INFO) << "Enabling logging for " << c;
       o.lookup<TracingComponentsOption>().insert(std::string(c));
     }
+  }
+
+  auto tracing = GetEnv("GOOGLE_CLOUD_CPP_OPENTELEMETRY_TRACING");
+  if (tracing && !tracing->empty()) {
+    o.set<OpenTelemetryTracingOption>(true);
   }
 
   auto project_id = GetEnv("GOOGLE_CLOUD_PROJECT");

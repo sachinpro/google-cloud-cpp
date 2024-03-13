@@ -265,6 +265,14 @@ service {
   retryable_status_codes: ["kUnavailable"]
 }
 
+# App Hub
+service {
+  service_proto_path: "google/cloud/apphub/v1/apphub_service.proto"
+  product_path: "google/cloud/apphub/v1"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
+}
+
 # Artifact Registry
 service {
   service_proto_path: "google/devtools/artifactregistry/v1/service.proto"
@@ -580,6 +588,21 @@ service {
   initial_copyright_year: "2023"
   retryable_status_codes: ["kUnavailable"]
   emitted_rpcs: ["RunReportJob", "FetchReportResults", "ListReports"]
+}
+
+# Cloud Controls Partner
+service {
+  service_proto_path: "google/cloud/cloudcontrolspartner/v1/core.proto"
+  product_path: "google/cloud/cloudcontrolspartner/v1"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
+}
+
+service {
+  service_proto_path: "google/cloud/cloudcontrolspartner/v1/monitoring.proto"
+  product_path: "google/cloud/cloudcontrolspartner/v1"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
 }
 
 # Cloud Quotas
@@ -1220,6 +1243,15 @@ discovery_products {
     service_proto_path: "google/cloud/compute/region_url_maps/v1/region_url_maps.proto"
     product_path: "google/cloud/compute/region_url_maps/v1"
     initial_copyright_year: "2023"
+    retryable_status_codes: ["kUnavailable"]
+    generate_rest_transport: true
+    generate_grpc_transport: false
+  }
+
+  rest_services {
+    service_proto_path: "google/cloud/compute/region_zones/v1/region_zones.proto"
+    product_path: "google/cloud/compute/region_zones/v1"
+    initial_copyright_year: "2024"
     retryable_status_codes: ["kUnavailable"]
     generate_rest_transport: true
     generate_grpc_transport: false
@@ -2957,6 +2989,21 @@ service {
   retryable_status_codes: ["kUnavailable"]
 }
 
+service {
+  service_proto_path: "google/cloud/securitycenter/v2/securitycenter_service.proto"
+  product_path: "google/cloud/securitycenter/v2"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
+}
+
+# Security Center Management
+service {
+  service_proto_path: "google/cloud/securitycentermanagement/v1/security_center_management.proto"
+  product_path: "google/cloud/securitycentermanagement/v1"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
+}
+
 # Service Control
 service {
   service_proto_path: "google/api/servicecontrol/v1/quota_controller.proto"
@@ -2996,6 +3043,14 @@ service {
   forwarding_product_path: "google/cloud/servicedirectory"
   initial_copyright_year: "2022"
   retryable_status_codes: ["kUnavailable", "kUnknown"]
+}
+
+# Service Health
+service {
+  service_proto_path: "google/cloud/servicehealth/v1/event_service.proto"
+  product_path: "google/cloud/servicehealth/v1"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
 }
 
 # Service Management
@@ -3094,6 +3149,7 @@ service {
   product_path: "google/cloud/speech/v2"
   initial_copyright_year: "2022"
   retryable_status_codes: ["kUnavailable"]
+  endpoint_location_style: LOCATION_DEPENDENT_COMPAT
 }
 
 # Sql
@@ -3200,11 +3256,32 @@ service {
     "ComposeObject",
     "DeleteObject",
     "ReadObject",
+    "RewriteObject",
     "StartResumableWrite",
     "QueryWriteStatus",
     "WriteObject"
   ]
   omit_repo_metadata: true
+}
+
+# Storage Control
+service {
+  service_proto_path: "google/storage/control/v2/storage_control.proto"
+  product_path: "google/cloud/storagecontrol/v2"
+  initial_copyright_year: "2024"
+  retryable_status_codes: [
+    "kResourceExhausted",
+    "kUnavailable",
+    "kDeadlineExceeded",
+    "kInternal",
+    "kUnknown"
+  ]
+  omit_repo_metadata: true
+  idempotency_overrides: [
+    {rpc_name: "StorageControl.GetFolder", idempotency: IDEMPOTENT},
+    {rpc_name: "StorageControl.ListFolders", idempotency: IDEMPOTENT},
+    {rpc_name: "StorageControl.GetStorageLayout", idempotency: IDEMPOTENT}
+  ]
 }
 
 # Storage Insights

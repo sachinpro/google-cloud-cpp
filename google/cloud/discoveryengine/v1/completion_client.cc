@@ -18,6 +18,7 @@
 
 #include "google/cloud/discoveryengine/v1/completion_client.h"
 #include <memory>
+#include <utility>
 
 namespace google {
 namespace cloud {
@@ -37,6 +38,26 @@ CompletionServiceClient::CompleteQuery(
     Options opts) {
   internal::OptionsSpan span(internal::MergeOptions(std::move(opts), options_));
   return connection_->CompleteQuery(request);
+}
+
+future<StatusOr<google::cloud::discoveryengine::v1::
+                    ImportSuggestionDenyListEntriesResponse>>
+CompletionServiceClient::ImportSuggestionDenyListEntries(
+    google::cloud::discoveryengine::v1::
+        ImportSuggestionDenyListEntriesRequest const& request,
+    Options opts) {
+  internal::OptionsSpan span(internal::MergeOptions(std::move(opts), options_));
+  return connection_->ImportSuggestionDenyListEntries(request);
+}
+
+future<StatusOr<
+    google::cloud::discoveryengine::v1::PurgeSuggestionDenyListEntriesResponse>>
+CompletionServiceClient::PurgeSuggestionDenyListEntries(
+    google::cloud::discoveryengine::v1::
+        PurgeSuggestionDenyListEntriesRequest const& request,
+    Options opts) {
+  internal::OptionsSpan span(internal::MergeOptions(std::move(opts), options_));
+  return connection_->PurgeSuggestionDenyListEntries(request);
 }
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END
