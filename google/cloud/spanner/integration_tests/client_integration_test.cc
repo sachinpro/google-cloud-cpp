@@ -87,10 +87,6 @@ class ClientIntegrationTest : public spanner_testing::DatabaseIntegrationTest {
     spanner_testing::DatabaseIntegrationTest::TearDownTestSuite();
   }
 
-  static bool EmulatorUnimplemented(Status const& status) {
-    return UsingEmulator() && status.code() == StatusCode::kUnimplemented;
-  }
-
   static std::unique_ptr<Client> client_;
 };
 
@@ -107,7 +103,6 @@ class PgClientIntegrationTest
   }
 
   void SetUp() override {
-    if (UsingEmulator()) return;
     auto commit_result = client_->Commit(
         Mutations{MakeDeleteMutation("Singers", KeySet::All())},
         Options{}.set<GrpcCompressionAlgorithmOption>(GRPC_COMPRESS_DEFLATE));
@@ -479,7 +474,9 @@ TEST_F(ClientIntegrationTest, CommitAtLeastOnceBatched) {
   auto commit_results = client_->CommitAtLeastOnce(std::move(mutation_groups));
   std::map<std::size_t, StatusOr<Timestamp>> results;
   for (auto& commit_result : commit_results) {
-    if (results.empty() && EmulatorUnimplemented(commit_result.status())) {
+    if (UsingEmulator()) {
+      EXPECT_THAT(commit_result, StatusIs(StatusCode::kUnimplemented));
+      EXPECT_THAT(results, IsEmpty());
       GTEST_SKIP();
     }
     ASSERT_THAT(commit_result, IsOk());
@@ -831,14 +828,10 @@ TEST_F(ClientIntegrationTest, DirectedReadWithinReadWriteTransaction) {
         }
         return Mutations{};
       });
-  if (UsingEmulator()) {
-    EXPECT_THAT(commit, IsOk());  // The emulator doesn't diagnose the error.
-  } else {
-    EXPECT_THAT(commit,
-                StatusIs(StatusCode::kInvalidArgument,
-                         HasSubstr("Directed reads can only be performed "
-                                   "in a read-only transaction")));
-  }
+  EXPECT_THAT(commit, StatusIs(UsingEmulator() ? StatusCode::kFailedPrecondition
+                                               : StatusCode::kInvalidArgument,
+                               HasSubstr("Directed reads can only be performed "
+                                         "in a read-only transaction")));
 }
 
 StatusOr<std::vector<std::vector<Value>>> AddSingerDataToTable(Client client) {
@@ -1111,10 +1104,8 @@ TEST_F(ClientIntegrationTest, AnalyzeSql) {
 
   // This returns a ExecutionPlan without executing the query.
   auto plan = client_->AnalyzeSql(std::move(txn), std::move(sql));
-  if (!EmulatorUnimplemented(plan.status())) {
-    ASSERT_STATUS_OK(plan);
-    EXPECT_GT(plan->plan_nodes_size(), 0);
-  }
+  ASSERT_STATUS_OK(plan);
+  EXPECT_GT(plan->plan_nodes_size(), 0);
 }
 
 TEST_F(ClientIntegrationTest, ProfileQuery) {
@@ -1132,7 +1123,9 @@ TEST_F(ClientIntegrationTest, ProfileQuery) {
   EXPECT_GT(stats->size(), 0);
 
   auto plan = rows.ExecutionPlan();
-  if (!UsingEmulator() || plan) {
+  if (UsingEmulator()) {
+    EXPECT_FALSE(plan);
+  } else {
     ASSERT_TRUE(plan);
     EXPECT_GT(plan->plan_nodes_size(), 0);
   }
@@ -1160,10 +1153,8 @@ TEST_F(ClientIntegrationTest, ProfileDml) {
   EXPECT_GT(stats->size(), 0);
 
   auto plan = profile_result.ExecutionPlan();
-  if (!UsingEmulator() || plan) {
-    ASSERT_TRUE(plan);
-    EXPECT_GT(plan->plan_nodes_size(), 0);
-  }
+  ASSERT_TRUE(plan);
+  EXPECT_GT(plan->plan_nodes_size(), 0);
 }
 
 /// @test Verify database_dialect is returned in information schema.
@@ -1175,11 +1166,7 @@ TEST_F(ClientIntegrationTest, DatabaseDialect) {
       )"""));
   using RowType = std::tuple<std::string>;
   for (auto& row : StreamOf<RowType>(rows)) {
-    if (UsingEmulator()) {
-      EXPECT_THAT(row, AnyOf(IsOk(), StatusIs(StatusCode::kInvalidArgument)));
-    } else {
-      EXPECT_THAT(row, IsOk());
-    }
+    EXPECT_THAT(row, IsOk());
     if (!row) break;
     EXPECT_EQ("GOOGLE_STANDARD_SQL", std::get<0>(*row));
   }
@@ -1194,11 +1181,7 @@ TEST_F(PgClientIntegrationTest, DatabaseDialect) {
       )"""));
   using RowType = std::tuple<std::string>;
   for (auto& row : StreamOf<RowType>(rows)) {
-    if (UsingEmulator()) {
-      EXPECT_THAT(row, AnyOf(IsOk(), StatusIs(StatusCode::kNotFound)));
-    } else {
-      EXPECT_THAT(row, IsOk());
-    }
+    EXPECT_THAT(row, IsOk());
     if (!row) break;
     EXPECT_EQ("POSTGRESQL", std::get<0>(*row));
   }
@@ -1206,7 +1189,6 @@ TEST_F(PgClientIntegrationTest, DatabaseDialect) {
 
 /// @test Verify use of database role to read data.
 TEST_F(ClientIntegrationTest, FineGrainedAccessControl) {
-  if (UsingEmulator()) GTEST_SKIP();
   ASSERT_NO_FATAL_FAILURE(InsertTwoSingers());
 
   spanner_admin::DatabaseAdminClient admin_client(
@@ -1219,6 +1201,10 @@ TEST_F(ClientIntegrationTest, FineGrainedAccessControl) {
   auto metadata =
       admin_client.UpdateDatabaseDdl(GetDatabase().FullName(), statements)
           .get();
+  if (UsingEmulator()) {
+    EXPECT_THAT(metadata, StatusIs(StatusCode::kInternal));
+    GTEST_SKIP();
+  }
   ASSERT_STATUS_OK(metadata);
 
   // Connect to the database using the Reader role.
@@ -1245,7 +1231,6 @@ TEST_F(ClientIntegrationTest, FineGrainedAccessControl) {
 
 /// @test Verify use of database role to read data.
 TEST_F(PgClientIntegrationTest, FineGrainedAccessControl) {
-  if (UsingEmulator()) GTEST_SKIP();
   ASSERT_NO_FATAL_FAILURE(InsertTwoSingers());
 
   spanner_admin::DatabaseAdminClient admin_client(
@@ -1258,6 +1243,10 @@ TEST_F(PgClientIntegrationTest, FineGrainedAccessControl) {
   auto metadata =
       admin_client.UpdateDatabaseDdl(GetDatabase().FullName(), statements)
           .get();
+  if (UsingEmulator()) {
+    EXPECT_THAT(metadata, StatusIs(StatusCode::kFailedPrecondition));
+    GTEST_SKIP();
+  }
   ASSERT_STATUS_OK(metadata);
 
   // Connect to the database using the Reader role.
@@ -1284,8 +1273,6 @@ TEST_F(PgClientIntegrationTest, FineGrainedAccessControl) {
 
 /// @test Verify "FOREIGN KEY" "ON DELETE CASCADE".
 TEST_F(ClientIntegrationTest, ForeignKeyDeleteCascade) {
-  if (UsingEmulator()) GTEST_SKIP();
-
   spanner_admin::DatabaseAdminClient admin_client(
       spanner_admin::MakeDatabaseAdminConnection());
 
@@ -1342,10 +1329,8 @@ TEST_F(ClientIntegrationTest, ForeignKeyDeleteCascade) {
       "ShoppingCarts", {"CartId", "CustomerId", "CustomerName"},  //
       2, 2, "FKCustomer")});
   EXPECT_THAT(bad_key, StatusIs(StatusCode::kFailedPrecondition,
-                                AllOf(HasSubstr("Foreign key constraint"),
-                                      HasSubstr("FKShoppingCartsCustomerId"),
-                                      HasSubstr("ShoppingCarts"),
-                                      HasSubstr("Customers(CustomerId)"))));
+                                AllOf(HasSubstr("FKShoppingCartsCustomerId"),
+                                      HasSubstr("ShoppingCarts"))));
 
   // Delete a row in the referenced table. All rows referencing that key
   // from the referencing table will also be deleted.
@@ -1368,10 +1353,8 @@ TEST_F(ClientIntegrationTest, ForeignKeyDeleteCascade) {
                 MakeDeleteMutation("Customers", KeySet().AddKey(MakeKey(1)))});
   EXPECT_THAT(conflict_commit,
               StatusIs(StatusCode::kFailedPrecondition,
-                       AllOf(HasSubstr("Cannot write a value"),
-                             HasSubstr("Customers.CustomerId"),
-                             HasSubstr("and delete it"),
-                             HasSubstr("in the same transaction"))));
+                       AllOf(HasSubstr("Cannot write"), HasSubstr("and delete"),
+                             HasSubstr("same transaction"))));
 
   // Conflicting operation: reference foreign key in referencing table
   // and delete key from referenced table in the same mutation.
@@ -1389,12 +1372,17 @@ TEST_F(ClientIntegrationTest, ForeignKeyDeleteCascade) {
                                    {"CartId", "CustomerId", "CustomerName"},  //
                                    1, 2, "FKCustomer2"),
                 MakeDeleteMutation("Customers", KeySet().AddKey(MakeKey(1)))});
-  EXPECT_THAT(reconflict_commit,
-              StatusIs(StatusCode::kFailedPrecondition,
-                       AllOf(HasSubstr("Cannot modify a row"),
-                             HasSubstr("ShoppingCarts"),
-                             HasSubstr("referential action is deleting it"),
-                             HasSubstr("in the same transaction"))));
+  if (UsingEmulator()) {
+    EXPECT_THAT(reconflict_commit, StatusIs(StatusCode::kAlreadyExists,
+                                            HasSubstr("ShoppingCarts")));
+  } else {
+    EXPECT_THAT(reconflict_commit,
+                StatusIs(StatusCode::kFailedPrecondition,
+                         AllOf(HasSubstr("Cannot modify a row"),
+                               HasSubstr("ShoppingCarts"),
+                               HasSubstr("referential action is deleting it"),
+                               HasSubstr("in the same transaction"))));
+  }
 
   // Query INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS and validate DELETE_RULE.
   auto delete_rules = client_->ExecuteQuery(SqlStatement(R"""(
@@ -1406,7 +1394,8 @@ TEST_F(ClientIntegrationTest, ForeignKeyDeleteCascade) {
   for (auto& delete_rule : StreamOf<RowType>(delete_rules)) {
     EXPECT_THAT(delete_rule, IsOk());
     if (!delete_rule) break;
-    EXPECT_EQ("CASCADE", std::get<0>(*delete_rule));
+    EXPECT_EQ(UsingEmulator() ? "NO ACTION" : "CASCADE",
+              std::get<0>(*delete_rule));
   }
 
   // Drop ON DELETE CASCADE constraint.
@@ -1423,8 +1412,6 @@ TEST_F(ClientIntegrationTest, ForeignKeyDeleteCascade) {
 
 /// @test Verify "FOREIGN KEY" "ON DELETE CASCADE".
 TEST_F(PgClientIntegrationTest, ForeignKeyDeleteCascade) {
-  if (UsingEmulator()) GTEST_SKIP();
-
   spanner_admin::DatabaseAdminClient admin_client(
       spanner_admin::MakeDatabaseAdminConnection());
 
@@ -1481,10 +1468,8 @@ TEST_F(PgClientIntegrationTest, ForeignKeyDeleteCascade) {
       "ShoppingCarts", {"CartId", "CustomerId", "CustomerName"},  //
       2, 2, "FKCustomer")});
   EXPECT_THAT(bad_key, StatusIs(StatusCode::kFailedPrecondition,
-                                AllOf(HasSubstr("Foreign key constraint"),
-                                      HasSubstr("fkshoppingcartscustomerid"),
-                                      HasSubstr("shoppingcarts"),
-                                      HasSubstr("customers(customerid)"))));
+                                AllOf(HasSubstr("fkshoppingcartscustomerid"),
+                                      HasSubstr("shoppingcarts"))));
 
   // Delete a row in the referenced table. All rows referencing that key
   // from the referencing table will also be deleted.
@@ -1507,10 +1492,8 @@ TEST_F(PgClientIntegrationTest, ForeignKeyDeleteCascade) {
                 MakeDeleteMutation("Customers", KeySet().AddKey(MakeKey(1)))});
   EXPECT_THAT(conflict_commit,
               StatusIs(StatusCode::kFailedPrecondition,
-                       AllOf(HasSubstr("Cannot write a value"),
-                             HasSubstr("customers.customerid"),
-                             HasSubstr("and delete it"),
-                             HasSubstr("in the same transaction"))));
+                       AllOf(HasSubstr("Cannot write"), HasSubstr("and delete"),
+                             HasSubstr("same transaction"))));
 
   // Conflicting operation: reference foreign key in referencing table
   // and delete key from referenced table in the same mutation.
@@ -1528,12 +1511,17 @@ TEST_F(PgClientIntegrationTest, ForeignKeyDeleteCascade) {
                                    {"CartId", "CustomerId", "CustomerName"},  //
                                    1, 2, "FKCustomer2"),
                 MakeDeleteMutation("Customers", KeySet().AddKey(MakeKey(1)))});
-  EXPECT_THAT(reconflict_commit,
-              StatusIs(StatusCode::kFailedPrecondition,
-                       AllOf(HasSubstr("Cannot modify a row"),
-                             HasSubstr("shoppingcarts"),
-                             HasSubstr("referential action is deleting it"),
-                             HasSubstr("in the same transaction"))));
+  if (UsingEmulator()) {
+    EXPECT_THAT(reconflict_commit, StatusIs(StatusCode::kAlreadyExists,
+                                            HasSubstr("shoppingcarts")));
+  } else {
+    EXPECT_THAT(reconflict_commit,
+                StatusIs(StatusCode::kFailedPrecondition,
+                         AllOf(HasSubstr("Cannot modify a row"),
+                               HasSubstr("shoppingcarts"),
+                               HasSubstr("referential action is deleting it"),
+                               HasSubstr("in the same transaction"))));
+  }
 
   // Query INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS and validate DELETE_RULE.
   auto delete_rules = client_->ExecuteQuery(SqlStatement(R"""(
@@ -1545,7 +1533,8 @@ TEST_F(PgClientIntegrationTest, ForeignKeyDeleteCascade) {
   for (auto& delete_rule : StreamOf<RowType>(delete_rules)) {
     EXPECT_THAT(delete_rule, IsOk());
     if (!delete_rule) break;
-    EXPECT_EQ("CASCADE", std::get<0>(*delete_rule));
+    EXPECT_EQ(UsingEmulator() ? "NO ACTION" : "CASCADE",
+              std::get<0>(*delete_rule));
   }
 
   // Drop ON DELETE CASCADE constraint.
@@ -1608,11 +1597,7 @@ TEST_F(ClientIntegrationTest, SupportedOptimizerVersions) {
       )"""));
   using RowType = std::tuple<std::int64_t, absl::CivilDay>;
   for (auto& row : StreamOf<RowType>(rows)) {
-    if (UsingEmulator()) {
-      EXPECT_THAT(row, StatusIs(StatusCode::kInvalidArgument));
-    } else {
-      EXPECT_THAT(row, IsOk());
-    }
+    EXPECT_THAT(row, IsOk());
     if (!row) break;
     EXPECT_GT(std::get<0>(*row), 0);
     EXPECT_GE(std::get<1>(*row), absl::CivilDay(1998, 9, 4));

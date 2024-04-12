@@ -17,7 +17,7 @@
 // source: google/cloud/edgecontainer/v1/service.proto
 
 #include "google/cloud/edgecontainer/v1/internal/edge_container_metadata_decorator.h"
-#include "google/cloud/common_options.h"
+#include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/absl_str_cat_quiet.h"
 #include "google/cloud/internal/api_client_header.h"
 #include "google/cloud/internal/url_encode.h"
@@ -86,6 +86,18 @@ EdgeContainerMetadata::AsyncUpdateCluster(
 }
 
 future<StatusOr<google::longrunning::Operation>>
+EdgeContainerMetadata::AsyncUpgradeCluster(
+    google::cloud::CompletionQueue& cq,
+    std::shared_ptr<grpc::ClientContext> context,
+    google::cloud::internal::ImmutableOptions options,
+    google::cloud::edgecontainer::v1::UpgradeClusterRequest const& request) {
+  SetMetadata(*context, *options,
+              absl::StrCat("name=", internal::UrlEncode(request.name())));
+  return child_->AsyncUpgradeCluster(cq, std::move(context), std::move(options),
+                                     request);
+}
+
+future<StatusOr<google::longrunning::Operation>>
 EdgeContainerMetadata::AsyncDeleteCluster(
     google::cloud::CompletionQueue& cq,
     std::shared_ptr<grpc::ClientContext> context,
@@ -105,6 +117,16 @@ EdgeContainerMetadata::GenerateAccessToken(
   SetMetadata(context, options,
               absl::StrCat("cluster=", internal::UrlEncode(request.cluster())));
   return child_->GenerateAccessToken(context, options, request);
+}
+
+StatusOr<google::cloud::edgecontainer::v1::GenerateOfflineCredentialResponse>
+EdgeContainerMetadata::GenerateOfflineCredential(
+    grpc::ClientContext& context, Options const& options,
+    google::cloud::edgecontainer::v1::GenerateOfflineCredentialRequest const&
+        request) {
+  SetMetadata(context, options,
+              absl::StrCat("cluster=", internal::UrlEncode(request.cluster())));
+  return child_->GenerateOfflineCredential(context, options, request);
 }
 
 StatusOr<google::cloud::edgecontainer::v1::ListNodePoolsResponse>
@@ -225,6 +247,15 @@ EdgeContainerMetadata::AsyncDeleteVpnConnection(
                                           std::move(options), request);
 }
 
+StatusOr<google::cloud::edgecontainer::v1::ServerConfig>
+EdgeContainerMetadata::GetServerConfig(
+    grpc::ClientContext& context, Options const& options,
+    google::cloud::edgecontainer::v1::GetServerConfigRequest const& request) {
+  SetMetadata(context, options,
+              absl::StrCat("name=", internal::UrlEncode(request.name())));
+  return child_->GetServerConfig(context, options, request);
+}
+
 future<StatusOr<google::longrunning::Operation>>
 EdgeContainerMetadata::AsyncGetOperation(
     google::cloud::CompletionQueue& cq,
@@ -257,16 +288,8 @@ void EdgeContainerMetadata::SetMetadata(grpc::ClientContext& context,
 
 void EdgeContainerMetadata::SetMetadata(grpc::ClientContext& context,
                                         Options const& options) {
-  for (auto const& kv : fixed_metadata_) {
-    context.AddMetadata(kv.first, kv.second);
-  }
-  context.AddMetadata("x-goog-api-client", api_client_header_);
-  if (options.has<UserProjectOption>()) {
-    context.AddMetadata("x-goog-user-project",
-                        options.get<UserProjectOption>());
-  }
-  auto const& authority = options.get<AuthorityOption>();
-  if (!authority.empty()) context.set_authority(authority);
+  google::cloud::internal::SetMetadata(context, options, fixed_metadata_,
+                                       api_client_header_);
 }
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END

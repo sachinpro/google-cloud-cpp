@@ -172,6 +172,22 @@ service {
 }
 
 service {
+  service_proto_path: "google/cloud/aiplatform/v1/notebook_service.proto"
+  product_path: "google/cloud/aiplatform/v1"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
+  endpoint_location_style: LOCATION_DEPENDENT
+}
+
+service {
+  service_proto_path: "google/cloud/aiplatform/v1/persistent_resource_service.proto"
+  product_path: "google/cloud/aiplatform/v1"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
+  endpoint_location_style: LOCATION_DEPENDENT
+}
+
+service {
   service_proto_path: "google/cloud/aiplatform/v1/pipeline_service.proto"
   product_path: "google/cloud/aiplatform/v1"
   initial_copyright_year: "2023"
@@ -316,6 +332,14 @@ service {
   forwarding_product_path: "google/cloud/automl"
   initial_copyright_year: "2022"
   service_endpoint_env_var: "GOOGLE_CLOUD_CPP_AUTOML_PREDICTION_SERVICE_ENDPOINT"
+  retryable_status_codes: ["kUnavailable"]
+}
+
+# Backup and DR
+service {
+  service_proto_path: "google/cloud/backupdr/v1/backupdr.proto"
+  product_path: "google/cloud/backupdr/v1"
+  initial_copyright_year: "2024"
   retryable_status_codes: ["kUnavailable"]
 }
 
@@ -835,6 +859,15 @@ discovery_products {
   }
 
   rest_services {
+    service_proto_path: "google/cloud/compute/instance_group_manager_resize_requests/v1/instance_group_manager_resize_requests.proto"
+    product_path: "google/cloud/compute/instance_group_manager_resize_requests/v1"
+    initial_copyright_year: "2024"
+    retryable_status_codes: ["kUnavailable"]
+    generate_rest_transport: true
+    generate_grpc_transport: false
+  }
+
+  rest_services {
     service_proto_path: "google/cloud/compute/instance_group_managers/v1/instance_group_managers.proto"
     product_path: "google/cloud/compute/instance_group_managers/v1"
     initial_copyright_year: "2023"
@@ -847,6 +880,15 @@ discovery_products {
     service_proto_path: "google/cloud/compute/instance_groups/v1/instance_groups.proto"
     product_path: "google/cloud/compute/instance_groups/v1"
     initial_copyright_year: "2023"
+    retryable_status_codes: ["kUnavailable"]
+    generate_rest_transport: true
+    generate_grpc_transport: false
+  }
+
+  rest_services {
+    service_proto_path: "google/cloud/compute/instance_settings/v1/instance_settings.proto"
+    product_path: "google/cloud/compute/instance_settings/v1"
+    initial_copyright_year: "2024"
     retryable_status_codes: ["kUnavailable"]
     generate_rest_transport: true
     generate_grpc_transport: false
@@ -1357,6 +1399,24 @@ discovery_products {
   }
 
   rest_services {
+    service_proto_path: "google/cloud/compute/storage_pool_types/v1/storage_pool_types.proto"
+    product_path: "google/cloud/compute/storage_pool_types/v1"
+    initial_copyright_year: "2024"
+    retryable_status_codes: ["kUnavailable"]
+    generate_rest_transport: true
+    generate_grpc_transport: false
+  }
+
+  rest_services {
+    service_proto_path: "google/cloud/compute/storage_pools/v1/storage_pools.proto"
+    product_path: "google/cloud/compute/storage_pools/v1"
+    initial_copyright_year: "2024"
+    retryable_status_codes: ["kUnavailable"]
+    generate_rest_transport: true
+    generate_grpc_transport: false
+  }
+
+  rest_services {
     service_proto_path: "google/cloud/compute/subnetworks/v1/subnetworks.proto"
     product_path: "google/cloud/compute/subnetworks/v1"
     initial_copyright_year: "2023"
@@ -1648,6 +1708,13 @@ service {
 }
 
 # Dataplex
+service {
+  service_proto_path: "google/cloud/dataplex/v1/catalog.proto"
+  product_path: "google/cloud/dataplex/v1"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
+}
+
 service {
   service_proto_path: "google/cloud/dataplex/v1/content.proto"
   product_path: "google/cloud/dataplex/v1"
@@ -2123,6 +2190,7 @@ service {
   product_path: "google/cloud/edgenetwork/v1"
   initial_copyright_year: "2023"
   retryable_status_codes: ["kUnavailable"]
+  emitted_rpcs: ["GetZone", "ListZones"]
 }
 
 # Essential Contacts
@@ -2546,6 +2614,13 @@ service {
   service_proto_path: "google/cloud/networkservices/v1/network_services.proto"
   product_path: "google/cloud/networkservices/v1"
   initial_copyright_year: "2023"
+  retryable_status_codes: ["kUnavailable"]
+}
+
+service {
+  service_proto_path: "google/cloud/networkservices/v1/dep.proto"
+  product_path: "google/cloud/networkservices/v1"
+  initial_copyright_year: "2024"
   retryable_status_codes: ["kUnavailable"]
 }
 

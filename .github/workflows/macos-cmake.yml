@@ -103,6 +103,14 @@ jobs:
         fi
     - name: Install bash >= 5.x and Ninja
       run: brew install bash ninja
+    - name: Install CMake==3.27.2
+      working-directory: "${{runner.temp}}"
+      run: |
+        # Remove the older CMake version
+        brew unlink cmake
+        # Download the Homebrew formula for CMake==3.27.2
+        curl -fsSL -o cmake.rb https://raw.githubusercontent.com/Homebrew/homebrew-core/fd21fcf239bcd0231c9fed5719403ec128151af4/Formula/cmake.rb
+        brew install cmake.rb
     - name: Download and Install sccache
       working-directory: "${{runner.temp}}"
       run: |
@@ -128,3 +136,4 @@ jobs:
       SCCACHE_GCS_RW_MODE: READ_WRITE
       SCCACHE_IGNORE_SERVER_IO_ERROR: 1
       VCPKG_BINARY_SOURCES: x-gcs,gs://cloud-cpp-gha-cache/vcpkg-cache/${{ matrix.os }},readwrite
+      GHA_TEST_BUCKET: "gcs-grpc-team-cloud-cpp-testing-bucket"

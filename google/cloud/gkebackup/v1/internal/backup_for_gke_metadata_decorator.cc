@@ -17,7 +17,7 @@
 // source: google/cloud/gkebackup/v1/gkebackup.proto
 
 #include "google/cloud/gkebackup/v1/internal/backup_for_gke_metadata_decorator.h"
-#include "google/cloud/common_options.h"
+#include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/absl_str_cat_quiet.h"
 #include "google/cloud/internal/api_client_header.h"
 #include "google/cloud/internal/url_encode.h"
@@ -297,6 +297,16 @@ BackupForGKEMetadata::GetVolumeRestore(
   return child_->GetVolumeRestore(context, options, request);
 }
 
+StatusOr<google::cloud::gkebackup::v1::GetBackupIndexDownloadUrlResponse>
+BackupForGKEMetadata::GetBackupIndexDownloadUrl(
+    grpc::ClientContext& context, Options const& options,
+    google::cloud::gkebackup::v1::GetBackupIndexDownloadUrlRequest const&
+        request) {
+  SetMetadata(context, options,
+              absl::StrCat("backup=", internal::UrlEncode(request.backup())));
+  return child_->GetBackupIndexDownloadUrl(context, options, request);
+}
+
 future<StatusOr<google::longrunning::Operation>>
 BackupForGKEMetadata::AsyncGetOperation(
     google::cloud::CompletionQueue& cq,
@@ -329,16 +339,8 @@ void BackupForGKEMetadata::SetMetadata(grpc::ClientContext& context,
 
 void BackupForGKEMetadata::SetMetadata(grpc::ClientContext& context,
                                        Options const& options) {
-  for (auto const& kv : fixed_metadata_) {
-    context.AddMetadata(kv.first, kv.second);
-  }
-  context.AddMetadata("x-goog-api-client", api_client_header_);
-  if (options.has<UserProjectOption>()) {
-    context.AddMetadata("x-goog-user-project",
-                        options.get<UserProjectOption>());
-  }
-  auto const& authority = options.get<AuthorityOption>();
-  if (!authority.empty()) context.set_authority(authority);
+  google::cloud::internal::SetMetadata(context, options, fixed_metadata_,
+                                       api_client_header_);
 }
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END

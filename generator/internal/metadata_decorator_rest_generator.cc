@@ -230,15 +230,14 @@ Status MetadataDecoratorRestGenerator::GenerateCc() {
 
   // includes
   CcPrint("\n");
-  CcLocalIncludes({vars("metadata_rest_header_path"),
-                   "google/cloud/internal/api_client_header.h",
-                   HasExplicitRoutingMethod()
-                       ? "google/cloud/internal/routing_matcher.h"
-                       : "",
-                   "google/cloud/common_options.h", "google/cloud/status_or.h",
-                   "google/cloud/internal/absl_str_cat_quiet.h",
-                   "google/cloud/internal/absl_str_join_quiet.h",
-                   "absl/strings/str_format.h"});
+  CcLocalIncludes(
+      {vars("metadata_rest_header_path"),
+       "google/cloud/internal/api_client_header.h",
+       HasExplicitRoutingMethod() ? "google/cloud/internal/routing_matcher.h"
+                                  : "",
+       "google/cloud/status_or.h", "google/cloud/internal/absl_str_cat_quiet.h",
+       "google/cloud/internal/rest_set_metadata.h",
+       "absl/strings/str_format.h"});
   CcSystemIncludes({"memory", "utility"});
 
   auto result = CcOpenNamespaces(NamespaceType::kInternal);
@@ -381,25 +380,8 @@ $metadata_rest_class_name$::AsyncCancelOperation(
 void $metadata_rest_class_name$::SetMetadata(
       rest_internal::RestContext& rest_context,
       Options const& options, std::vector<std::string> const& params) {
-  rest_context.AddHeader("x-goog-api-client", api_client_header_);
-  if (!params.empty()) {
-    rest_context.AddHeader("x-goog-request-params", absl::StrJoin(params, "&"));
-  }
-  if (options.has<UserProjectOption>()) {
-    rest_context.AddHeader(
-        "x-goog-user-project", options.get<UserProjectOption>());
-  }
-  if (options.has<google::cloud::QuotaUserOption>()) {
-    rest_context.AddHeader(
-        "x-goog-quota-user", options.get<google::cloud::QuotaUserOption>());
-  }
-  if (options.has<google::cloud::ServerTimeoutOption>()) {
-    auto ms_rep = absl::StrCat(
-        absl::Dec(options.get<google::cloud::ServerTimeoutOption>().count(),
-        absl::kZeroPad4));
-    rest_context.AddHeader("x-server-timeout",
-        ms_rep.insert(ms_rep.size() - 3, "."));
-  }
+  google::cloud::rest_internal::SetMetadata(
+      rest_context, options, params, api_client_header_);
 }
 )""");
 

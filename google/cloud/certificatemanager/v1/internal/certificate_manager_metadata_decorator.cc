@@ -17,7 +17,7 @@
 // source: google/cloud/certificatemanager/v1/certificate_manager.proto
 
 #include "google/cloud/certificatemanager/v1/internal/certificate_manager_metadata_decorator.h"
-#include "google/cloud/common_options.h"
+#include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/absl_str_cat_quiet.h"
 #include "google/cloud/internal/api_client_header.h"
 #include "google/cloud/internal/url_encode.h"
@@ -333,6 +333,66 @@ CertificateManagerMetadata::AsyncDeleteCertificateIssuanceConfig(
       cq, std::move(context), std::move(options), request);
 }
 
+StatusOr<google::cloud::certificatemanager::v1::ListTrustConfigsResponse>
+CertificateManagerMetadata::ListTrustConfigs(
+    grpc::ClientContext& context, Options const& options,
+    google::cloud::certificatemanager::v1::ListTrustConfigsRequest const&
+        request) {
+  SetMetadata(context, options,
+              absl::StrCat("parent=", internal::UrlEncode(request.parent())));
+  return child_->ListTrustConfigs(context, options, request);
+}
+
+StatusOr<google::cloud::certificatemanager::v1::TrustConfig>
+CertificateManagerMetadata::GetTrustConfig(
+    grpc::ClientContext& context, Options const& options,
+    google::cloud::certificatemanager::v1::GetTrustConfigRequest const&
+        request) {
+  SetMetadata(context, options,
+              absl::StrCat("name=", internal::UrlEncode(request.name())));
+  return child_->GetTrustConfig(context, options, request);
+}
+
+future<StatusOr<google::longrunning::Operation>>
+CertificateManagerMetadata::AsyncCreateTrustConfig(
+    google::cloud::CompletionQueue& cq,
+    std::shared_ptr<grpc::ClientContext> context,
+    google::cloud::internal::ImmutableOptions options,
+    google::cloud::certificatemanager::v1::CreateTrustConfigRequest const&
+        request) {
+  SetMetadata(*context, *options,
+              absl::StrCat("parent=", internal::UrlEncode(request.parent())));
+  return child_->AsyncCreateTrustConfig(cq, std::move(context),
+                                        std::move(options), request);
+}
+
+future<StatusOr<google::longrunning::Operation>>
+CertificateManagerMetadata::AsyncUpdateTrustConfig(
+    google::cloud::CompletionQueue& cq,
+    std::shared_ptr<grpc::ClientContext> context,
+    google::cloud::internal::ImmutableOptions options,
+    google::cloud::certificatemanager::v1::UpdateTrustConfigRequest const&
+        request) {
+  SetMetadata(*context, *options,
+              absl::StrCat("trust_config.name=",
+                           internal::UrlEncode(request.trust_config().name())));
+  return child_->AsyncUpdateTrustConfig(cq, std::move(context),
+                                        std::move(options), request);
+}
+
+future<StatusOr<google::longrunning::Operation>>
+CertificateManagerMetadata::AsyncDeleteTrustConfig(
+    google::cloud::CompletionQueue& cq,
+    std::shared_ptr<grpc::ClientContext> context,
+    google::cloud::internal::ImmutableOptions options,
+    google::cloud::certificatemanager::v1::DeleteTrustConfigRequest const&
+        request) {
+  SetMetadata(*context, *options,
+              absl::StrCat("name=", internal::UrlEncode(request.name())));
+  return child_->AsyncDeleteTrustConfig(cq, std::move(context),
+                                        std::move(options), request);
+}
+
 future<StatusOr<google::longrunning::Operation>>
 CertificateManagerMetadata::AsyncGetOperation(
     google::cloud::CompletionQueue& cq,
@@ -365,16 +425,8 @@ void CertificateManagerMetadata::SetMetadata(
 
 void CertificateManagerMetadata::SetMetadata(grpc::ClientContext& context,
                                              Options const& options) {
-  for (auto const& kv : fixed_metadata_) {
-    context.AddMetadata(kv.first, kv.second);
-  }
-  context.AddMetadata("x-goog-api-client", api_client_header_);
-  if (options.has<UserProjectOption>()) {
-    context.AddMetadata("x-goog-user-project",
-                        options.get<UserProjectOption>());
-  }
-  auto const& authority = options.get<AuthorityOption>();
-  if (!authority.empty()) context.set_authority(authority);
+  google::cloud::internal::SetMetadata(context, options, fixed_metadata_,
+                                       api_client_header_);
 }
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END

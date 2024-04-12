@@ -148,6 +148,17 @@ class ConfigLogging : public ConfigStub {
       google::cloud::config::v1::ExportPreviewResultRequest const& request)
       override;
 
+  StatusOr<google::cloud::config::v1::ListTerraformVersionsResponse>
+  ListTerraformVersions(
+      grpc::ClientContext& context, Options const& options,
+      google::cloud::config::v1::ListTerraformVersionsRequest const& request)
+      override;
+
+  StatusOr<google::cloud::config::v1::TerraformVersion> GetTerraformVersion(
+      grpc::ClientContext& context, Options const& options,
+      google::cloud::config::v1::GetTerraformVersionRequest const& request)
+      override;
+
   future<StatusOr<google::longrunning::Operation>> AsyncGetOperation(
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
@@ -163,7 +174,6 @@ class ConfigLogging : public ConfigStub {
  private:
   std::shared_ptr<ConfigStub> child_;
   TracingOptions tracing_options_;
-  bool stream_logging_;
 };  // ConfigLogging
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END

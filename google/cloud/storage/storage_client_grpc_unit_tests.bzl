@@ -17,8 +17,11 @@
 """Automatically generated unit tests list - DO NOT EDIT."""
 
 storage_client_grpc_unit_tests = [
+    "async/bucket_name_test.cc",
     "async/client_test.cc",
+    "async/idempotency_policy_test.cc",
     "async/reader_test.cc",
+    "async/resume_policy_test.cc",
     "async/rewriter_test.cc",
     "async/token_test.cc",
     "async/writer_test.cc",
@@ -30,7 +33,9 @@ storage_client_grpc_unit_tests = [
     "internal/async/insert_object_test.cc",
     "internal/async/partial_upload_test.cc",
     "internal/async/read_payload_impl_test.cc",
+    "internal/async/reader_connection_factory_test.cc",
     "internal/async/reader_connection_impl_test.cc",
+    "internal/async/reader_connection_resume_test.cc",
     "internal/async/reader_connection_tracing_test.cc",
     "internal/async/rewriter_connection_impl_test.cc",
     "internal/async/rewriter_connection_tracing_test.cc",
@@ -55,6 +60,7 @@ storage_client_grpc_unit_tests = [
     "internal/grpc/object_read_source_test.cc",
     "internal/grpc/object_request_parser_test.cc",
     "internal/grpc/owner_parser_test.cc",
+    "internal/grpc/scale_stall_timeout_test.cc",
     "internal/grpc/service_account_parser_test.cc",
     "internal/grpc/sign_blob_request_parser_test.cc",
     "internal/grpc/split_write_object_data_test.cc",

@@ -93,6 +93,10 @@ jobs:
           skipped="$(printf ",-%s" "${skipped_features[@]}")"
           echo "features=__ga_libraries__,__experimental_libraries__,${skipped:2}" >> "${GITHUB_OUTPUT}"
         fi
+    - name: Download and Install CMake
+      shell: bash
+      run: |
+        choco install -y cmake --version 3.29.0
     - name: Download and Install sccache
       working-directory: "${{runner.temp}}"
       shell: bash
@@ -134,3 +138,4 @@ jobs:
       SCCACHE_IGNORE_SERVER_IO_ERROR: 1
       VCPKG_BINARY_SOURCES: x-gcs,gs://cloud-cpp-gha-cache/vcpkg-cache/${{ matrix.msvc }},readwrite
       VCPKG_TRIPLET: ${{ matrix.arch }}-windows
+      GHA_TEST_BUCKET: "gcs-grpc-team-cloud-cpp-testing-bucket"

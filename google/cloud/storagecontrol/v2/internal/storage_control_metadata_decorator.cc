@@ -17,7 +17,7 @@
 // source: google/storage/control/v2/storage_control.proto
 
 #include "google/cloud/storagecontrol/v2/internal/storage_control_metadata_decorator.h"
-#include "google/cloud/common_options.h"
+#include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/absl_str_cat_quiet.h"
 #include "google/cloud/internal/absl_str_join_quiet.h"
 #include "google/cloud/internal/api_client_header.h"
@@ -198,6 +198,101 @@ StorageControlMetadata::GetStorageLayout(
   return child_->GetStorageLayout(context, options, request);
 }
 
+StatusOr<google::storage::control::v2::ManagedFolder>
+StorageControlMetadata::CreateManagedFolder(
+    grpc::ClientContext& context, Options const& options,
+    google::storage::control::v2::CreateManagedFolderRequest const& request) {
+  std::vector<std::string> params;
+  params.reserve(1);
+
+  if (!request.parent().empty()) {
+    params.push_back(
+        absl::StrCat("bucket=", internal::UrlEncode(request.parent())));
+  }
+
+  if (params.empty()) {
+    SetMetadata(context, options);
+  } else {
+    SetMetadata(context, options, absl::StrJoin(params, "&"));
+  }
+  return child_->CreateManagedFolder(context, options, request);
+}
+
+Status StorageControlMetadata::DeleteManagedFolder(
+    grpc::ClientContext& context, Options const& options,
+    google::storage::control::v2::DeleteManagedFolderRequest const& request) {
+  std::vector<std::string> params;
+  params.reserve(1);
+
+  static auto* bucket_matcher = [] {
+    return new google::cloud::internal::RoutingMatcher<
+        google::storage::control::v2::DeleteManagedFolderRequest>{
+        "bucket=",
+        {
+            {[](google::storage::control::v2::DeleteManagedFolderRequest const&
+                    request) -> std::string const& { return request.name(); },
+             std::regex{"(projects/[^/]+/buckets/[^/]+)/.*",
+                        std::regex::optimize}},
+        }};
+  }();
+  bucket_matcher->AppendParam(request, params);
+
+  if (params.empty()) {
+    SetMetadata(context, options);
+  } else {
+    SetMetadata(context, options, absl::StrJoin(params, "&"));
+  }
+  return child_->DeleteManagedFolder(context, options, request);
+}
+
+StatusOr<google::storage::control::v2::ManagedFolder>
+StorageControlMetadata::GetManagedFolder(
+    grpc::ClientContext& context, Options const& options,
+    google::storage::control::v2::GetManagedFolderRequest const& request) {
+  std::vector<std::string> params;
+  params.reserve(1);
+
+  static auto* bucket_matcher = [] {
+    return new google::cloud::internal::RoutingMatcher<
+        google::storage::control::v2::GetManagedFolderRequest>{
+        "bucket=",
+        {
+            {[](google::storage::control::v2::GetManagedFolderRequest const&
+                    request) -> std::string const& { return request.name(); },
+             std::regex{"(projects/[^/]+/buckets/[^/]+)/.*",
+                        std::regex::optimize}},
+        }};
+  }();
+  bucket_matcher->AppendParam(request, params);
+
+  if (params.empty()) {
+    SetMetadata(context, options);
+  } else {
+    SetMetadata(context, options, absl::StrJoin(params, "&"));
+  }
+  return child_->GetManagedFolder(context, options, request);
+}
+
+StatusOr<google::storage::control::v2::ListManagedFoldersResponse>
+StorageControlMetadata::ListManagedFolders(
+    grpc::ClientContext& context, Options const& options,
+    google::storage::control::v2::ListManagedFoldersRequest const& request) {
+  std::vector<std::string> params;
+  params.reserve(1);
+
+  if (!request.parent().empty()) {
+    params.push_back(
+        absl::StrCat("bucket=", internal::UrlEncode(request.parent())));
+  }
+
+  if (params.empty()) {
+    SetMetadata(context, options);
+  } else {
+    SetMetadata(context, options, absl::StrJoin(params, "&"));
+  }
+  return child_->ListManagedFolders(context, options, request);
+}
+
 future<StatusOr<google::longrunning::Operation>>
 StorageControlMetadata::AsyncGetOperation(
     google::cloud::CompletionQueue& cq,
@@ -230,16 +325,8 @@ void StorageControlMetadata::SetMetadata(grpc::ClientContext& context,
 
 void StorageControlMetadata::SetMetadata(grpc::ClientContext& context,
                                          Options const& options) {
-  for (auto const& kv : fixed_metadata_) {
-    context.AddMetadata(kv.first, kv.second);
-  }
-  context.AddMetadata("x-goog-api-client", api_client_header_);
-  if (options.has<UserProjectOption>()) {
-    context.AddMetadata("x-goog-user-project",
-                        options.get<UserProjectOption>());
-  }
-  auto const& authority = options.get<AuthorityOption>();
-  if (!authority.empty()) context.set_authority(authority);
+  google::cloud::internal::SetMetadata(context, options, fixed_metadata_,
+                                       api_client_header_);
 }
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END

@@ -19,6 +19,7 @@
 #include "google/cloud/version.h"
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -67,6 +68,8 @@ struct UserAgentProductsOption {
  *
  * - rpc
  * - rpc-streams
+ *
+ * @ingroup options
  */
 struct TracingComponentsOption {
   using Type = std::set<std::string>;
@@ -85,6 +88,40 @@ struct TracingComponentsOption {
  * @ingroup options
  */
 struct UserProjectOption {
+  using Type = std::string;
+};
+
+/**
+ * Configure the QuotaUser [system parameter].
+ *
+ * A pseudo user identifier for charging per-user quotas. If not specified, the
+ * authenticated principal is used. If there is no authenticated principal, the
+ * client IP address will be used. When specified, a valid API key with service
+ * restrictions must be used to identify the quota project. Otherwise, this
+ * parameter is ignored.
+ *
+ * [system parameter]: https://cloud.google.com/apis/docs/system-parameters
+ *
+ * @ingroup options
+ * @ingroup rest-options
+ */
+struct QuotaUserOption {
+  using Type = std::string;
+};
+
+/**
+ * Configure the UserIp [system parameter].
+ *
+ * @deprecated prefer using `google::cloud::QuotaUserOption`.
+ *
+ * This can be used to separate quota usage by source IP address.
+ *
+ * [system parameter]: https://cloud.google.com/apis/docs/system-parameters
+ *
+ * @ingroup options
+ * @ingroup rest-options
+ */
+struct UserIpOption {
   using Type = std::string;
 };
 
@@ -222,9 +259,34 @@ struct ProxyOption {
  *
  * For example, the server may know it is safe to retry a non-idempotent
  * request, or safe to retry a status code that is typically a permanent error.
+ *
+ * @ingroup options
  */
 struct EnableServerRetriesOption {
   using Type = bool;
+};
+
+/**
+ * An option to inject custom headers into the request.
+ *
+ * For REST endpoints, these headers are added to the HTTP headers. For gRPC
+ * endpoints, these headers are added to the `grpc::ClientContext` metadata.
+ *
+ * @ingroup options
+ */
+struct CustomHeadersOption {
+  using Type = std::unordered_multimap<std::string, std::string>;
+};
+
+/**
+ * Configure server-side filtering.
+ *
+ * Google services can filter the fields in a response using the
+ * `X-Goog-FieldMask` header. This can be useful in large responses, such as
+ * listing resources, where some of the fields are uninteresting.
+ */
+struct FieldMaskOption {
+  using Type = std::string;
 };
 
 /**
@@ -232,7 +294,7 @@ struct EnableServerRetriesOption {
  */
 using CommonOptionList =
     OptionList<EndpointOption, UserAgentProductsOption, TracingComponentsOption,
-               UserProjectOption, AuthorityOption>;
+               UserProjectOption, AuthorityOption, CustomHeadersOption>;
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END
 }  // namespace cloud

@@ -269,7 +269,7 @@ class CloudQuotasClient {
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
   /// [google.api.cloudquotas.v1.ListQuotaPreferencesRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L205}
-  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L168}
+  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L162}
   ///
   // clang-format on
   StreamRange<google::api::cloudquotas::v1::QuotaPreference>
@@ -308,7 +308,7 @@ class CloudQuotasClient {
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
   /// [google.api.cloudquotas.v1.ListQuotaPreferencesRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L205}
-  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L168}
+  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L162}
   ///
   // clang-format on
   StreamRange<google::api::cloudquotas::v1::QuotaPreference>
@@ -337,8 +337,8 @@ class CloudQuotasClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.api.cloudquotas.v1.GetQuotaPreferenceRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L264}
-  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L168}
+  /// [google.api.cloudquotas.v1.GetQuotaPreferenceRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L261}
+  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L162}
   ///
   // clang-format on
   StatusOr<google::api::cloudquotas::v1::QuotaPreference> GetQuotaPreference(
@@ -367,8 +367,8 @@ class CloudQuotasClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.api.cloudquotas.v1.GetQuotaPreferenceRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L264}
-  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L168}
+  /// [google.api.cloudquotas.v1.GetQuotaPreferenceRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L261}
+  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L162}
   ///
   // clang-format on
   StatusOr<google::api::cloudquotas::v1::QuotaPreference> GetQuotaPreference(
@@ -399,8 +399,8 @@ class CloudQuotasClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.api.cloudquotas.v1.CreateQuotaPreferenceRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L278}
-  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L168}
+  /// [google.api.cloudquotas.v1.CreateQuotaPreferenceRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L275}
+  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L162}
   ///
   // clang-format on
   StatusOr<google::api::cloudquotas::v1::QuotaPreference> CreateQuotaPreference(
@@ -430,8 +430,8 @@ class CloudQuotasClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.api.cloudquotas.v1.CreateQuotaPreferenceRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L278}
-  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L168}
+  /// [google.api.cloudquotas.v1.CreateQuotaPreferenceRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L275}
+  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L162}
   ///
   // clang-format on
   StatusOr<google::api::cloudquotas::v1::QuotaPreference> CreateQuotaPreference(
@@ -462,8 +462,8 @@ class CloudQuotasClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.api.cloudquotas.v1.CreateQuotaPreferenceRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L278}
-  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L168}
+  /// [google.api.cloudquotas.v1.CreateQuotaPreferenceRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L275}
+  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L162}
   ///
   // clang-format on
   StatusOr<google::api::cloudquotas::v1::QuotaPreference> CreateQuotaPreference(
@@ -494,8 +494,8 @@ class CloudQuotasClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L168}
-  /// [google.api.cloudquotas.v1.UpdateQuotaPreferenceRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L302}
+  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L162}
+  /// [google.api.cloudquotas.v1.UpdateQuotaPreferenceRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L299}
   ///
   // clang-format on
   StatusOr<google::api::cloudquotas::v1::QuotaPreference> UpdateQuotaPreference(
@@ -526,8 +526,8 @@ class CloudQuotasClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L168}
-  /// [google.api.cloudquotas.v1.UpdateQuotaPreferenceRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L302}
+  /// [google.api.cloudquotas.v1.QuotaPreference]: @googleapis_reference_link{google/api/cloudquotas/v1/resources.proto#L162}
+  /// [google.api.cloudquotas.v1.UpdateQuotaPreferenceRequest]: @googleapis_reference_link{google/api/cloudquotas/v1/cloudquotas.proto#L299}
   ///
   // clang-format on
   StatusOr<google::api::cloudquotas::v1::QuotaPreference> UpdateQuotaPreference(

@@ -35,8 +35,27 @@ readonly COMPUTE_DISCOVERY_JSON_RELATIVE_PATH="generator/discovery/compute_publi
 io::log_h2 "Fetching discovery document from ${COMPUTE_DISCOVERY_DOCUMENT_URL}"
 curl "${COMPUTE_DISCOVERY_DOCUMENT_URL}" >"${PROJECT_ROOT}/${COMPUTE_DISCOVERY_JSON_RELATIVE_PATH}"
 
+REVISION=$(sed -En 's/  \"revision\": \"([[:digit:]]+)\",/\1/p' "${PROJECT_ROOT}/${COMPUTE_DISCOVERY_JSON_RELATIVE_PATH}")
+readonly REVISION
+io::run git checkout -B update_compute_discovery_circa_"${REVISION}"
+
 io::log_h2 "Adding updated Discovery JSON ${COMPUTE_DISCOVERY_JSON_RELATIVE_PATH}"
 git add "${PROJECT_ROOT}/${COMPUTE_DISCOVERY_JSON_RELATIVE_PATH}"
 
 io::log_h2 "Running generate-libraries with UPDATED_DISCOVERY_DOCUMENT=compute"
 UPDATED_DISCOVERY_DOCUMENT=compute ci/cloudbuild/build.sh -t generate-libraries-pr
+
+NEW_FILES=$(git ls-files --others --exclude-standard)
+if [[ -n "${NEW_FILES}" ]]; then
+  io::log_red "New resources defined in Discovery Document created new protos:"
+  echo "${NEW_FILES}"
+  mapfile -t proto_array < <(echo "${NEW_FILES}")
+  io::log_red "Add rest_services definitions to the generator_config.textproto and re-run this script."
+  git add protos
+  io::log_red "Add new directories to google/cloud/compute/service_dirs.cmake"
+  for i in "${proto_array[@]}"; do
+    service_dir=$(echo "${i}" | sed -En 's/protos\/google\/cloud\/compute\/(.*\/v[[:digit:]]\/).*\.proto/\1/p')
+    echo "    \"${service_dir}\""
+  done
+  exit 1
+fi

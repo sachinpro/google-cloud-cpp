@@ -94,6 +94,7 @@ expected_dirs+=(
   ./include/google/cloud/gkehub/v1/multiclusteringress
   ./include/google/cloud/grpc_utils
   ./include/google/cloud/internal
+  ./include/google/cloud/internal/win32
   # no RPC services in google/cloud/metastore/logging
   ./include/google/cloud/metastore/logging
   ./include/google/cloud/metastore/logging/v1
@@ -153,6 +154,7 @@ expected_dirs+=(
   ./lib64/cmake/google_cloud_cpp_opentelemetry
   ./lib64/cmake/google_cloud_cpp_rest_internal
   ./lib64/cmake/google_cloud_cpp_rest_protobuf_internal
+  ./lib64/cmake/google_cloud_cpp_storage_grpc
   ./lib64/cmake/google_cloud_cpp_storage_grpc_mocks
   ./lib64/pkgconfig
 )

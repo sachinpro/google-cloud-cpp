@@ -21,7 +21,7 @@
 
 namespace google {
 namespace cloud {
-namespace storage_experimental {
+namespace storage {
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 namespace {
 
@@ -37,18 +37,35 @@ Options TestOptions() {
       .set<EndpointOption>("localhost:1");
 }
 
-TEST(GrpcPluginTest, MetadataConfigCreatesGrpc) {
+TEST(GrpcPluginTest, DefaultCreatesGrpc) {
   // Explicitly disable logging, which may be enabled by our CI builds.
   auto logging =
       ScopedEnvironment("CLOUD_STORAGE_ENABLE_TRACING", absl::nullopt);
   auto config =
       ScopedEnvironment("GOOGLE_CLOUD_CPP_STORAGE_GRPC_CONFIG", absl::nullopt);
-  auto client =
-      DefaultGrpcClient(TestOptions().set<GrpcPluginOption>("metadata"));
+  auto client = storage_experimental::DefaultGrpcClient(TestOptions());
   auto impl = ClientImplDetails::GetConnection(client);
   ASSERT_THAT(impl, NotNull());
   EXPECT_THAT(impl->InspectStackStructure(),
               ElementsAre("GrpcStub", "StorageConnectionImpl"));
+}
+
+#include "google/cloud/internal/disable_deprecation_warnings.inc"
+TEST(GrpcPluginTest, MostConfigValuesCreatesGrpc) {
+  // Explicitly disable logging, which may be enabled by our CI builds.
+  auto logging =
+      ScopedEnvironment("CLOUD_STORAGE_ENABLE_TRACING", absl::nullopt);
+  auto config =
+      ScopedEnvironment("GOOGLE_CLOUD_CPP_STORAGE_GRPC_CONFIG", absl::nullopt);
+  // Unless the config is set to "none" we want to create the gRPC stub.
+  for (auto const* config : {"", "metadata", "media", "anything-but-none"}) {
+    auto client = storage_experimental::DefaultGrpcClient(
+        TestOptions().set<storage_experimental::GrpcPluginOption>(config));
+    auto impl = ClientImplDetails::GetConnection(client);
+    ASSERT_THAT(impl, NotNull());
+    EXPECT_THAT(impl->InspectStackStructure(),
+                ElementsAre("GrpcStub", "StorageConnectionImpl"));
+  }
 }
 
 TEST(GrpcPluginTest, EnvironmentOverrides) {
@@ -57,8 +74,8 @@ TEST(GrpcPluginTest, EnvironmentOverrides) {
       ScopedEnvironment("CLOUD_STORAGE_ENABLE_TRACING", absl::nullopt);
   auto config =
       ScopedEnvironment("GOOGLE_CLOUD_CPP_STORAGE_GRPC_CONFIG", "none");
-  auto client =
-      DefaultGrpcClient(TestOptions().set<GrpcPluginOption>("metadata"));
+  auto client = storage_experimental::DefaultGrpcClient(
+      TestOptions().set<storage_experimental::GrpcPluginOption>("metadata"));
   auto impl = ClientImplDetails::GetConnection(client);
   ASSERT_THAT(impl, NotNull());
   EXPECT_THAT(impl->InspectStackStructure(),
@@ -71,7 +88,7 @@ TEST(GrpcPluginTest, UnsetConfigCreatesMetadata) {
       ScopedEnvironment("CLOUD_STORAGE_ENABLE_TRACING", absl::nullopt);
   auto config =
       ScopedEnvironment("GOOGLE_CLOUD_CPP_STORAGE_GRPC_CONFIG", absl::nullopt);
-  auto client = DefaultGrpcClient(TestOptions());
+  auto client = storage_experimental::DefaultGrpcClient(TestOptions());
   auto impl = ClientImplDetails::GetConnection(client);
   ASSERT_THAT(impl, NotNull());
   EXPECT_THAT(impl->InspectStackStructure(),
@@ -84,43 +101,45 @@ TEST(GrpcPluginTest, NoneConfigCreatesCurl) {
       ScopedEnvironment("CLOUD_STORAGE_ENABLE_TRACING", absl::nullopt);
   auto config =
       ScopedEnvironment("GOOGLE_CLOUD_CPP_STORAGE_GRPC_CONFIG", absl::nullopt);
-  auto client = DefaultGrpcClient(TestOptions().set<GrpcPluginOption>("none"));
+  auto client = storage_experimental::DefaultGrpcClient(
+      TestOptions().set<storage_experimental::GrpcPluginOption>("none"));
   auto impl = ClientImplDetails::GetConnection(client);
   ASSERT_THAT(impl, NotNull());
   EXPECT_THAT(impl->InspectStackStructure(),
               ElementsAre("RestStub", "StorageConnectionImpl"));
 }
 
-TEST(GrpcPluginTest, MediaConfigCreatesHybrid) {
-  // Explicitly disable logging, which may be enabled by our CI builds.
-  auto logging =
-      ScopedEnvironment("CLOUD_STORAGE_ENABLE_TRACING", absl::nullopt);
-  auto config =
-      ScopedEnvironment("GOOGLE_CLOUD_CPP_STORAGE_GRPC_CONFIG", absl::nullopt);
-  auto client = DefaultGrpcClient(TestOptions().set<GrpcPluginOption>("media"));
-  auto impl = ClientImplDetails::GetConnection(client);
-  ASSERT_THAT(impl, NotNull());
-  EXPECT_THAT(impl->InspectStackStructure(),
-              ElementsAre("GrpcStub", "RestStub", "HybridStub",
-                          "StorageConnectionImpl"));
-}
-
-#include "google/cloud/internal/disable_deprecation_warnings.inc"
 TEST(GrpcPluginTest, HybridUsesGrpcBufferOptions) {
   // Explicitly disable logging, which may be enabled by our CI builds.
   auto logging =
       ScopedEnvironment("CLOUD_STORAGE_ENABLE_TRACING", absl::nullopt);
   auto config =
       ScopedEnvironment("GOOGLE_CLOUD_CPP_STORAGE_GRPC_CONFIG", absl::nullopt);
-  auto client = DefaultGrpcClient(TestOptions().set<GrpcPluginOption>("media"));
+  auto client = storage_experimental::DefaultGrpcClient(
+      TestOptions().set<storage_experimental::GrpcPluginOption>("media"));
   EXPECT_GE(
       client.raw_client()->options().get<storage::UploadBufferSizeOption>(),
       32 * 1024 * 1024L);
+}
+
+TEST(GrpcPluginTest, BackwardsCompatibilityShims) {
+  // Explicitly disable logging, which may be enabled by our CI builds.
+  auto logging =
+      ScopedEnvironment("CLOUD_STORAGE_ENABLE_TRACING", absl::nullopt);
+  auto config =
+      ScopedEnvironment("GOOGLE_CLOUD_CPP_STORAGE_GRPC_CONFIG", absl::nullopt);
+  namespace gcs_ex = ::google::cloud::storage_experimental;
+  auto client = gcs_ex::DefaultGrpcClient(
+      TestOptions().set<gcs_ex::GrpcPluginOption>("none"));
+  auto impl = ClientImplDetails::GetConnection(client);
+  ASSERT_THAT(impl, NotNull());
+  EXPECT_THAT(impl->InspectStackStructure(),
+              ElementsAre("RestStub", "StorageConnectionImpl"));
 }
 #include "google/cloud/internal/diagnostics_pop.inc"
 
 }  // namespace
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END
-}  // namespace storage_experimental
+}  // namespace storage
 }  // namespace cloud
 }  // namespace google

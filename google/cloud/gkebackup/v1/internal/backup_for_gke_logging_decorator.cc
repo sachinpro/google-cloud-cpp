@@ -30,10 +30,8 @@ GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 
 BackupForGKELogging::BackupForGKELogging(
     std::shared_ptr<BackupForGKEStub> child, TracingOptions tracing_options,
-    std::set<std::string> const& components)
-    : child_(std::move(child)),
-      tracing_options_(std::move(tracing_options)),
-      stream_logging_(components.find("rpc-streams") != components.end()) {}
+    std::set<std::string> const&)
+    : child_(std::move(child)), tracing_options_(std::move(tracing_options)) {}
 
 future<StatusOr<google::longrunning::Operation>>
 BackupForGKELogging::AsyncCreateBackupPlan(
@@ -406,6 +404,21 @@ BackupForGKELogging::GetVolumeRestore(
              google::cloud::gkebackup::v1::GetVolumeRestoreRequest const&
                  request) {
         return child_->GetVolumeRestore(context, options, request);
+      },
+      context, options, request, __func__, tracing_options_);
+}
+
+StatusOr<google::cloud::gkebackup::v1::GetBackupIndexDownloadUrlResponse>
+BackupForGKELogging::GetBackupIndexDownloadUrl(
+    grpc::ClientContext& context, Options const& options,
+    google::cloud::gkebackup::v1::GetBackupIndexDownloadUrlRequest const&
+        request) {
+  return google::cloud::internal::LogWrapper(
+      [this](
+          grpc::ClientContext& context, Options const& options,
+          google::cloud::gkebackup::v1::GetBackupIndexDownloadUrlRequest const&
+              request) {
+        return child_->GetBackupIndexDownloadUrl(context, options, request);
       },
       context, options, request, __func__, tracing_options_);
 }

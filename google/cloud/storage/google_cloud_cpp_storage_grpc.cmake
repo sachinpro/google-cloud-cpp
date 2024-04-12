@@ -21,32 +21,69 @@ if (NOT GOOGLE_CLOUD_CPP_STORAGE_ENABLE_GRPC)
     set_target_properties(
         google_cloud_cpp_storage_grpc
         PROPERTIES EXPORT_NAME "google-cloud-cpp::experimental-storage_grpc")
-    if (GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND)
-        target_compile_definitions(
-            google_cloud_cpp_storage_grpc
-            INTERFACE GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND)
-    endif ()
     add_library(google_cloud_cpp_storage_protos INTERFACE)
     add_library(google-cloud-cpp::storage_protos ALIAS
                 google_cloud_cpp_storage_protos)
     set_target_properties(
         google_cloud_cpp_storage_protos
         PROPERTIES EXPORT_NAME "google-cloud-cpp::storage_protos")
+
+    option(
+        GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND
+        [==[Unused, as GCS+gRPC is not enabled.
+
+    More details at
+
+    https://github.com/googleapis/google-cloud-cpp/blob/main/doc/ctype-cord-workarounds.md
+    ]==]
+        OFF)
+    mark_as_advanced(GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND)
 else ()
     include(GoogleCloudCppLibrary)
     google_cloud_cpp_add_library_protos(storage)
 
+    set(GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND_DEFAULT ON)
+    # Protobuf versions are ... complicated.  Protobuf used to call itself
+    # 3.21.*, 3.20.*, 3.19.*, etc. Then it starts calling itself 22.*, 23.*,
+    # etc. This may change in the future:
+    #
+    # https://github.com/protocolbuffers/protobuf/issues/13103
+    #
+    # Guessing the new version scheme is tempting, but probably unwise.
+    #
+    # In any case, `ctype=CORD` is supported starting in 23.x.
+    if (Protobuf_VERSION VERSION_GREATER_EQUAL "23")
+        set(GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND_DEFAULT OFF)
+    endif ()
+    message(GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND_DEFAULT=
+            ${GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND_DEFAULT})
+    option(
+        GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND
+        [==[Enable the workarounds for [ctype = CORD] when using Protobuf < v23.
+    More details at
+
+    https://github.com/googleapis/google-cloud-cpp/blob/main/doc/ctype-cord-workarounds.md
+    ]==]
+        ${GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND_DEFAULT})
+    mark_as_advanced(GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND)
+
     add_library(
         google_cloud_cpp_storage_grpc # cmake-format: sort
+        async/bucket_name.cc
+        async/bucket_name.h
         async/client.cc
         async/client.h
         async/connection.h
+        async/idempotency_policy.cc
+        async/idempotency_policy.h
         async/object_requests.h
         async/object_responses.cc
         async/object_responses.h
         async/reader.cc
         async/reader.h
         async/reader_connection.h
+        async/resume_policy.cc
+        async/resume_policy.h
         async/rewriter.cc
         async/rewriter.h
         async/rewriter_connection.h
@@ -71,8 +108,12 @@ else ()
         internal/async/partial_upload.h
         internal/async/read_payload_fwd.h
         internal/async/read_payload_impl.h
+        internal/async/reader_connection_factory.cc
+        internal/async/reader_connection_factory.h
         internal/async/reader_connection_impl.cc
         internal/async/reader_connection_impl.h
+        internal/async/reader_connection_resume.cc
+        internal/async/reader_connection_resume.h
         internal/async/reader_connection_tracing.cc
         internal/async/reader_connection_tracing.h
         internal/async/rewriter_connection_impl.cc
@@ -126,6 +167,8 @@ else ()
         internal/grpc/object_request_parser.h
         internal/grpc/owner_parser.cc
         internal/grpc/owner_parser.h
+        internal/grpc/scale_stall_timeout.cc
+        internal/grpc/scale_stall_timeout.h
         internal/grpc/service_account_parser.cc
         internal/grpc/service_account_parser.h
         internal/grpc/sign_blob_request_parser.cc
@@ -136,8 +179,6 @@ else ()
         internal/grpc/stub.h
         internal/grpc/synthetic_self_link.cc
         internal/grpc/synthetic_self_link.h
-        internal/hybrid_stub.cc
-        internal/hybrid_stub.h
         internal/storage_auth_decorator.cc
         internal/storage_auth_decorator.h
         internal/storage_logging_decorator.cc
@@ -155,17 +196,15 @@ else ()
     target_link_libraries(
         google_cloud_cpp_storage_grpc
         PUBLIC google-cloud-cpp::storage
+               google-cloud-cpp::storage_protos
                google-cloud-cpp::grpc_utils
                google-cloud-cpp::common
-               google-cloud-cpp::storage_protos
                nlohmann_json::nlohmann_json
                gRPC::grpc++
-               protobuf::libprotobuf
+               absl::optional
                absl::strings
-               Crc32c::crc32c
-               CURL::libcurl
-               Threads::Threads
-               OpenSSL::Crypto)
+               absl::time
+               Threads::Threads)
     google_cloud_cpp_add_common_options(google_cloud_cpp_storage_grpc)
     target_include_directories(
         google_cloud_cpp_storage_grpc
@@ -178,7 +217,7 @@ else ()
     if (GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND)
         target_compile_definitions(
             google_cloud_cpp_storage_grpc
-            PUBLIC GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND)
+            PRIVATE GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND)
     endif ()
     set_target_properties(
         google_cloud_cpp_storage_grpc
@@ -197,17 +236,37 @@ google_cloud_cpp_add_pkgconfig(
     "The GCS (Google Cloud Storage) gRPC plugin"
     "An extension to the GCS C++ client library using gRPC for transport."
     "google_cloud_cpp_storage"
-    "google_cloud_cpp_grpc_utils"
     "google_cloud_cpp_storage_protos"
-    "google_cloud_cpp_rpc_status_protos"
-    "google_cloud_cpp_rpc_error_details_protos"
+    "google_cloud_cpp_grpc_utils"
     "google_cloud_cpp_common"
-    "libcurl"
-    "openssl")
+    "grpc++"
+    "absl_optional"
+    "absl_strings"
+    "absl_time")
+
+install(
+    EXPORT storage_grpc-targets
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/google_cloud_cpp_storage_grpc"
+    COMPONENT google_cloud_cpp_development)
+
+# Create and install the CMake configuration files.
+configure_file("config-grpc.cmake.in"
+               "google_cloud_cpp_storage_grpc-config.cmake" @ONLY)
+write_basic_package_version_file(
+    "google_cloud_cpp_storage_grpc-config-version.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY ExactVersion)
+
+install(
+    FILES
+        "${CMAKE_CURRENT_BINARY_DIR}/google_cloud_cpp_storage_grpc-config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/google_cloud_cpp_storage_grpc-config-version.cmake"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/google_cloud_cpp_storage_grpc"
+    COMPONENT google_cloud_cpp_development)
 
 install(
     TARGETS google_cloud_cpp_storage_grpc google_cloud_cpp_storage_protos
-    EXPORT storage-targets
+    EXPORT storage_grpc-targets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
             COMPONENT google_cloud_cpp_runtime
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -296,8 +355,11 @@ if (BUILD_TESTING AND GOOGLE_CLOUD_CPP_STORAGE_ENABLE_GRPC)
 
     set(storage_client_grpc_unit_tests
         # cmake-format: sort
+        async/bucket_name_test.cc
         async/client_test.cc
+        async/idempotency_policy_test.cc
         async/reader_test.cc
+        async/resume_policy_test.cc
         async/rewriter_test.cc
         async/token_test.cc
         async/writer_test.cc
@@ -309,7 +371,9 @@ if (BUILD_TESTING AND GOOGLE_CLOUD_CPP_STORAGE_ENABLE_GRPC)
         internal/async/insert_object_test.cc
         internal/async/partial_upload_test.cc
         internal/async/read_payload_impl_test.cc
+        internal/async/reader_connection_factory_test.cc
         internal/async/reader_connection_impl_test.cc
+        internal/async/reader_connection_resume_test.cc
         internal/async/reader_connection_tracing_test.cc
         internal/async/rewriter_connection_impl_test.cc
         internal/async/rewriter_connection_tracing_test.cc
@@ -334,6 +398,7 @@ if (BUILD_TESTING AND GOOGLE_CLOUD_CPP_STORAGE_ENABLE_GRPC)
         internal/grpc/object_read_source_test.cc
         internal/grpc/object_request_parser_test.cc
         internal/grpc/owner_parser_test.cc
+        internal/grpc/scale_stall_timeout_test.cc
         internal/grpc/service_account_parser_test.cc
         internal/grpc/sign_blob_request_parser_test.cc
         internal/grpc/split_write_object_data_test.cc
@@ -347,6 +412,10 @@ if (BUILD_TESTING AND GOOGLE_CLOUD_CPP_STORAGE_ENABLE_GRPC)
 
     foreach (fname ${storage_client_grpc_unit_tests})
         google_cloud_cpp_add_executable(target "storage" "${fname}")
+        if (GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND)
+            target_compile_definitions(
+                ${target} PRIVATE GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND)
+        endif ()
         target_link_libraries(
             ${target}
             PRIVATE storage_client_testing

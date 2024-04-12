@@ -17,7 +17,7 @@
 // source: google/cloud/config/v1/config.proto
 
 #include "google/cloud/config/v1/internal/config_metadata_decorator.h"
-#include "google/cloud/common_options.h"
+#include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/absl_str_cat_quiet.h"
 #include "google/cloud/internal/api_client_header.h"
 #include "google/cloud/internal/url_encode.h"
@@ -247,6 +247,24 @@ ConfigMetadata::ExportPreviewResult(
   return child_->ExportPreviewResult(context, options, request);
 }
 
+StatusOr<google::cloud::config::v1::ListTerraformVersionsResponse>
+ConfigMetadata::ListTerraformVersions(
+    grpc::ClientContext& context, Options const& options,
+    google::cloud::config::v1::ListTerraformVersionsRequest const& request) {
+  SetMetadata(context, options,
+              absl::StrCat("parent=", internal::UrlEncode(request.parent())));
+  return child_->ListTerraformVersions(context, options, request);
+}
+
+StatusOr<google::cloud::config::v1::TerraformVersion>
+ConfigMetadata::GetTerraformVersion(
+    grpc::ClientContext& context, Options const& options,
+    google::cloud::config::v1::GetTerraformVersionRequest const& request) {
+  SetMetadata(context, options,
+              absl::StrCat("name=", internal::UrlEncode(request.name())));
+  return child_->GetTerraformVersion(context, options, request);
+}
+
 future<StatusOr<google::longrunning::Operation>>
 ConfigMetadata::AsyncGetOperation(
     google::cloud::CompletionQueue& cq,
@@ -279,16 +297,8 @@ void ConfigMetadata::SetMetadata(grpc::ClientContext& context,
 
 void ConfigMetadata::SetMetadata(grpc::ClientContext& context,
                                  Options const& options) {
-  for (auto const& kv : fixed_metadata_) {
-    context.AddMetadata(kv.first, kv.second);
-  }
-  context.AddMetadata("x-goog-api-client", api_client_header_);
-  if (options.has<UserProjectOption>()) {
-    context.AddMetadata("x-goog-user-project",
-                        options.get<UserProjectOption>());
-  }
-  auto const& authority = options.get<AuthorityOption>();
-  if (!authority.empty()) context.set_authority(authority);
+  google::cloud::internal::SetMetadata(context, options, fixed_metadata_,
+                                       api_client_header_);
 }
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END

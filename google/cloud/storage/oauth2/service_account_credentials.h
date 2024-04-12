@@ -16,9 +16,9 @@
 #define GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_STORAGE_OAUTH2_SERVICE_ACCOUNT_CREDENTIALS_H
 
 #include "google/cloud/storage/client_options.h"
+#include "google/cloud/storage/internal/base64.h"
 #include "google/cloud/storage/internal/curl/request_builder.h"
 #include "google/cloud/storage/internal/http_response.h"
-#include "google/cloud/storage/internal/openssl_util.h"
 #include "google/cloud/storage/oauth2/credential_constants.h"
 #include "google/cloud/storage/oauth2/credentials.h"
 #include "google/cloud/storage/oauth2/refreshing_credentials_wrapper.h"
@@ -27,6 +27,7 @@
 #include "google/cloud/internal/getenv.h"
 #include "google/cloud/internal/oauth2_service_account_credentials.h"
 #include "google/cloud/internal/sha256_hash.h"
+#include "google/cloud/internal/sign_using_sha256.h"
 #include "google/cloud/optional.h"
 #include "google/cloud/status_or.h"
 #include "absl/types/optional.h"
@@ -294,7 +295,7 @@ class ServiceAccountCredentials : public Credentials {
                     "The current_credentials cannot sign blobs for " +
                         signing_account.value());
     }
-    return internal::SignStringWithPem(blob, info_.private_key);
+    return google::cloud::internal::SignUsingSha256(blob, info_.private_key);
   }
 
   std::string AccountEmail() const override { return info_.client_email; }

@@ -17,6 +17,7 @@
 set -euo pipefail
 
 source "$(dirname "$0")/../../../../ci/lib/init.sh"
+source module /ci/cloudbuild/builds/lib/cloudcxxrc.sh
 source module /ci/lib/run_gcs_httpbin_emulator_utils.sh
 
 if [[ $# -lt 1 ]]; then
@@ -32,6 +33,10 @@ shift
 
 bazel_test_args=()
 excluded_targets=()
+
+if bazel::has_no_tests "//google/cloud/storage/..."; then
+  exit 0
+fi
 
 # Separate caller-provided excluded targets (starting with "-//..."), so that
 # we can make sure those appear on the command line after `--`.
@@ -59,7 +64,6 @@ readonly PRODUCTION_ONLY_BASE=(
 for base in "${PRODUCTION_ONLY_BASE[@]}"; do
   production_only_targets+=(
     "${base}-default"
-    "${base}-grpc-media"
     "${base}-grpc-metadata"
   )
 done
@@ -85,7 +89,6 @@ excluded_targets+=(
   # and some CMake magic. It is also skipped against production, so most Bazel
   # builds run it but it is a no-op.
   "-//google/cloud/storage/tests:error_injection_integration_test-default"
-  "-//google/cloud/storage/tests:error_injection_integration_test-grpc-media"
   "-//google/cloud/storage/tests:error_injection_integration_test-grpc-metadata"
 )
 for target in "${production_only_targets[@]}"; do

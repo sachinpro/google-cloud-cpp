@@ -30,10 +30,8 @@ GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 
 StorageControlLogging::StorageControlLogging(
     std::shared_ptr<StorageControlStub> child, TracingOptions tracing_options,
-    std::set<std::string> const& components)
-    : child_(std::move(child)),
-      tracing_options_(std::move(tracing_options)),
-      stream_logging_(components.find("rpc-streams") != components.end()) {}
+    std::set<std::string> const&)
+    : child_(std::move(child)), tracing_options_(std::move(tracing_options)) {}
 
 StatusOr<google::storage::control::v2::Folder>
 StorageControlLogging::CreateFolder(
@@ -108,6 +106,57 @@ StorageControlLogging::GetStorageLayout(
              google::storage::control::v2::GetStorageLayoutRequest const&
                  request) {
         return child_->GetStorageLayout(context, options, request);
+      },
+      context, options, request, __func__, tracing_options_);
+}
+
+StatusOr<google::storage::control::v2::ManagedFolder>
+StorageControlLogging::CreateManagedFolder(
+    grpc::ClientContext& context, Options const& options,
+    google::storage::control::v2::CreateManagedFolderRequest const& request) {
+  return google::cloud::internal::LogWrapper(
+      [this](grpc::ClientContext& context, Options const& options,
+             google::storage::control::v2::CreateManagedFolderRequest const&
+                 request) {
+        return child_->CreateManagedFolder(context, options, request);
+      },
+      context, options, request, __func__, tracing_options_);
+}
+
+Status StorageControlLogging::DeleteManagedFolder(
+    grpc::ClientContext& context, Options const& options,
+    google::storage::control::v2::DeleteManagedFolderRequest const& request) {
+  return google::cloud::internal::LogWrapper(
+      [this](grpc::ClientContext& context, Options const& options,
+             google::storage::control::v2::DeleteManagedFolderRequest const&
+                 request) {
+        return child_->DeleteManagedFolder(context, options, request);
+      },
+      context, options, request, __func__, tracing_options_);
+}
+
+StatusOr<google::storage::control::v2::ManagedFolder>
+StorageControlLogging::GetManagedFolder(
+    grpc::ClientContext& context, Options const& options,
+    google::storage::control::v2::GetManagedFolderRequest const& request) {
+  return google::cloud::internal::LogWrapper(
+      [this](grpc::ClientContext& context, Options const& options,
+             google::storage::control::v2::GetManagedFolderRequest const&
+                 request) {
+        return child_->GetManagedFolder(context, options, request);
+      },
+      context, options, request, __func__, tracing_options_);
+}
+
+StatusOr<google::storage::control::v2::ListManagedFoldersResponse>
+StorageControlLogging::ListManagedFolders(
+    grpc::ClientContext& context, Options const& options,
+    google::storage::control::v2::ListManagedFoldersRequest const& request) {
+  return google::cloud::internal::LogWrapper(
+      [this](grpc::ClientContext& context, Options const& options,
+             google::storage::control::v2::ListManagedFoldersRequest const&
+                 request) {
+        return child_->ListManagedFolders(context, options, request);
       },
       context, options, request, __func__, tracing_options_);
 }

@@ -105,6 +105,8 @@ add_library(
     exactly_once_ack_handler.h
     internal/ack_handler_wrapper.cc
     internal/ack_handler_wrapper.h
+    internal/batch_callback.h
+    internal/batch_callback_wrapper.h
     internal/batch_sink.h
     internal/batching_publisher_connection.cc
     internal/batching_publisher_connection.h
@@ -117,8 +119,10 @@ add_library(
     internal/containing_publisher_connection.h
     internal/create_channel.cc
     internal/create_channel.h
+    internal/default_batch_callback.h
     internal/default_batch_sink.cc
     internal/default_batch_sink.h
+    internal/default_message_callback.h
     internal/default_pull_ack_handler.cc
     internal/default_pull_ack_handler.h
     internal/default_pull_lease_manager.cc
@@ -133,10 +137,12 @@ add_library(
     internal/flow_controlled_publisher_connection.h
     internal/flow_controlled_publisher_tracing_connection.cc
     internal/flow_controlled_publisher_tracing_connection.h
+    internal/message_callback.h
     internal/message_carrier.cc
     internal/message_carrier.h
     internal/message_propagator.cc
     internal/message_propagator.h
+    internal/noop_message_callback.h
     internal/ordering_key_publisher_connection.cc
     internal/ordering_key_publisher_connection.h
     internal/publisher_auth_decorator.cc
@@ -185,6 +191,7 @@ add_library(
     internal/sequential_batch_sink.h
     internal/session_shutdown_manager.cc
     internal/session_shutdown_manager.h
+    internal/span.h
     internal/streaming_subscription_batch_source.cc
     internal/streaming_subscription_batch_source.h
     internal/subscriber_auth_decorator.cc
@@ -215,10 +222,16 @@ add_library(
     internal/subscription_message_source.h
     internal/subscription_session.cc
     internal/subscription_session.h
+    internal/tracing_batch_callback.cc
+    internal/tracing_batch_callback.h
     internal/tracing_batch_sink.cc
     internal/tracing_batch_sink.h
+    internal/tracing_exactly_once_ack_handler.cc
+    internal/tracing_exactly_once_ack_handler.h
     internal/tracing_helpers.cc
     internal/tracing_helpers.h
+    internal/tracing_message_callback.cc
+    internal/tracing_message_callback.h
     internal/tracing_pull_ack_handler.cc
     internal/tracing_pull_ack_handler.h
     internal/tracing_pull_lease_manager.cc
@@ -412,7 +425,10 @@ function (google_cloud_cpp_pubsub_client_define_tests)
         pubsub_client_testing # cmake-format: sort
         testing/fake_streaming_pull.cc
         testing/fake_streaming_pull.h
+        testing/mock_batch_callback.h
         testing/mock_batch_sink.h
+        testing/mock_exactly_once_ack_handler_impl.h
+        testing/mock_message_callback.h
         testing/mock_publisher_stub.h
         testing/mock_pull_lease_manager.h
         testing/mock_subscriber_stub.h
@@ -468,8 +484,11 @@ function (google_cloud_cpp_pubsub_client_define_tests)
         internal/subscription_lease_management_test.cc
         internal/subscription_message_queue_test.cc
         internal/subscription_session_test.cc
+        internal/tracing_batch_callback_test.cc
         internal/tracing_batch_sink_test.cc
+        internal/tracing_exactly_once_ack_handler_test.cc
         internal/tracing_helpers_test.cc
+        internal/tracing_message_callback_test.cc
         internal/tracing_pull_ack_handler_test.cc
         internal/tracing_pull_lease_manager_test.cc
         message_test.cc

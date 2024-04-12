@@ -15,7 +15,9 @@
 # ~~~
 
 find_package(CURL REQUIRED)
-find_package(OpenSSL REQUIRED)
+if (NOT WIN32)
+    find_package(OpenSSL REQUIRED)
+endif ()
 
 # the client library
 add_library(
@@ -69,6 +71,8 @@ add_library(
     internal/access_control_common_parser.h
     internal/access_token_credentials.cc
     internal/access_token_credentials.h
+    internal/base64.cc
+    internal/base64.h
     internal/binary_data_as_debug_string.h
     internal/bucket_access_control_parser.cc
     internal/bucket_access_control_parser.h
@@ -132,6 +136,8 @@ add_library(
     internal/logging_stub.h
     internal/make_jwt_assertion.cc
     internal/make_jwt_assertion.h
+    internal/md5hash.cc
+    internal/md5hash.h
     internal/metadata_parser.cc
     internal/metadata_parser.h
     internal/notification_metadata_parser.cc
@@ -151,8 +157,7 @@ add_library(
     internal/object_requests.h
     internal/object_write_streambuf.cc
     internal/object_write_streambuf.h
-    internal/openssl_util.cc
-    internal/openssl_util.h
+    internal/openssl/hash_function_impl.cc
     internal/patch_builder.cc
     internal/patch_builder.h
     internal/patch_builder_details.cc
@@ -185,6 +190,7 @@ add_library(
     internal/unified_rest_credentials.cc
     internal/unified_rest_credentials.h
     internal/well_known_parameters_impl.h
+    internal/win32/hash_function_impl.cc
     lifecycle_rule.cc
     lifecycle_rule.h
     list_buckets_reader.cc
@@ -261,12 +267,15 @@ target_link_libraries(
            nlohmann_json::nlohmann_json
            Crc32c::crc32c
            CURL::libcurl
-           Threads::Threads
-           OpenSSL::Crypto)
+           Threads::Threads)
 if (WIN32)
+    target_compile_definitions(google_cloud_cpp_storage
+                               PRIVATE WIN32_LEAN_AND_MEAN)
     # We use `setsockopt()` directly, which requires the ws2_32 (Winsock2 for
     # Windows32?) library on Windows.
-    target_link_libraries(google_cloud_cpp_storage PUBLIC ws2_32)
+    target_link_libraries(google_cloud_cpp_storage PUBLIC ws2_32 bcrypt)
+else ()
+    target_link_libraries(google_cloud_cpp_storage PUBLIC OpenSSL::Crypto)
 endif ()
 google_cloud_cpp_add_common_options(google_cloud_cpp_storage)
 target_include_directories(
@@ -318,46 +327,29 @@ install(
 google_cloud_cpp_install_headers(google_cloud_cpp_storage
                                  include/google/cloud/storage)
 
-# Cannot use google_cloud_cpp_add_pkgconfig() for this library. There is a
-# horrible hack here, adding -lcrc32c to the 'Libs:` entry. We should be adding
-# this library to the `Requires:` line, but it does not create pkg-config
-# modules.
-set(GOOGLE_CLOUD_CPP_PC_NAME "The Google Cloud Storage C++ Client Library")
-set(GOOGLE_CLOUD_CPP_PC_DESCRIPTION
-    "Provides C++ APIs to access Google Cloud Storage.")
-string(JOIN " " GOOGLE_CLOUD_CPP_PC_LIBS "-lgoogle_cloud_cpp_storage"
-       "-lcrc32c")
-string(
-    JOIN
-    " "
-    GOOGLE_CLOUD_CPP_PC_REQUIRES
+google_cloud_cpp_add_pkgconfig(
+    "storage"
+    "The Google Cloud Storage C++ Client Library"
+    "Provides C++ APIs to access Google Cloud Storage."
     "google_cloud_cpp_common"
     "google_cloud_cpp_rest_internal"
-    "libcurl openssl"
+    "libcurl"
     "absl_cord"
     "absl_strings"
     "absl_str_format"
     "absl_time"
-    "absl_variant")
-
-# Create and install the pkg-config files.
-google_cloud_cpp_set_pkgconfig_paths()
-configure_file("${PROJECT_SOURCE_DIR}/cmake/templates/config.pc.in"
-               "google_cloud_cpp_storage.pc" @ONLY)
-install(
-    FILES "${CMAKE_CURRENT_BINARY_DIR}/google_cloud_cpp_storage.pc"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig"
-    COMPONENT google_cloud_cpp_development)
+    "absl_variant"
+    NON_WIN32_REQUIRES
+    openssl
+    LIBS
+    crc32c
+    WIN32_LIBS
+    ws2_32
+    bcrypt)
 
 # Create and install the CMake configuration files.
 include(CMakePackageConfigHelpers)
-if (GOOGLE_CLOUD_CPP_STORAGE_ENABLE_GRPC)
-    configure_file("config-grpc.cmake.in"
-                   "google_cloud_cpp_storage-config.cmake" @ONLY)
-else ()
-    configure_file("config.cmake.in" "google_cloud_cpp_storage-config.cmake"
-                   @ONLY)
-endif ()
+configure_file("config.cmake.in" "google_cloud_cpp_storage-config.cmake" @ONLY)
 write_basic_package_version_file(
     "google_cloud_cpp_storage-config-version.cmake"
     VERSION ${PROJECT_VERSION}
@@ -384,8 +376,11 @@ if (BUILD_TESTING)
         testing/constants.h
         testing/mock_client.h
         testing/mock_generic_stub.h
+        testing/mock_hash_function.h
+        testing/mock_hash_validator.h
         testing/mock_http_request.cc
         testing/mock_http_request.h
+        testing/mock_resume_policy.h
         testing/mock_storage_stub.h
         testing/object_integration_test.cc
         testing/object_integration_test.h
@@ -452,6 +447,7 @@ if (BUILD_TESTING)
         internal/access_control_common_parser_test.cc
         internal/access_control_common_test.cc
         internal/access_token_credentials_test.cc
+        internal/base64_test.cc
         internal/bucket_acl_requests_test.cc
         internal/bucket_requests_test.cc
         internal/complex_option_test.cc
@@ -479,13 +475,13 @@ if (BUILD_TESTING)
         internal/impersonate_service_account_credentials_test.cc
         internal/logging_stub_test.cc
         internal/make_jwt_assertion_test.cc
+        internal/md5hash_test.cc
         internal/metadata_parser_test.cc
         internal/notification_requests_test.cc
         internal/object_acl_requests_test.cc
         internal/object_read_streambuf_test.cc
         internal/object_requests_test.cc
         internal/object_write_streambuf_test.cc
-        internal/openssl_util_test.cc
         internal/patch_builder_test.cc
         internal/policy_document_request_test.cc
         internal/request_project_id_test.cc

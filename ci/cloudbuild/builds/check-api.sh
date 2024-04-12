@@ -67,13 +67,14 @@ function check_abi() {
 
   local shortlib="${library#google_cloud_cpp_}"
   local public_headers="${prefix}/include/google/cloud/${shortlib}"
-  # These are special and share their header location.
   if [[ "${shortlib}" == "common" || "${shortlib}" == "grpc_utils" || "${shortlib}" == "oauth2" ]]; then
+    # These are special and share their header location.
     public_headers="${prefix}/include/google/cloud"
-  fi
-
-  # Compute libs are also special as their headers are in subdirectories.
-  if [[ "${shortlib}" =~ "compute" ]]; then
+  elif [[ "${shortlib}" == "storage_grpc" ]]; then
+    # `storage_grpc` uses the same header location as `storage`
+    public_headers="${prefix}/include/google/cloud/storage"
+  elif [[ "${shortlib}" =~ "compute" ]]; then
+    # Compute libs are also special as their headers are in subdirectories.
     local computelib="${library#google_cloud_cpp_compute_}"
     public_headers="${prefix}/include/google/cloud/compute/${computelib}"
   fi
@@ -123,7 +124,7 @@ function check_abi() {
       # characters in the string "internal", and it should again be followed
       # by some other number indicating the length of the symbol within the
       # "internal" namespace. See: https://en.wikipedia.org/wiki/Name_mangling
-      -skip-internal-symbols "(8internal|_internal|4grpc)\d"
+      -skip-internal-symbols "(8internal|_internal|4grpc|6google8protobuf|6google3rpc)\d"
       # We also ignore the raw gRPC Stub class. The generated gRPC headers that
       # contain these classes are installed alongside our headers. When a new
       # RPC is added to a service, these classes gain a pure virtual method. Our

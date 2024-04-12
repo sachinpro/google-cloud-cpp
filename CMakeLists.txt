@@ -53,7 +53,6 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif ()
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-include(SelectMSVCRuntime)
 
 option(GOOGLE_CLOUD_CPP_ENABLE_MACOS_OPENSSL_CHECK
        "If enabled, check that the user has defined OPENSSL_ROOT_DIR on macOS"
@@ -114,16 +113,6 @@ option(
     "Compile the docfx tool. Only google-cloud-cpp developers are expected to use this flag."
     OFF)
 mark_as_advanced(GOOGLE_CLOUD_CPP_INTERNAL_DOCFX)
-
-option(
-    GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND
-    [==[Enable the workarounds for [ctype = CORD] when using Protobuf < v23.
-More details at
-
-https://github.com/googleapis/google-cloud-cpp/blob/main/doc/ctype-cord-workarounds.md
-]==]
-    OFF)
-mark_as_advanced(GOOGLE_CLOUD_CPP_ENABLE_CTYPE_CORD_WORKAROUND)
 
 set(GOOGLE_CLOUD_CPP_OVERRIDE_GOOGLEAPIS_URL
     ""
@@ -202,6 +191,7 @@ google_cloud_cpp_define_legacy_feature_options()
 google_cloud_cpp_apply_legacy_feature_options()
 google_cloud_cpp_enable_deps()
 google_cloud_cpp_enable_cleanup()
+google_cloud_cpp_define_dependent_legacy_feature_options()
 
 # Building this target results in all protobufs being compiled.
 add_custom_target(google-cloud-cpp-protos)

@@ -182,6 +182,12 @@ class BackupForGKELogging : public BackupForGKEStub {
       google::cloud::gkebackup::v1::GetVolumeRestoreRequest const& request)
       override;
 
+  StatusOr<google::cloud::gkebackup::v1::GetBackupIndexDownloadUrlResponse>
+  GetBackupIndexDownloadUrl(
+      grpc::ClientContext& context, Options const& options,
+      google::cloud::gkebackup::v1::GetBackupIndexDownloadUrlRequest const&
+          request) override;
+
   future<StatusOr<google::longrunning::Operation>> AsyncGetOperation(
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
@@ -197,7 +203,6 @@ class BackupForGKELogging : public BackupForGKEStub {
  private:
   std::shared_ptr<BackupForGKEStub> child_;
   TracingOptions tracing_options_;
-  bool stream_logging_;
 };  // BackupForGKELogging
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END

@@ -30,10 +30,8 @@ GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 
 ConfigLogging::ConfigLogging(std::shared_ptr<ConfigStub> child,
                              TracingOptions tracing_options,
-                             std::set<std::string> const& components)
-    : child_(std::move(child)),
-      tracing_options_(std::move(tracing_options)),
-      stream_logging_(components.find("rpc-streams") != components.end()) {}
+                             std::set<std::string> const&)
+    : child_(std::move(child)), tracing_options_(std::move(tracing_options)) {}
 
 StatusOr<google::cloud::config::v1::ListDeploymentsResponse>
 ConfigLogging::ListDeployments(
@@ -326,6 +324,32 @@ ConfigLogging::ExportPreviewResult(
              google::cloud::config::v1::ExportPreviewResultRequest const&
                  request) {
         return child_->ExportPreviewResult(context, options, request);
+      },
+      context, options, request, __func__, tracing_options_);
+}
+
+StatusOr<google::cloud::config::v1::ListTerraformVersionsResponse>
+ConfigLogging::ListTerraformVersions(
+    grpc::ClientContext& context, Options const& options,
+    google::cloud::config::v1::ListTerraformVersionsRequest const& request) {
+  return google::cloud::internal::LogWrapper(
+      [this](grpc::ClientContext& context, Options const& options,
+             google::cloud::config::v1::ListTerraformVersionsRequest const&
+                 request) {
+        return child_->ListTerraformVersions(context, options, request);
+      },
+      context, options, request, __func__, tracing_options_);
+}
+
+StatusOr<google::cloud::config::v1::TerraformVersion>
+ConfigLogging::GetTerraformVersion(
+    grpc::ClientContext& context, Options const& options,
+    google::cloud::config::v1::GetTerraformVersionRequest const& request) {
+  return google::cloud::internal::LogWrapper(
+      [this](grpc::ClientContext& context, Options const& options,
+             google::cloud::config::v1::GetTerraformVersionRequest const&
+                 request) {
+        return child_->GetTerraformVersion(context, options, request);
       },
       context, options, request, __func__, tracing_options_);
 }

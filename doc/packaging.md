@@ -160,47 +160,36 @@ when handling `.pc` files with lots of `Requires:` deps, which happens with
 Abseil, so we use the normal `pkg-config` binary, which seems to not suffer from
 this bottleneck. For more details see
 https://github.com/pkgconf/pkgconf/issues/229 and
-https://github.com/googleapis/google-cloud-cpp/issues/7052.
+https://github.com/googleapis/google-cloud-cpp/issues/7052
 
 ```bash
-mkdir -p $HOME/Downloads/pkg-config-cpp && cd $HOME/Downloads/pkg-config-cpp
-curl -fsSL https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz | \
+mkdir -p $HOME/Downloads/pkgconf && cd $HOME/Downloads/pkgconf
+curl -fsSL https://distfiles.ariadne.space/pkgconf/pkgconf-2.2.0.tar.gz | \
     tar -xzf - --strip-components=1 && \
-    ./configure --with-internal-glib && \
+    ./configure --prefix=/usr && \
     make -j ${NCPU:-4} && \
-sudo make install
-export PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig:/usr/local/lib/pkgconfig:/usr/lib64/pkgconfig
+sudo make install && \
+    cd /var/tmp && rm -fr build
+```
+
+The following steps will install libraries and tools in `/usr/local`. By
+default, pkgconf does not search in these directories. We need to explicitly set
+the search path.
+
+```bash
+export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/lib/pkgconfig
 ```
 
 #### Dependencies
 
 The versions of Abseil, Protobuf, gRPC, OpenSSL, and nlohmann-json included with
-Alpine >= 3.16 meet `google-cloud-cpp`'s requirements. We can simply install the
+Alpine >= 3.19 meet `google-cloud-cpp`'s requirements. We can simply install the
 development packages
 
 ```bash
 apk update && \
-    apk add abseil-cpp-dev c-ares-dev curl-dev grpc-dev \
+    apk add abseil-cpp-dev crc32c-dev c-ares-dev curl-dev grpc-dev \
         protobuf-dev nlohmann-json openssl-dev re2-dev
-```
-
-#### crc32c
-
-The project depends on the Crc32c library, we need to compile this from source:
-
-```bash
-mkdir -p $HOME/Downloads/crc32c && cd $HOME/Downloads/crc32c
-curl -fsSL https://github.com/google/crc32c/archive/1.1.2.tar.gz | \
-    tar -xzf - --strip-components=1 && \
-    cmake \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DBUILD_SHARED_LIBS=yes \
-        -DCRC32C_BUILD_TESTS=OFF \
-        -DCRC32C_BUILD_BENCHMARKS=OFF \
-        -DCRC32C_USE_GLOG=OFF \
-        -S . -B cmake-out && \
-    cmake --build cmake-out -- -j ${NCPU:-4} && \
-sudo cmake --build cmake-out --target install -- -j ${NCPU:-4}
 ```
 
 #### opentelemetry-cpp
@@ -278,13 +267,13 @@ may want to use a recent version of the standard `pkg-config` binary. If not,
 `sudo dnf install pkgconfig` should work.
 
 ```bash
-mkdir -p $HOME/Downloads/pkg-config-cpp && cd $HOME/Downloads/pkg-config-cpp
-curl -fsSL https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz | \
+mkdir -p $HOME/Downloads/pkgconf && cd $HOME/Downloads/pkgconf
+curl -fsSL https://distfiles.ariadne.space/pkgconf/pkgconf-2.2.0.tar.gz | \
     tar -xzf - --strip-components=1 && \
-    ./configure --with-internal-glib && \
+    ./configure --prefix=/usr --with-system-libdir=/lib64:/usr/lib64 --with-system-includedir=/usr/include && \
     make -j ${NCPU:-4} && \
 sudo make install && \
-sudo ldconfig
+sudo ldconfig && cd /var/tmp && rm -fr build
 ```
 
 Older versions of Fedora hard-code RE2 to use C++11. It was fixed starting with
@@ -297,7 +286,8 @@ sed -i 's/-std=c\+\+11 //' /usr/lib64/pkgconfig/re2.pc
 ```
 
 The following steps will install libraries and tools in `/usr/local`. By
-default, pkg-config does not search in these directories.
+default, pkgconf does not search in these directories. We need to explicitly set
+the search path.
 
 ```bash
 export PKG_CONFIG_PATH=/usr/local/share/pkgconfig:/usr/lib64/pkgconfig:/usr/local/lib64/pkgconfig
@@ -385,13 +375,12 @@ sudo zypper install --allow-downgrade -y automake cmake curl \
         gcc gcc-c++ gcc8 gcc8-c++ git gzip libtool make patch tar wget
 ```
 
-Install the dependencies for `google-cloud-cpp`.
+Install some of the dependencies for `google-cloud-cpp`.
 
 ```bash
 sudo zypper refresh && \
-sudo zypper install --allow-downgrade -y libcurl-devel libopenssl-devel \
-        abseil-cpp-devel grpc-devel libprotobuf-devel libcrc32c-devel \
-        nlohmann_json-devel
+sudo zypper install --allow-downgrade -y abseil-cpp-devel c-ares-devel \
+        libcurl-devel libopenssl-devel libcrc32c-devel nlohmann_json-devel
 ```
 
 The following steps will install libraries and tools in `/usr/local`. openSUSE
@@ -403,6 +392,68 @@ multiple ways to solve this problem, the following steps are one solution:
 sudo tee /etc/ld.so.conf.d/usrlocal.conf
 export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig
 export PATH=/usr/local/bin:${PATH}
+```
+
+#### RE2
+
+```bash
+mkdir -p $HOME/Downloads/re2 && cd $HOME/Downloads/re2
+curl -fsSL https://github.com/google/re2/archive/2024-04-01.tar.gz | \
+    tar -xzf - --strip-components=1 && \
+    cmake \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_SHARED_LIBS=ON \
+        -DRE2_BUILD_TESTING=OFF \
+        -S . -B cmake-out && \
+    cmake --build cmake-out -- -j ${NCPU:-4} && \
+sudo cmake --build cmake-out --target install -- -j ${NCPU:-4} && \
+sudo ldconfig
+```
+
+#### Protobuf
+
+We need to install a version of Protobuf that is recent enough to support the
+Google Cloud Platform proto files:
+
+```bash
+mkdir -p $HOME/Downloads/protobuf && cd $HOME/Downloads/protobuf
+curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v26.1.tar.gz | \
+    tar -xzf - --strip-components=1 && \
+    cmake \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_SHARED_LIBS=yes \
+        -Dprotobuf_BUILD_TESTS=OFF \
+        -Dprotobuf_ABSL_PROVIDER=package \
+        -S . -B cmake-out && \
+    cmake --build cmake-out -- -j ${NCPU:-4} && \
+sudo cmake --build cmake-out --target install -- -j ${NCPU:-4} && \
+sudo ldconfig
+```
+
+#### gRPC
+
+We also need a version of gRPC that is recent enough to support the Google Cloud
+Platform proto files. We manually install it using:
+
+```bash
+mkdir -p $HOME/Downloads/grpc && cd $HOME/Downloads/grpc
+curl -fsSL https://github.com/grpc/grpc/archive/v1.62.1.tar.gz | \
+    tar -xzf - --strip-components=1 && \
+    cmake \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_SHARED_LIBS=yes \
+        -DgRPC_INSTALL=ON \
+        -DgRPC_BUILD_TESTS=OFF \
+        -DgRPC_ABSL_PROVIDER=package \
+        -DgRPC_CARES_PROVIDER=package \
+        -DgRPC_PROTOBUF_PROVIDER=package \
+        -DgRPC_RE2_PROVIDER=package \
+        -DgRPC_SSL_PROVIDER=package \
+        -DgRPC_ZLIB_PROVIDER=package \
+        -S . -B cmake-out && \
+    cmake --build cmake-out -- -j ${NCPU:-4} && \
+sudo cmake --build cmake-out --target install -- -j ${NCPU:-4} && \
+sudo ldconfig
 ```
 
 #### opentelemetry-cpp
@@ -477,7 +528,7 @@ the version of C++ used to compile Abseil to anything that depends on Abseil.
 
 ```bash
 mkdir -p $HOME/Downloads/abseil-cpp && cd $HOME/Downloads/abseil-cpp
-curl -fsSL https://github.com/abseil/abseil-cpp/archive/20240116.1.tar.gz | \
+curl -fsSL https://github.com/abseil/abseil-cpp/archive/20240116.2.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
       -DCMAKE_BUILD_TYPE=Release \
@@ -497,7 +548,7 @@ Google Cloud Platform proto files:
 
 ```bash
 mkdir -p $HOME/Downloads/protobuf && cd $HOME/Downloads/protobuf
-curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v25.3.tar.gz | \
+curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v26.1.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
@@ -643,7 +694,7 @@ the version of C++ used to compile Abseil to anything that depends on Abseil.
 
 ```bash
 mkdir -p $HOME/Downloads/abseil-cpp && cd $HOME/Downloads/abseil-cpp
-curl -fsSL https://github.com/abseil/abseil-cpp/archive/20240116.1.tar.gz | \
+curl -fsSL https://github.com/abseil/abseil-cpp/archive/20240116.2.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
       -DCMAKE_BUILD_TYPE=Release \
@@ -663,7 +714,7 @@ Google Cloud Platform proto files:
 
 ```bash
 mkdir -p $HOME/Downloads/protobuf && cd $HOME/Downloads/protobuf
-curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v25.3.tar.gz | \
+curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v26.1.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
@@ -684,7 +735,7 @@ planning to use pkg-config.
 
 ```bash
 mkdir -p $HOME/Downloads/re2 && cd $HOME/Downloads/re2
-curl -fsSL https://github.com/google/re2/archive/2024-03-01.tar.gz | \
+curl -fsSL https://github.com/google/re2/archive/2024-04-01.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_SHARED_LIBS=ON \
@@ -841,14 +892,14 @@ may want to use a recent version of the standard `pkg-config` binary. If not,
 `sudo dnf install pkgconfig` should work.
 
 ```bash
-mkdir -p $HOME/Downloads/pkg-config-cpp && cd $HOME/Downloads/pkg-config-cpp
-curl -fsSL https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz | \
+mkdir -p $HOME/Downloads/pkgconf && cd $HOME/Downloads/pkgconf
+curl -fsSL https://distfiles.ariadne.space/pkgconf/pkgconf-2.2.0.tar.gz | \
     tar -xzf - --strip-components=1 && \
-    ./configure --with-internal-glib && \
+    ./configure --prefix=/usr --with-system-libdir=/lib:/usr/lib --with-system-includedir=/usr/include && \
     make -j ${NCPU:-4} && \
 sudo make install && \
-sudo ldconfig
-export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig/
+sudo ldconfig && cd /var/tmp && rm -fr build
+export PKG_CONFIG_PATH=/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/local/lib/pkgconfig
 ```
 
 #### crc32c
@@ -937,7 +988,7 @@ version of C++ used to compile Abseil to anything that depends on Abseil.
 
 ```bash
 mkdir -p $HOME/Downloads/abseil-cpp && cd $HOME/Downloads/abseil-cpp
-curl -fsSL https://github.com/abseil/abseil-cpp/archive/20240116.1.tar.gz | \
+curl -fsSL https://github.com/abseil/abseil-cpp/archive/20240116.2.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
       -DCMAKE_BUILD_TYPE=Release \
@@ -989,7 +1040,7 @@ to build from source:
 
 ```bash
 mkdir -p $HOME/Downloads/protobuf && cd $HOME/Downloads/protobuf
-curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v25.3.tar.gz | \
+curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v26.1.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
@@ -1009,7 +1060,7 @@ planning to use pkg-config.
 
 ```bash
 mkdir -p $HOME/Downloads/re2 && cd $HOME/Downloads/re2
-curl -fsSL https://github.com/google/re2/archive/2024-03-01.tar.gz | \
+curl -fsSL https://github.com/google/re2/archive/2024-04-01.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_SHARED_LIBS=ON \
@@ -1109,7 +1160,7 @@ the version of C++ used to compile Abseil to anything that depends on Abseil.
 
 ```bash
 mkdir -p $HOME/Downloads/abseil-cpp && cd $HOME/Downloads/abseil-cpp
-curl -fsSL https://github.com/abseil/abseil-cpp/archive/20240116.1.tar.gz | \
+curl -fsSL https://github.com/abseil/abseil-cpp/archive/20240116.2.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
       -DCMAKE_BUILD_TYPE=Release \
@@ -1172,7 +1223,7 @@ to build from source:
 
 ```bash
 mkdir -p $HOME/Downloads/protobuf && cd $HOME/Downloads/protobuf
-curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v25.3.tar.gz | \
+curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v26.1.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
@@ -1192,7 +1243,7 @@ planning to use pkg-config.
 
 ```bash
 mkdir -p $HOME/Downloads/re2 && cd $HOME/Downloads/re2
-curl -fsSL https://github.com/google/re2/archive/2024-03-01.tar.gz | \
+curl -fsSL https://github.com/google/re2/archive/2024-04-01.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_SHARED_LIBS=ON \
@@ -1294,13 +1345,13 @@ may want to use a recent version of the standard `pkg-config` binary. If not,
 `sudo dnf install pkgconfig` should work.
 
 ```bash
-mkdir -p $HOME/Downloads/pkg-config-cpp && cd $HOME/Downloads/pkg-config-cpp
-curl -fsSL https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz | \
+mkdir -p $HOME/Downloads/pkgconf && cd $HOME/Downloads/pkgconf
+curl -fsSL https://distfiles.ariadne.space/pkgconf/pkgconf-2.2.0.tar.gz | \
     tar -xzf - --strip-components=1 && \
-    ./configure --with-internal-glib && \
+    ./configure --prefix=/usr --with-system-libdir=/lib64:/usr/lib64 --with-system-includedir=/usr/include && \
     make -j ${NCPU:-4} && \
 sudo make install && \
-sudo ldconfig
+sudo ldconfig && cd /var/tmp && rm -fr build
 ```
 
 The following steps will install libraries and tools in `/usr/local`. By
@@ -1322,7 +1373,7 @@ the version of C++ used to compile Abseil to anything that depends on Abseil.
 
 ```bash
 mkdir -p $HOME/Downloads/abseil-cpp && cd $HOME/Downloads/abseil-cpp
-curl -fsSL https://github.com/abseil/abseil-cpp/archive/20240116.1.tar.gz | \
+curl -fsSL https://github.com/abseil/abseil-cpp/archive/20240116.2.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
       -DCMAKE_BUILD_TYPE=Release \
@@ -1342,7 +1393,7 @@ Google Cloud Platform proto files:
 
 ```bash
 mkdir -p $HOME/Downloads/protobuf && cd $HOME/Downloads/protobuf
-curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v25.3.tar.gz | \
+curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v26.1.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
@@ -1363,7 +1414,7 @@ planning to use pkg-config.
 
 ```bash
 mkdir -p $HOME/Downloads/re2 && cd $HOME/Downloads/re2
-curl -fsSL https://github.com/google/re2/archive/2024-03-01.tar.gz | \
+curl -fsSL https://github.com/google/re2/archive/2024-04-01.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_SHARED_LIBS=ON \
@@ -1508,13 +1559,13 @@ may want to use a recent version of the standard `pkg-config` binary. If not,
 `sudo dnf install pkgconfig` should work.
 
 ```bash
-mkdir -p $HOME/Downloads/pkg-config-cpp && cd $HOME/Downloads/pkg-config-cpp
-curl -fsSL https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz | \
+mkdir -p $HOME/Downloads/pkgconf && cd $HOME/Downloads/pkgconf
+curl -fsSL https://distfiles.ariadne.space/pkgconf/pkgconf-2.2.0.tar.gz | \
     tar -xzf - --strip-components=1 && \
-    ./configure --with-internal-glib && \
+    ./configure --prefix=/usr --with-system-libdir=/lib64:/usr/lib64 --with-system-includedir=/usr/include && \
     make -j ${NCPU:-4} && \
 sudo make install && \
-sudo ldconfig
+sudo ldconfig && cd /var/tmp && rm -fr build
 ```
 
 The following steps will install libraries and tools in `/usr/local`. By
@@ -1538,7 +1589,7 @@ C++ used to compile Abseil to anything that depends on Abseil.
 
 ```bash
 mkdir -p $HOME/Downloads/abseil-cpp && cd $HOME/Downloads/abseil-cpp
-curl -fsSL https://github.com/abseil/abseil-cpp/archive/20240116.1.tar.gz | \
+curl -fsSL https://github.com/abseil/abseil-cpp/archive/20240116.2.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
       -DCMAKE_BUILD_TYPE=Release \
@@ -1559,7 +1610,7 @@ install Protobuf (and any downstream packages) from source.
 
 ```bash
 mkdir -p $HOME/Downloads/protobuf && cd $HOME/Downloads/protobuf
-curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v25.3.tar.gz | \
+curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v26.1.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
@@ -1580,7 +1631,7 @@ planning to use pkg-config.
 
 ```bash
 mkdir -p $HOME/Downloads/re2 && cd $HOME/Downloads/re2
-curl -fsSL https://github.com/google/re2/archive/2024-03-01.tar.gz | \
+curl -fsSL https://github.com/google/re2/archive/2024-04-01.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_SHARED_LIBS=ON \
@@ -1740,13 +1791,14 @@ with any of the installed artifacts, you'll want to upgrade it to something
 newer. If not, `sudo yum install pkgconfig` should work instead.
 
 ```bash
-mkdir -p $HOME/Downloads/pkg-config-cpp && cd $HOME/Downloads/pkg-config-cpp
-curl -fsSL https://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz | \
+mkdir -p $HOME/Downloads/pkgconf && cd $HOME/Downloads/pkgconf
+curl -fsSL https://distfiles.ariadne.space/pkgconf/pkgconf-2.2.0.tar.gz | \
     tar -xzf - --strip-components=1 && \
-    ./configure --with-internal-glib && \
+    ./configure --prefix=/usr --with-system-libdir=/lib64:/usr/lib64 --with-system-includedir=/usr/include && \
     make -j ${NCPU:-4} && \
 sudo make install && \
-sudo ldconfig
+    ln -f /usr/bin/pkgconf /usr/bin/pkg-config && \
+sudo ldconfig && cd /var/tmp && rm -fr build
 ```
 
 The following steps will install libraries and tools in `/usr/local`. By
@@ -1768,7 +1820,7 @@ the version of C++ used to compile Abseil to anything that depends on Abseil.
 
 ```bash
 mkdir -p $HOME/Downloads/abseil-cpp && cd $HOME/Downloads/abseil-cpp
-curl -fsSL https://github.com/abseil/abseil-cpp/archive/20240116.1.tar.gz | \
+curl -fsSL https://github.com/abseil/abseil-cpp/archive/20240116.2.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
       -DCMAKE_BUILD_TYPE=Release \
@@ -1788,7 +1840,7 @@ Google Cloud Platform proto files:
 
 ```bash
 mkdir -p $HOME/Downloads/protobuf && cd $HOME/Downloads/protobuf
-curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v25.3.tar.gz | \
+curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v26.1.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release \

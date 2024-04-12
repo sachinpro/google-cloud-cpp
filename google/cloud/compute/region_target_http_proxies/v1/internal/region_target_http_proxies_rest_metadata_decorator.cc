@@ -18,10 +18,9 @@
 // google/cloud/compute/region_target_http_proxies/v1/region_target_http_proxies.proto
 
 #include "google/cloud/compute/region_target_http_proxies/v1/internal/region_target_http_proxies_rest_metadata_decorator.h"
-#include "google/cloud/common_options.h"
 #include "google/cloud/internal/absl_str_cat_quiet.h"
-#include "google/cloud/internal/absl_str_join_quiet.h"
 #include "google/cloud/internal/api_client_header.h"
+#include "google/cloud/internal/rest_set_metadata.h"
 #include "google/cloud/status_or.h"
 #include "absl/strings/str_format.h"
 #include <memory>
@@ -121,25 +120,8 @@ future<Status> RegionTargetHttpProxiesRestMetadata::AsyncCancelOperation(
 void RegionTargetHttpProxiesRestMetadata::SetMetadata(
     rest_internal::RestContext& rest_context, Options const& options,
     std::vector<std::string> const& params) {
-  rest_context.AddHeader("x-goog-api-client", api_client_header_);
-  if (!params.empty()) {
-    rest_context.AddHeader("x-goog-request-params", absl::StrJoin(params, "&"));
-  }
-  if (options.has<UserProjectOption>()) {
-    rest_context.AddHeader("x-goog-user-project",
-                           options.get<UserProjectOption>());
-  }
-  if (options.has<google::cloud::QuotaUserOption>()) {
-    rest_context.AddHeader("x-goog-quota-user",
-                           options.get<google::cloud::QuotaUserOption>());
-  }
-  if (options.has<google::cloud::ServerTimeoutOption>()) {
-    auto ms_rep = absl::StrCat(
-        absl::Dec(options.get<google::cloud::ServerTimeoutOption>().count(),
-                  absl::kZeroPad4));
-    rest_context.AddHeader("x-server-timeout",
-                           ms_rep.insert(ms_rep.size() - 3, "."));
-  }
+  google::cloud::rest_internal::SetMetadata(rest_context, options, params,
+                                            api_client_header_);
 }
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END
