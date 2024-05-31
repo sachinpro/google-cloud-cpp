@@ -21,6 +21,7 @@
 #include "google/cloud/storage/testing/canonical_errors.h"
 #include "google/cloud/storage/testing/mock_hash_function.h"
 #include "google/cloud/testing_util/async_sequencer.h"
+#include "google/cloud/testing_util/is_proto_equal.h"
 #include "google/cloud/testing_util/status_matchers.h"
 #include <gmock/gmock.h>
 
@@ -35,6 +36,7 @@ using ::google::cloud::storage_experimental::WritePayload;
 using ::google::cloud::testing_util::AsyncSequencer;
 using ::google::cloud::testing_util::IsOk;
 using ::google::cloud::testing_util::IsOkAndHolds;
+using ::google::cloud::testing_util::IsProtoEqual;
 using ::google::cloud::testing_util::StatusIs;
 using ::testing::_;
 using ::testing::An;
@@ -63,18 +65,20 @@ auto MakeTestResponse() {
 }
 
 auto MakeTestObject() {
-  return storage::ObjectMetadata{}
-      .set_size(2048)
-      .set_bucket("test-bucket")
-      .set_name("test-object")
-      .set_self_link(
-          "https://test-only.p.googleapis.com/storage/v1/b/test-bucket/o/"
-          "test-object")
-      .set_media_link(
-          "https://test-only.p.googleapis.com/download/storage/v1/b/"
-          "test-bucket/o/test-object?generation=0&alt=media")
-      .set_id("test-bucket/test-object/0")
-      .set_kind("storage#object");
+  auto object = google::storage::v2::Object{};
+  object.set_size(2048);
+  object.set_bucket("projects/_/buckets/test-bucket");
+  object.set_name("test-object");
+  return object;
+}
+
+auto MakeRequest() {
+  auto request = Request{};
+  request.set_upload_id("test-upload-id");
+  // We use this field as a canary to verify the request fields are preserved.
+  request.mutable_common_object_request_params()->set_encryption_algorithm(
+      "test-only-algo");
+  return request;
 }
 
 TEST(AsyncWriterConnectionTest, Basic) {
@@ -90,8 +94,8 @@ TEST(AsyncWriterConnectionTest, Basic) {
   EXPECT_CALL(*hash, Update(_, An<absl::Cord const&>(), _)).Times(0);
   EXPECT_CALL(*hash, Finish).Times(0);
 
-  AsyncWriterConnectionImpl tested(TestOptions(), std::move(mock),
-                                   "test-upload-id", hash, 1024);
+  AsyncWriterConnectionImpl tested(TestOptions(), MakeRequest(),
+                                   std::move(mock), hash, 1024);
   EXPECT_EQ(tested.UploadId(), "test-upload-id");
   EXPECT_THAT(tested.PersistedState(), VariantWith<std::int64_t>(1024));
 
@@ -112,11 +116,11 @@ TEST(AsyncWriterConnectionTest, ResumeFinalized) {
   EXPECT_CALL(*hash, Update(_, An<absl::Cord const&>(), _)).Times(0);
   EXPECT_CALL(*hash, Finish).Times(0);
 
-  AsyncWriterConnectionImpl tested(TestOptions(), std::move(mock),
-                                   "test-upload-id", hash, MakeTestObject());
+  AsyncWriterConnectionImpl tested(TestOptions(), MakeRequest(),
+                                   std::move(mock), hash, MakeTestObject());
   EXPECT_EQ(tested.UploadId(), "test-upload-id");
-  EXPECT_THAT(tested.PersistedState(),
-              VariantWith<storage::ObjectMetadata>(MakeTestObject()));
+  EXPECT_THAT(tested.PersistedState(), VariantWith<google::storage::v2::Object>(
+                                           IsProtoEqual(MakeTestObject())));
 }
 
 TEST(AsyncWriterConnectionTest, Cancel) {
@@ -129,8 +133,8 @@ TEST(AsyncWriterConnectionTest, Cancel) {
   EXPECT_CALL(*hash, Update(_, An<absl::Cord const&>(), _)).Times(0);
   EXPECT_CALL(*hash, Finish).Times(0);
 
-  AsyncWriterConnectionImpl tested(TestOptions(), std::move(mock),
-                                   "test-upload-id", hash, 1024);
+  AsyncWriterConnectionImpl tested(TestOptions(), MakeRequest(),
+                                   std::move(mock), hash, 1024);
   tested.Cancel();
   EXPECT_EQ(tested.UploadId(), "test-upload-id");
   EXPECT_THAT(tested.PersistedState(), VariantWith<std::int64_t>(1024));
@@ -151,6 +155,8 @@ TEST(AsyncWriterConnectionTest, WriteSimple) {
       .WillRepeatedly([&](Request const& request, grpc::WriteOptions wopt) {
         EXPECT_FALSE(request.finish_write());
         EXPECT_EQ(request.write_offset(), offset);
+        EXPECT_EQ(request.common_object_request_params().encryption_algorithm(),
+                  "test-only-algo");
         EXPECT_FALSE(wopt.is_last_message());
         offset += kChunk;
         return sequencer.PushBack("Write");
@@ -167,7 +173,7 @@ TEST(AsyncWriterConnectionTest, WriteSimple) {
   EXPECT_CALL(*hash, Finish).Times(0);
 
   auto tested = std::make_unique<AsyncWriterConnectionImpl>(
-      TestOptions(), std::move(mock), "test-upload-id", hash, offset);
+      TestOptions(), MakeRequest(), std::move(mock), hash, offset);
 
   for (int i = 0; i != kWriteCount; ++i) {
     auto response =
@@ -207,7 +213,7 @@ TEST(AsyncWriterConnectionTest, WriteError) {
   EXPECT_CALL(*hash, Finish).Times(0);
 
   auto tested = std::make_unique<AsyncWriterConnectionImpl>(
-      TestOptions(), std::move(mock), "test-upload-id", hash, 0);
+      TestOptions(), MakeRequest(), std::move(mock), hash, 0);
 
   auto response = tested->Write(WritePayload(std::string(kChunk, 'A')));
   auto next = sequencer.PopFrontWithName();
@@ -240,7 +246,7 @@ TEST(AsyncWriterConnectionTest, UnexpectedWriteFailsWithoutError) {
   EXPECT_CALL(*hash, Finish).Times(0);
 
   auto tested = std::make_unique<AsyncWriterConnectionImpl>(
-      TestOptions(), std::move(mock), "test-upload-id", hash, 0);
+      TestOptions(), MakeRequest(), std::move(mock), hash, 0);
 
   auto response = tested->Write(WritePayload(std::string(kChunk, 'A')));
   auto next = sequencer.PopFrontWithName();
@@ -260,6 +266,8 @@ TEST(AsyncWriterConnectionTest, FinalizeEmpty) {
       .WillOnce([&](Request const& request, grpc::WriteOptions wopt) {
         EXPECT_TRUE(request.finish_write());
         EXPECT_TRUE(wopt.is_last_message());
+        EXPECT_EQ(request.common_object_request_params().encryption_algorithm(),
+                  "test-only-algo");
         return sequencer.PushBack("Write");
       });
   EXPECT_CALL(*mock, Read).WillOnce([&]() {
@@ -279,7 +287,7 @@ TEST(AsyncWriterConnectionTest, FinalizeEmpty) {
   EXPECT_CALL(*hash, Finish).Times(1);
 
   auto tested = std::make_unique<AsyncWriterConnectionImpl>(
-      TestOptions(), std::move(mock), "test-upload-id", hash, 1024);
+      TestOptions(), MakeRequest(), std::move(mock), hash, 1024);
   auto response = tested->Finalize(WritePayload{});
   auto next = sequencer.PopFrontWithName();
   ASSERT_THAT(next.second, "Write");
@@ -288,7 +296,8 @@ TEST(AsyncWriterConnectionTest, FinalizeEmpty) {
   ASSERT_THAT(next.second, "Read");
   next.first.set_value(true);
   auto object = response.get();
-  EXPECT_THAT(object, IsOkAndHolds(MakeTestObject())) << "=" << *object;
+  EXPECT_THAT(object, IsOkAndHolds(IsProtoEqual(MakeTestObject())))
+      << "=" << object->DebugString();
 
   tested = {};
   next = sequencer.PopFrontWithName();
@@ -314,7 +323,7 @@ TEST(AsyncWriterConnectionTest, FinalizeFails) {
   EXPECT_CALL(*hash, Finish).Times(1);
 
   auto tested = std::make_unique<AsyncWriterConnectionImpl>(
-      TestOptions(), std::move(mock), "test-upload-id", hash, 1024);
+      TestOptions(), MakeRequest(), std::move(mock), hash, 1024);
   auto response = tested->Finalize(WritePayload{});
   auto next = sequencer.PopFrontWithName();
   ASSERT_THAT(next.second, "Write");
@@ -343,7 +352,7 @@ TEST(AsyncWriterConnectionTest, UnexpectedFinalizeFailsWithoutError) {
   EXPECT_CALL(*hash, Finish).Times(1);
 
   auto tested = std::make_unique<AsyncWriterConnectionImpl>(
-      TestOptions(), std::move(mock), "test-upload-id", hash, 1024);
+      TestOptions(), MakeRequest(), std::move(mock), hash, 1024);
   auto response = tested->Finalize(WritePayload{});
   auto next = sequencer.PopFrontWithName();
   ASSERT_THAT(next.second, "Write");
@@ -378,7 +387,7 @@ TEST(AsyncWriterConnectionTest, QueryFinalFails) {
   EXPECT_CALL(*hash, Finish).Times(1);
 
   auto tested = std::make_unique<AsyncWriterConnectionImpl>(
-      TestOptions(), std::move(mock), "test-upload-id", hash, 1024);
+      TestOptions(), MakeRequest(), std::move(mock), hash, 1024);
   auto response = tested->Finalize(WritePayload{});
   auto next = sequencer.PopFrontWithName();
   ASSERT_THAT(next.second, "Write");
@@ -416,7 +425,7 @@ TEST(AsyncWriterConnectionTest, UnexpectedQueryFinalFailsWithoutError) {
   EXPECT_CALL(*hash, Finish).Times(1);
 
   auto tested = std::make_unique<AsyncWriterConnectionImpl>(
-      TestOptions(), std::move(mock), "test-upload-id", hash, 1024);
+      TestOptions(), MakeRequest(), std::move(mock), hash, 1024);
   auto response = tested->Finalize(WritePayload{});
   auto next = sequencer.PopFrontWithName();
   ASSERT_THAT(next.second, "Write");
@@ -454,7 +463,7 @@ TEST(AsyncWriterConnectionTest, UnexpectedQueryFinalMissingResource) {
   EXPECT_CALL(*hash, Finish).Times(1);
 
   auto tested = std::make_unique<AsyncWriterConnectionImpl>(
-      TestOptions(), std::move(mock), "test-upload-id", hash, 0);
+      TestOptions(), MakeRequest(), std::move(mock), hash, 0);
   auto response = tested->Finalize(WritePayload{});
   auto next = sequencer.PopFrontWithName();
   ASSERT_THAT(next.second, "Write");
@@ -479,6 +488,8 @@ TEST(AsyncWriterConnectionTest, FlushEmpty) {
         EXPECT_TRUE(request.flush());
         EXPECT_TRUE(request.state_lookup());
         EXPECT_FALSE(wopt.is_last_message());
+        EXPECT_EQ(request.common_object_request_params().encryption_algorithm(),
+                  "test-only-algo");
         return sequencer.PushBack("Write");
       });
   EXPECT_CALL(*mock, Read).WillOnce([&]() {
@@ -500,7 +511,7 @@ TEST(AsyncWriterConnectionTest, FlushEmpty) {
   EXPECT_CALL(*hash, Finish).Times(0);
 
   auto tested = std::make_unique<AsyncWriterConnectionImpl>(
-      TestOptions(), std::move(mock), "test-upload-id", hash, 1024);
+      TestOptions(), MakeRequest(), std::move(mock), hash, 1024);
   auto flush = tested->Flush(WritePayload{});
   auto next = sequencer.PopFrontWithName();
   ASSERT_THAT(next.second, "Write");
@@ -537,7 +548,7 @@ TEST(AsyncWriterConnectionTest, FlushFails) {
   EXPECT_CALL(*hash, Finish).Times(1);
 
   auto tested = std::make_unique<AsyncWriterConnectionImpl>(
-      TestOptions(), std::move(mock), "test-upload-id", hash, 1024);
+      TestOptions(), MakeRequest(), std::move(mock), hash, 1024);
   auto response = tested->Finalize(WritePayload{});
   auto next = sequencer.PopFrontWithName();
   ASSERT_THAT(next.second, "Write");
@@ -566,7 +577,7 @@ TEST(AsyncWriterConnectionTest, UnexpectedFlushFailsWithoutError) {
   EXPECT_CALL(*hash, Finish).Times(1);
 
   auto tested = std::make_unique<AsyncWriterConnectionImpl>(
-      TestOptions(), std::move(mock), "test-upload-id", hash, 1024);
+      TestOptions(), MakeRequest(), std::move(mock), hash, 1024);
   auto response = tested->Finalize(WritePayload{});
   auto next = sequencer.PopFrontWithName();
   ASSERT_THAT(next.second, "Write");
@@ -596,7 +607,7 @@ TEST(AsyncWriterConnectionTest, QueryFails) {
   EXPECT_CALL(*hash, Finish).Times(0);
 
   auto tested = std::make_unique<AsyncWriterConnectionImpl>(
-      TestOptions(), std::move(mock), "test-upload-id", hash, 1024);
+      TestOptions(), MakeRequest(), std::move(mock), hash, 1024);
   auto query = tested->Query();
   auto next = sequencer.PopFrontWithName();
   ASSERT_THAT(next.second, "Read");
@@ -626,7 +637,7 @@ TEST(AsyncWriterConnectionTest, UnexpectedQueryFailsWithoutError) {
   EXPECT_CALL(*hash, Finish).Times(0);
 
   auto tested = std::make_unique<AsyncWriterConnectionImpl>(
-      TestOptions(), std::move(mock), "test-upload-id", hash, 1024);
+      TestOptions(), MakeRequest(), std::move(mock), hash, 1024);
   auto query = tested->Query();
   auto next = sequencer.PopFrontWithName();
   ASSERT_THAT(next.second, "Read");

@@ -20,6 +20,7 @@
 #include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/format_time_point.h"
 #include "google/cloud/internal/getenv.h"
+#include "google/cloud/internal/make_status.h"
 #include "google/cloud/internal/random.h"
 #include "google/cloud/testing_util/command_line_parsing.h"
 #include "google/cloud/testing_util/timer.h"
@@ -514,8 +515,7 @@ void PrintSubscriber(std::ostream& os, Config const& config) {
 }
 
 void Print(std::ostream& os, Config const& config) {
-  os << "# Running Cloud Pub/Sub experiment"
-     << "\n# Start time: "
+  os << "# Running Cloud Pub/Sub experiment" << "\n# Start time: "
      << google::cloud::internal::FormatRfc3339(std::chrono::system_clock::now())
      << "\n# Endpoint: " << config.endpoint
      << "\n# Topic ID: " << config.topic_id
@@ -682,37 +682,41 @@ google::cloud::StatusOr<Config> ParseArgsImpl(std::vector<std::string> args,
   }
 
   if (options.project_id.empty()) {
-    return google::cloud::Status(google::cloud::StatusCode::kInvalidArgument,
-                                 "missing or empty --project-id option");
+    return google::cloud::internal::InvalidArgumentError(
+        "missing or empty --project-id option");
   }
 
   return options;
 }
 
 google::cloud::StatusOr<Config> SelfTest(std::string const& cmd) {
-  auto error = [](std::string m) {
-    return google::cloud::Status(google::cloud::StatusCode::kUnknown,
-                                 std::move(m));
+  auto error = [](std::string m,
+                  google::cloud::internal::ErrorInfoBuilder info) {
+    return google::cloud::internal::UnknownError(std::move(m), std::move(info));
   };
   for (auto const& var : {"GOOGLE_CLOUD_PROJECT"}) {
     auto const value = GetEnv(var).value_or("");
     if (!value.empty()) continue;
     std::ostringstream os;
     os << "The environment variable " << var << " is not set or empty";
-    return error(std::move(os).str());
+    return error(std::move(os).str(), GCP_ERROR_INFO());
   }
   auto config = ParseArgsImpl({cmd, "--help"}, kDescription);
-  if (!config || !config->show_help) return error("--help parsing");
+  if (!config || !config->show_help) {
+    return error("--help parsing", GCP_ERROR_INFO());
+  }
   config = ParseArgsImpl({cmd, "--description", "--help"}, kDescription);
-  if (!config || !config->show_help) return error("--description parsing");
+  if (!config || !config->show_help) {
+    return error("--description parsing", GCP_ERROR_INFO());
+  }
   config = ParseArgsImpl({cmd, "--project-id="}, kDescription);
-  if (config) return error("--project-id validation");
+  if (config) return error("--project-id validation", GCP_ERROR_INFO());
   config = ParseArgsImpl({cmd, "--topic-id=test"}, kDescription);
-  if (!config) return error("--topic-id");
+  if (!config) return error("--topic-id", GCP_ERROR_INFO());
   config = ParseArgsImpl({cmd, "--subscription-id=test"}, kDescription);
-  if (!config) return error("--subscription-id");
+  if (!config) return error("--subscription-id", GCP_ERROR_INFO());
   config = ParseArgsImpl({cmd, "--endpoint=test"}, kDescription);
-  if (!config) return error("--endpoint");
+  if (!config) return error("--endpoint", GCP_ERROR_INFO());
 
   return ParseArgsImpl(
       {

@@ -22,7 +22,6 @@
 #include "google/cloud/internal/invoke_result.h"
 #include "google/cloud/internal/make_status.h"
 #include "google/cloud/internal/time_utils.h"
-#include "google/cloud/log.h"
 #include <iterator>
 
 namespace google {
@@ -528,11 +527,6 @@ StatusOr<google::storage::v2::UpdateObjectRequest> ToProto(
   object.set_temporary_hold(request.metadata().temporary_hold());
 
   return result;
-}
-
-StatusOr<google::storage::v2::WriteObjectRequest> ToProto(
-    storage_experimental::InsertObjectRequest const& request) {
-  return ToProtoImpl(request);
 }
 
 StatusOr<google::storage::v2::WriteObjectRequest> ToProto(

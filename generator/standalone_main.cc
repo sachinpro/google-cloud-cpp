@@ -17,9 +17,11 @@
 #include "generator/internal/codegen_utils.h"
 #include "generator/internal/descriptor_utils.h"
 #include "generator/internal/discovery_to_proto.h"
+#include "generator/internal/format_method_comments.h"
 #include "generator/internal/scaffold_generator.h"
 #include "google/cloud/internal/absl_str_cat_quiet.h"
 #include "google/cloud/internal/absl_str_join_quiet.h"
+#include "google/cloud/internal/make_status.h"
 #include "google/cloud/log.h"
 #include "google/cloud/status_or.h"
 #include "absl/flags/flag.h"
@@ -55,8 +57,8 @@ ABSL_FLAG(std::string, scaffold, "",
 ABSL_FLAG(bool, experimental_scaffold, false,
           "Generate experimental library support files.");
 ABSL_FLAG(bool, update_ci, true, "Update the CI support files.");
-ABSL_FLAG(bool, check_parameter_comment_substitutions, false,
-          "Check that the built-in parameter comment substitutions applied.");
+ABSL_FLAG(bool, check_comment_substitutions, false,
+          "Check that the built-in comment substitutions applied.");
 ABSL_FLAG(bool, generate_discovery_protos, false,
           "Generate only .proto files, no C++ code.");
 ABSL_FLAG(bool, enable_parallel_write_for_discovery_protos, true,
@@ -64,6 +66,8 @@ ABSL_FLAG(bool, enable_parallel_write_for_discovery_protos, true,
           "for readable logs.");
 namespace {
 
+using ::google::cloud::generator_internal::CheckMethodCommentSubstitutions;
+using ::google::cloud::generator_internal::CheckParameterCommentSubstitutions;
 using ::google::cloud::generator_internal::GenerateMetadata;
 using ::google::cloud::generator_internal::GenerateScaffold;
 using ::google::cloud::generator_internal::LibraryName;
@@ -100,8 +104,8 @@ GetConfig(std::string const& filepath) {
       buffer.str(), &generator_config);
 
   if (parse_result) return generator_config;
-  return google::cloud::Status(google::cloud::StatusCode::kInvalidArgument,
-                               "Unable to parse textproto file.");
+  return google::cloud::internal::InvalidArgumentError(
+      "Unable to parse textproto file.", GCP_ERROR_INFO());
 }
 
 /**
@@ -282,6 +286,9 @@ std::vector<std::future<google::cloud::Status>> GenerateCodeFromProtos(
     if (service.omit_stub_factory()) {
       args.emplace_back("--cpp_codegen_opt=omit_stub_factory=true");
     }
+    if (service.omit_streaming_updater()) {
+      args.emplace_back("--cpp_codegen_opt=omit_streaming_updater=true");
+    }
     if (service.generate_round_robin_decorator()) {
       args.emplace_back(
           "--cpp_codegen_opt=generate_round_robin_decorator=true");
@@ -372,24 +379,26 @@ std::vector<std::future<google::cloud::Status>> GenerateCodeFromProtos(
     GCP_LOG(INFO) << "Generating service code using: "
                   << absl::StrJoin(args, ";") << "\n";
 
-    tasks.push_back(std::async(std::launch::async, [args] {
-      google::protobuf::compiler::CommandLineInterface cli;
-      google::cloud::generator::Generator generator;
-      cli.RegisterGenerator("--cpp_codegen_out", "--cpp_codegen_opt",
-                            &generator, "Codegen C++ Generator");
-      std::vector<char const*> c_args;
-      c_args.reserve(args.size());
-      for (auto const& arg : args) {
-        c_args.push_back(arg.c_str());
-      }
+    tasks.push_back(std::async(
+        std::launch::async, [args, proto_file = service.service_proto_path()] {
+          google::protobuf::compiler::CommandLineInterface cli;
+          google::cloud::generator::Generator generator;
+          cli.RegisterGenerator("--cpp_codegen_out", "--cpp_codegen_opt",
+                                &generator, "Codegen C++ Generator");
+          std::vector<char const*> c_args;
+          c_args.reserve(args.size());
+          for (auto const& arg : args) {
+            c_args.push_back(arg.c_str());
+          }
 
-      if (cli.Run(static_cast<int>(c_args.size()), c_args.data()) != 0)
-        return google::cloud::Status(google::cloud::StatusCode::kInternal,
-                                     absl::StrCat("Generating service from ",
-                                                  c_args.back(), " failed."));
-
-      return google::cloud::Status{};
-    }));
+          if (cli.Run(static_cast<int>(c_args.size()), c_args.data()) != 0) {
+            return google::cloud::internal::InternalError(
+                absl::StrCat("Generating service from ", proto_file,
+                             " failed."),
+                GCP_ERROR_INFO());
+          }
+          return google::cloud::Status{};
+        }));
   }
   return tasks;
 }
@@ -496,15 +505,17 @@ int main(int argc, char** argv) {
     }
   }
 
-  // If we were asked to check the parameter comment substitutions, and some
-  // went unused, emit a fatal error so that we might remove/fix them. The
+  // If we were asked to check the comment substitutions, and some went
+  // unused, emit a fatal error so that we might remove/fix them. The
   // substitutions should probably be part of the config file (rather than
   // being built in) so that the check could be unconditional (instead of
   // flag-based).
-  if (absl::GetFlag(FLAGS_check_parameter_comment_substitutions) &&
-      !google::cloud::generator_internal::
-          CheckParameterCommentSubstitutions()) {
-    GCP_LOG(FATAL) << "Remove unused parameter comment substitution(s)";
+  if (absl::GetFlag(FLAGS_check_comment_substitutions)) {
+    bool parameters_ok = CheckParameterCommentSubstitutions();
+    bool methods_ok = CheckMethodCommentSubstitutions();
+    if (!parameters_ok || !methods_ok) {
+      GCP_LOG(FATAL) << "Remove unused comment substitution(s)";
+    }
   }
 
   return rc;

@@ -161,6 +161,7 @@ GoldenKitchenSinkRestMetadata::ExplicitRouting2(
 void GoldenKitchenSinkRestMetadata::SetMetadata(
       rest_internal::RestContext& rest_context,
       Options const& options, std::vector<std::string> const& params) {
+  rest_context.AddHeader("x-goog-api-version", "test-api-version");
   google::cloud::rest_internal::SetMetadata(
       rest_context, options, params, api_client_header_);
 }

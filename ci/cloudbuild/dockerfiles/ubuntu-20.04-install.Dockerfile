@@ -82,7 +82,7 @@ RUN curl -fsSL https://github.com/google/googletest/archive/v1.14.0.tar.gz | \
     cd /var/tmp && rm -fr build
 
 WORKDIR /var/tmp/build/benchmark
-RUN curl -fsSL https://github.com/google/benchmark/archive/v1.8.3.tar.gz | \
+RUN curl -fsSL https://github.com/google/benchmark/archive/v1.8.4.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE="Release" \
@@ -121,7 +121,7 @@ RUN curl -fsSL https://github.com/nlohmann/json/archive/v3.11.3.tar.gz | \
     cd /var/tmp && rm -fr build
 
 WORKDIR /var/tmp/build/protobuf
-RUN curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v26.1.tar.gz | \
+RUN curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v27.0.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
@@ -145,7 +145,7 @@ RUN curl -fsSL https://github.com/c-ares/c-ares/archive/refs/tags/cares-1_17_1.t
     cd /var/tmp && rm -fr build
 
 WORKDIR /var/tmp/build/re2
-RUN curl -fsSL https://github.com/google/re2/archive/2024-04-01.tar.gz | \
+RUN curl -fsSL https://github.com/google/re2/archive/2024-05-01.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_SHARED_LIBS=ON \
@@ -155,27 +155,8 @@ RUN curl -fsSL https://github.com/google/re2/archive/2024-04-01.tar.gz | \
     ldconfig && \
     cd /var/tmp && rm -fr build
 
-WORKDIR /var/tmp/build/grpc
-RUN curl -fsSL https://github.com/grpc/grpc/archive/v1.62.1.tar.gz | \
-    tar -xzf - --strip-components=1 && \
-    cmake \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DBUILD_SHARED_LIBS=ON \
-        -DgRPC_INSTALL=ON \
-        -DgRPC_BUILD_TESTS=OFF \
-        -DgRPC_ABSL_PROVIDER=package \
-        -DgRPC_CARES_PROVIDER=package \
-        -DgRPC_PROTOBUF_PROVIDER=package \
-        -DgRPC_RE2_PROVIDER=package \
-        -DgRPC_SSL_PROVIDER=package \
-        -DgRPC_ZLIB_PROVIDER=package \
-        -S . -B cmake-out -GNinja && \
-    cmake --build cmake-out --target install && \
-    ldconfig && \
-    cd /var/tmp && rm -fr build
-
 WORKDIR /var/tmp/build/
-RUN curl -fsSL https://github.com/open-telemetry/opentelemetry-cpp/archive/v1.14.2.tar.gz | \
+RUN curl -fsSL https://github.com/open-telemetry/opentelemetry-cpp/archive/v1.15.0.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_CXX_STANDARD=14 \
@@ -191,6 +172,27 @@ RUN curl -fsSL https://github.com/open-telemetry/opentelemetry-cpp/archive/v1.14
     cmake --build cmake-out --target install && \
     ldconfig && cd /var/tmp && rm -fr build
 
+WORKDIR /var/tmp/build/grpc
+RUN curl -fsSL https://github.com/grpc/grpc/archive/v1.64.0.tar.gz | \
+    tar -xzf - --strip-components=1 && \
+    cmake \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_SHARED_LIBS=ON \
+        -DgRPC_INSTALL=ON \
+        -DgRPC_BUILD_TESTS=OFF \
+        -DgRPC_ABSL_PROVIDER=package \
+        -DgRPC_CARES_PROVIDER=package \
+        -DgRPC_PROTOBUF_PROVIDER=package \
+        -DgRPC_RE2_PROVIDER=package \
+        -DgRPC_SSL_PROVIDER=package \
+        -DgRPC_ZLIB_PROVIDER=package \
+        -DgRPC_OPENTELEMETRY_PROVIDER=package \
+        -DgRPC_BUILD_GRPCPP_OTEL_PLUGIN=ON \
+        -S . -B cmake-out -GNinja && \
+    cmake --build cmake-out --target install && \
+    ldconfig && \
+    cd /var/tmp && rm -fr build
+
 # Install the Cloud SDK and some of the emulators. We use the emulators to run
 # integration tests for the client libraries.
 COPY . /var/tmp/ci
@@ -200,7 +202,7 @@ ENV CLOUD_SDK_LOCATION=/usr/local/google-cloud-sdk
 ENV PATH=${CLOUD_SDK_LOCATION}/bin:${PATH}
 
 WORKDIR /var/tmp/sccache
-RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v0.7.7/sccache-v0.7.7-x86_64-unknown-linux-musl.tar.gz | \
+RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v0.8.1/sccache-v0.8.1-x86_64-unknown-linux-musl.tar.gz | \
     tar -zxf - --strip-components=1 && \
     mkdir -p /usr/local/bin && \
     mv sccache /usr/local/bin/sccache && \

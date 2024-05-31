@@ -56,9 +56,9 @@ file(
     "golden/*.h"
     "golden/mocks/*.h"
     "golden/v1/*.h"
-    "golden/v1/*.cc"
     "golden/v1/internal/*.h"
-    "golden/v1/internal/*.cc"
+    "golden/v1/internal/*_sources.cc"
+    "golden/v1/internal/streaming.cc"
     "golden/v1/mocks/*.h")
 list(SORT google_cloud_cpp_generator_golden_files)
 

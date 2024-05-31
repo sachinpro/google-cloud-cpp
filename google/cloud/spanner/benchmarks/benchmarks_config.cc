@@ -16,6 +16,7 @@
 #include "google/cloud/internal/build_info.h"
 #include "google/cloud/internal/compiler_info.h"
 #include "google/cloud/internal/getenv.h"
+#include "google/cloud/internal/make_status.h"
 #include "absl/strings/match.h"
 #include <functional>
 #include <sstream>
@@ -36,8 +37,7 @@ std::ostream& operator<<(std::ostream& os, Config const& config) {
             << "\n# Minimum Channels: " << config.minimum_channels
             << "\n# Maximum Channels: " << config.maximum_channels
             << "\n# Iteration Duration: " << config.iteration_duration.count()
-            << "s"
-            << "\n# Table Size: " << config.table_size
+            << "s" << "\n# Table Size: " << config.table_size
             << "\n# Query Size: " << config.query_size
             << "\n# Use Only Stubs: " << config.use_only_stubs
             << "\n# Use Only Clients: " << config.use_only_clients
@@ -114,8 +114,8 @@ google::cloud::StatusOr<Config> ParseArgs(std::vector<std::string> args) {
   };
 
   auto invalid_argument = [](std::string msg) {
-    return google::cloud::Status(google::cloud::StatusCode::kInvalidArgument,
-                                 std::move(msg));
+    return google::cloud::internal::InvalidArgumentError(std::move(msg),
+                                                         GCP_ERROR_INFO());
   };
 
   for (auto i = std::next(args.begin()); i != args.end(); ++i) {

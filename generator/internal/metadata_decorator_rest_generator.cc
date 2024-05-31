@@ -380,7 +380,13 @@ $metadata_rest_class_name$::AsyncCancelOperation(
 void $metadata_rest_class_name$::SetMetadata(
       rest_internal::RestContext& rest_context,
       Options const& options, std::vector<std::string> const& params) {
-  google::cloud::rest_internal::SetMetadata(
+)""");
+  if (HasApiVersion()) {
+    CcPrint(
+        R"""(  rest_context.AddHeader("x-goog-api-version", "$api_version$");
+)""");
+  }
+  CcPrint(R"""(  google::cloud::rest_internal::SetMetadata(
       rest_context, options, params, api_client_header_);
 }
 )""");

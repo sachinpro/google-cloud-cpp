@@ -15,13 +15,14 @@
 #ifndef GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_STORAGE_ASYNC_CONNECTION_H
 #define GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_STORAGE_ASYNC_CONNECTION_H
 
-#include "google/cloud/storage/async/object_requests.h"
 #include "google/cloud/storage/async/object_responses.h"
+#include "google/cloud/storage/async/write_payload.h"
 #include "google/cloud/storage/internal/object_requests.h"
 #include "google/cloud/completion_queue.h"
 #include "google/cloud/future.h"
 #include "google/cloud/status.h"
 #include "google/cloud/version.h"
+#include <google/storage/v2/storage.pb.h>
 #include <memory>
 #include <string>
 
@@ -62,7 +63,7 @@ class AsyncConnection {
     /// The bucket and object name for the new object. Includes any optional
     /// parameters, such as pre-conditions on the insert operation, or metadata
     /// attributes.
-    InsertObjectRequest request;
+    google::storage::v2::WriteObjectRequest request;
     /// The bulk payload, sometimes called the "media" or "contents".
     WritePayload payload;
     /// Any options modifying the RPC behavior, including per-client and
@@ -71,7 +72,7 @@ class AsyncConnection {
   };
 
   /// Insert a new object.
-  virtual future<StatusOr<storage::ObjectMetadata>> InsertObject(
+  virtual future<StatusOr<google::storage::v2::Object>> InsertObject(
       InsertObjectParams p) = 0;
 
   /**
@@ -84,7 +85,7 @@ class AsyncConnection {
     /// The name of the bucket and object to read. Includes optional parameters,
     /// such as pre-conditions on the read operation, or the range within the
     /// object to read.
-    ReadObjectRequest request;
+    google::storage::v2::ReadObjectRequest request;
     /// Any options modifying the RPC behavior, including per-client and
     /// per-connection options.
     Options options;
@@ -106,7 +107,7 @@ class AsyncConnection {
   struct UploadParams {
     /// The bucket name and object name for the new object. Includes optional
     /// parameters such as pre-conditions on the new object.
-    ResumableUploadRequest request;
+    google::storage::v2::StartResumableWriteRequest request;
     /// Any options modifying the RPC behavior, including per-client and
     /// per-connection options.
     Options options;
@@ -123,6 +124,32 @@ class AsyncConnection {
   StartBufferedUpload(UploadParams p) = 0;
 
   /**
+   * A thin wrapper around the `QueryWriteStatus()` parameters.
+   *
+   * We use a single struct as the input parameter for this function to
+   * prevent breaking any mocks when additional parameters are needed.
+   */
+  struct ResumeUploadParams {
+    /// The upload id and any common object request parameters. Note that
+    /// bucket name, object name, and pre-conditions are saved as part of the
+    /// service internal information about the upload id.
+    google::storage::v2::QueryWriteStatusRequest request;
+    /// Any options modifying the RPC behavior, including per-client and
+    /// per-connection options.
+    Options options;
+  };
+
+  /// Resume an upload configured for persistent sources.
+  virtual future<
+      StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
+  ResumeUnbufferedUpload(ResumeUploadParams p) = 0;
+
+  /// Resume an upload configured for streaming sources.
+  virtual future<
+      StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
+  ResumeBufferedUpload(ResumeUploadParams p) = 0;
+
+  /**
    * A thin wrapper around the `ComposeObject()` parameters.
    *
    * We use a single struct as the input parameter for this function to
@@ -132,7 +159,7 @@ class AsyncConnection {
     /// The bucket name, the name of the source objects, and the name of the
     /// destination object. Including pre-conditions on the source objects, the
     /// destination object, and other optional parameters.
-    ComposeObjectRequest request;
+    google::storage::v2::ComposeObjectRequest request;
     /// Any options modifying the RPC behavior, including per-client and
     /// per-connection options.
     Options options;
@@ -140,7 +167,7 @@ class AsyncConnection {
 
   /// Create a new object by composing (concatenating) the contents of existing
   /// objects.
-  virtual future<StatusOr<storage::ObjectMetadata>> ComposeObject(
+  virtual future<StatusOr<google::storage::v2::Object>> ComposeObject(
       ComposeObjectParams p) = 0;
 
   /**
@@ -152,7 +179,7 @@ class AsyncConnection {
   struct DeleteObjectParams {
     /// The bucket and object name for the object to be deleted. Including
     /// pre-conditions on the object and other optional parameters.
-    DeleteObjectRequest request;
+    google::storage::v2::DeleteObjectRequest request;
     /// Any options modifying the RPC behavior, including per-client and
     /// per-connection options.
     Options options;
@@ -170,7 +197,7 @@ class AsyncConnection {
   struct RewriteObjectParams {
     /// The source and destination bucket and object names. Including
     /// pre-conditions on the object and other optional parameters.
-    RewriteObjectRequest request;
+    google::storage::v2::RewriteObjectRequest request;
     /// Any options modifying the RPC behavior, including per-client and
     /// per-connection options.
     Options options;

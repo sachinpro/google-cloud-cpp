@@ -31,7 +31,7 @@ GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
  *
  * Debugging problems with authentication can be fairly difficult. This
  * decorator is automatically inserted (twice) if
- * `google::cloud::TracingComponentsOption` includes `auth`. The decorator is
+ * `google::cloud::LoggingComponentsOption` includes `auth`. The decorator is
  * inserted before and after the caching layer, to show whether a cached token
  * or a new token is being used.
  *
@@ -56,6 +56,8 @@ class LoggingCredentials : public Credentials {
   std::string KeyId() const override;
   StatusOr<std::string> universe_domain() const override;
   StatusOr<std::string> universe_domain(Options const& options) const override;
+  StatusOr<std::string> project_id() const override;
+  StatusOr<std::string> project_id(Options const& options) const override;
 
  private:
   std::string phase_;

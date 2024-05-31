@@ -19,6 +19,34 @@ set -euo pipefail
 source "$(dirname "$0")/../../ci/lib/init.sh"
 source module ci/lib/io.sh
 
+function print_service_textproto() {
+  service_proto_path="${1#protos/}"
+  product_path="${service_proto_path%/*.proto}"
+  initial_copyright_year=$(date +"%Y")
+  cat <<_EOF_
+  rest_services {
+    service_proto_path: "${service_proto_path}"
+    product_path: "${product_path}"
+    initial_copyright_year: "${initial_copyright_year}"
+    retryable_status_codes: ["kUnavailable"]
+    generate_rest_transport: true
+    generate_grpc_transport: false
+  }
+_EOF_
+}
+
+function add_service_directory() {
+  compute_proto_path="${1#protos/google/cloud/compute/}"
+  service_dir="${compute_proto_path%/*.proto}/"
+  echo "    \"${service_dir}\""
+  sed -i -f - "${PROJECT_ROOT}/google/cloud/compute/service_dirs.cmake" <<EOT
+  /^set(service_dirs$/ {
+    n  # skip "cmake-format: sort" line
+    a\    "${service_dir}"
+  }
+EOT
+}
+
 if (($# > 0)); then
   cat 1>&2 <<EOM
 Usage: $(basename "$0")
@@ -35,6 +63,7 @@ readonly COMPUTE_DISCOVERY_JSON_RELATIVE_PATH="generator/discovery/compute_publi
 io::log_h2 "Fetching discovery document from ${COMPUTE_DISCOVERY_DOCUMENT_URL}"
 curl "${COMPUTE_DISCOVERY_DOCUMENT_URL}" >"${PROJECT_ROOT}/${COMPUTE_DISCOVERY_JSON_RELATIVE_PATH}"
 
+# TODO(#14028): Make branch creation optional.
 REVISION=$(sed -En 's/  \"revision\": \"([[:digit:]]+)\",/\1/p' "${PROJECT_ROOT}/${COMPUTE_DISCOVERY_JSON_RELATIVE_PATH}")
 readonly REVISION
 io::run git checkout -B update_compute_discovery_circa_"${REVISION}"
@@ -45,17 +74,19 @@ git add "${PROJECT_ROOT}/${COMPUTE_DISCOVERY_JSON_RELATIVE_PATH}"
 io::log_h2 "Running generate-libraries with UPDATED_DISCOVERY_DOCUMENT=compute"
 UPDATED_DISCOVERY_DOCUMENT=compute ci/cloudbuild/build.sh -t generate-libraries-pr
 
-NEW_FILES=$(git ls-files --others --exclude-standard)
+NEW_FILES=$(git ls-files --others --exclude-standard protos/)
 if [[ -n "${NEW_FILES}" ]]; then
   io::log_red "New resources defined in Discovery Document created new protos:"
   echo "${NEW_FILES}"
   mapfile -t proto_array < <(echo "${NEW_FILES}")
   io::log_red "Add rest_services definitions to the generator_config.textproto and re-run this script."
-  git add protos
-  io::log_red "Add new directories to google/cloud/compute/service_dirs.cmake"
   for i in "${proto_array[@]}"; do
-    service_dir=$(echo "${i}" | sed -En 's/protos\/google\/cloud\/compute\/(.*\/v[[:digit:]]\/).*\.proto/\1/p')
-    echo "    \"${service_dir}\""
+    print_service_textproto "${i}"
+  done
+  git add protos
+  io::log_yellow "Adding new directories to google/cloud/compute/service_dirs.cmake"
+  for i in "${proto_array[@]}"; do
+    add_service_directory "${i}"
   done
   exit 1
 fi

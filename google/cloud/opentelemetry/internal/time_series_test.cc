@@ -14,8 +14,11 @@
 
 #include "google/cloud/opentelemetry/internal/time_series.h"
 #include "google/cloud/internal/time_utils.h"
+#include "google/cloud/project.h"
 #include "google/cloud/testing_util/chrono_output.h"
+#include "google/cloud/testing_util/is_proto_equal.h"
 #include "google/cloud/testing_util/scoped_log.h"
+#include <google/protobuf/text_format.h>
 #include <gmock/gmock.h>
 #include <opentelemetry/sdk/metrics/export/metric_producer.h>
 #include <opentelemetry/sdk/resource/resource.h>
@@ -28,15 +31,19 @@ namespace otel_internal {
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 namespace {
 
+using ::google::cloud::testing_util::IsProtoEqual;
+using ::google::protobuf::TextFormat;
 using ::testing::_;
 using ::testing::AllOf;
 using ::testing::AnyOf;
 using ::testing::Contains;
 using ::testing::Each;
 using ::testing::ElementsAre;
+using ::testing::ElementsAreArray;
 using ::testing::Eq;
 using ::testing::HasSubstr;
 using ::testing::IsEmpty;
+using ::testing::Not;
 using ::testing::Pair;
 using ::testing::ResultOf;
 using ::testing::SizeIs;
@@ -134,19 +141,15 @@ auto TestResource() {
   });
 }
 
-auto HasTestResource() {
+auto IsTestResource() {
   return AllOf(
       ResultOf(
-          "resource.type",
-          [](google::monitoring::v3::TimeSeries const& ts) {
-            return ts.resource().type();
-          },
+          "type",
+          [](google::api::MonitoredResource const& mr) { return mr.type(); },
           Eq("gce_instance")),
       ResultOf(
-          "resource.labels",
-          [](google::monitoring::v3::TimeSeries const& ts) {
-            return ts.resource().labels();
-          },
+          "labels",
+          [](google::api::MonitoredResource const& mr) { return mr.labels(); },
           UnorderedElementsAre(Pair("zone", "us-central1-a"),
                                Pair("instance_id", "1020304050607080900"))));
 }
@@ -239,11 +242,14 @@ TEST(ToMetric, Simple) {
   opentelemetry::sdk::metrics::PointAttributes attributes = {
       {"key1", "value1"}, {"_key2", "value2"}};
 
-  auto metric = ToMetric(md, attributes);
+  auto metric = ToMetric(md, attributes, "workload.googleapis.com/");
 
   EXPECT_EQ(metric.type(), "workload.googleapis.com/test");
   EXPECT_THAT(metric.labels(), UnorderedElementsAre(Pair("key1", "value1"),
                                                     Pair("_key2", "value2")));
+
+  metric = ToMetric(md, {}, "custom.googleapis.com/");
+  EXPECT_EQ(metric.type(), "custom.googleapis.com/test");
 }
 
 TEST(ToMetric, BadLabelNames) {
@@ -252,7 +258,7 @@ TEST(ToMetric, BadLabelNames) {
   opentelemetry::sdk::metrics::PointAttributes attributes = {
       {"99", "dropped"}, {"a key-with.bad/characters", "value"}};
 
-  auto metric = ToMetric({}, attributes);
+  auto metric = ToMetric({}, attributes, "workload.googleapis.com/");
 
   EXPECT_THAT(metric.labels(),
               UnorderedElementsAre(Pair("a_key_with_bad_characters", "value")));
@@ -267,7 +273,6 @@ TEST(SumPointData, Simple) {
   auto const end = start + std::chrono::seconds(5);
 
   opentelemetry::sdk::metrics::MetricData md;
-  md.instrument_descriptor.unit_ = "unit";
   md.instrument_descriptor.value_type_ =
       opentelemetry::sdk::metrics::InstrumentValueType::kInt;
   md.start_ts = start;
@@ -277,7 +282,6 @@ TEST(SumPointData, Simple) {
   point.value_ = std::int64_t{42};
 
   auto ts = ToTimeSeries(md, point);
-  EXPECT_EQ(ts.unit(), "unit");
   EXPECT_EQ(ts.metric_kind(), google::api::MetricDescriptor::CUMULATIVE);
   EXPECT_THAT(ts.points(),
               ElementsAre(AllOf(Int64TypedValue(42), Interval(start, end))));
@@ -342,7 +346,6 @@ TEST(LastValuePointData, Simple) {
   auto const now = std::chrono::system_clock::now();
 
   opentelemetry::sdk::metrics::MetricData md;
-  md.instrument_descriptor.unit_ = "unit";
   md.instrument_descriptor.value_type_ =
       opentelemetry::sdk::metrics::InstrumentValueType::kInt;
   md.start_ts = now;
@@ -368,7 +371,6 @@ TEST(LastValuePointData, Simple) {
   };
 
   auto ts = ToTimeSeries(md, point);
-  EXPECT_EQ(ts.unit(), "unit");
   EXPECT_EQ(ts.metric_kind(), google::api::MetricDescriptor::GAUGE);
   EXPECT_THAT(ts.points(),
               ElementsAre(AllOf(Int64TypedValue(42), interval(now))));
@@ -415,7 +417,6 @@ TEST(HistogramPointData, SimpleWithInt64Sum) {
   auto const end = start + std::chrono::seconds(5);
 
   opentelemetry::sdk::metrics::MetricData md;
-  md.instrument_descriptor.unit_ = "unit";
   md.instrument_descriptor.value_type_ =
       opentelemetry::sdk::metrics::InstrumentValueType::kInt;
   md.start_ts = start;
@@ -428,7 +429,6 @@ TEST(HistogramPointData, SimpleWithInt64Sum) {
   point.count_ = 16;
 
   auto ts = ToTimeSeries(md, point);
-  EXPECT_EQ(ts.unit(), "unit");
   EXPECT_EQ(ts.metric_kind(), google::api::MetricDescriptor::CUMULATIVE);
   EXPECT_THAT(
       ts.points(),
@@ -485,7 +485,29 @@ TEST(HistogramPointData, NonEmptyInterval) {
   EXPECT_THAT(ts.points(), ElementsAre(Interval(start, expected_end)));
 }
 
-TEST(ToRequest, Sum) {
+TEST(ToMonitoredResource, FromMetricData) {
+  opentelemetry::sdk::metrics::ResourceMetrics rm;
+  auto const resource = TestResource();
+  rm.resource_ = &resource;
+
+  auto mr = ToMonitoredResource(rm, absl::nullopt);
+  EXPECT_THAT(mr, IsTestResource());
+}
+
+TEST(ToMonitoredResource, Custom) {
+  opentelemetry::sdk::metrics::ResourceMetrics rm;
+  auto const resource = TestResource();
+  rm.resource_ = &resource;
+
+  // Use a custom resource, which will override the `TestResource()`
+  google::api::MonitoredResource custom;
+  custom.set_type("gcs_client");
+
+  auto mr = ToMonitoredResource(rm, custom);
+  EXPECT_THAT(mr, AllOf(IsProtoEqual(custom), Not(IsTestResource())));
+}
+
+TEST(ToTimeSeries, Sum) {
   opentelemetry::sdk::metrics::PointDataAttributes pda;
   pda.point_data = opentelemetry::sdk::metrics::SumPointData{};
 
@@ -501,20 +523,15 @@ TEST(ToRequest, Sum) {
   sm.metric_data_.push_back(std::move(md));
 
   opentelemetry::sdk::metrics::ResourceMetrics rm;
-  auto const resource = TestResource();
-  rm.resource_ = &resource;
   rm.scope_metric_data_.push_back(std::move(sm));
 
-  auto request = ToRequest(rm);
-  EXPECT_THAT(request.time_series(),
-              ElementsAre(SumTimeSeries(), SumTimeSeries()));
-  EXPECT_THAT(request.time_series(),
-              Each(AllOf(HasTestResource(),
-                         MetricType("workload.googleapis.com/metric-name"),
-                         Unit("unit"))));
+  auto tss = ToTimeSeries(rm, "workload.googleapis.com/");
+  EXPECT_THAT(tss, ElementsAre(SumTimeSeries(), SumTimeSeries()));
+  EXPECT_THAT(tss, Each(AllOf(MetricType("workload.googleapis.com/metric-name"),
+                              Unit("unit"))));
 }
 
-TEST(ToRequest, Gauge) {
+TEST(ToTimeSeries, Gauge) {
   opentelemetry::sdk::metrics::PointDataAttributes pda;
   pda.point_data = opentelemetry::sdk::metrics::LastValuePointData{};
 
@@ -530,20 +547,15 @@ TEST(ToRequest, Gauge) {
   sm.metric_data_.push_back(std::move(md));
 
   opentelemetry::sdk::metrics::ResourceMetrics rm;
-  auto const resource = TestResource();
-  rm.resource_ = &resource;
   rm.scope_metric_data_.push_back(std::move(sm));
 
-  auto request = ToRequest(rm);
-  EXPECT_THAT(request.time_series(),
-              ElementsAre(GaugeTimeSeries(), GaugeTimeSeries()));
-  EXPECT_THAT(request.time_series(),
-              Each(AllOf(HasTestResource(),
-                         MetricType("workload.googleapis.com/metric-name"),
-                         Unit("unit"))));
+  auto tss = ToTimeSeries(rm, "workload.googleapis.com/");
+  EXPECT_THAT(tss, ElementsAre(GaugeTimeSeries(), GaugeTimeSeries()));
+  EXPECT_THAT(tss, Each(AllOf(MetricType("workload.googleapis.com/metric-name"),
+                              Unit("unit"))));
 }
 
-TEST(ToRequest, Histogram) {
+TEST(ToTimeSeries, Histogram) {
   opentelemetry::sdk::metrics::PointDataAttributes pda;
   pda.point_data = opentelemetry::sdk::metrics::HistogramPointData{};
 
@@ -559,20 +571,15 @@ TEST(ToRequest, Histogram) {
   sm.metric_data_.push_back(std::move(md));
 
   opentelemetry::sdk::metrics::ResourceMetrics rm;
-  auto const resource = TestResource();
-  rm.resource_ = &resource;
   rm.scope_metric_data_.push_back(std::move(sm));
 
-  auto request = ToRequest(rm);
-  EXPECT_THAT(request.time_series(),
-              ElementsAre(HistogramTimeSeries(), HistogramTimeSeries()));
-  EXPECT_THAT(request.time_series(),
-              Each(AllOf(HasTestResource(),
-                         MetricType("workload.googleapis.com/metric-name"),
-                         Unit("unit"))));
+  auto tss = ToTimeSeries(rm, "workload.googleapis.com/");
+  EXPECT_THAT(tss, ElementsAre(HistogramTimeSeries(), HistogramTimeSeries()));
+  EXPECT_THAT(tss, Each(AllOf(MetricType("workload.googleapis.com/metric-name"),
+                              Unit("unit"))));
 }
 
-TEST(ToRequest, DropIgnored) {
+TEST(ToTimeSeries, DropIgnored) {
   opentelemetry::sdk::metrics::PointDataAttributes pda;
   pda.point_data = opentelemetry::sdk::metrics::DropPointData{};
 
@@ -588,15 +595,13 @@ TEST(ToRequest, DropIgnored) {
   sm.metric_data_.push_back(std::move(md));
 
   opentelemetry::sdk::metrics::ResourceMetrics rm;
-  auto const resource = TestResource();
-  rm.resource_ = &resource;
   rm.scope_metric_data_.push_back(std::move(sm));
 
-  auto request = ToRequest(rm);
-  EXPECT_THAT(request.time_series(), IsEmpty());
+  auto tss = ToTimeSeries(rm, "workload.googleapis.com/");
+  EXPECT_THAT(tss, IsEmpty());
 }
 
-TEST(ToRequest, Combined) {
+TEST(ToTimeSeries, Combined) {
   opentelemetry::sdk::metrics::PointDataAttributes sum_pda;
   sum_pda.point_data = opentelemetry::sdk::metrics::SumPointData{};
   opentelemetry::sdk::metrics::PointDataAttributes gauge_pda;
@@ -620,18 +625,67 @@ TEST(ToRequest, Combined) {
   sm.metric_data_.push_back(std::move(md));
 
   opentelemetry::sdk::metrics::ResourceMetrics rm;
-  auto const resource = TestResource();
-  rm.resource_ = &resource;
   rm.scope_metric_data_.push_back(std::move(sm));
 
-  auto request = ToRequest(rm);
-  EXPECT_THAT(request.time_series(),
-              UnorderedElementsAre(SumTimeSeries(), GaugeTimeSeries(),
-                                   HistogramTimeSeries()));
-  EXPECT_THAT(request.time_series(),
-              Each(AllOf(HasTestResource(),
-                         MetricType("workload.googleapis.com/metric-name"),
-                         Unit("unit"))));
+  auto tss = ToTimeSeries(rm, "custom.googleapis.com/");
+  EXPECT_THAT(tss, UnorderedElementsAre(SumTimeSeries(), GaugeTimeSeries(),
+                                        HistogramTimeSeries()));
+  EXPECT_THAT(tss, Each(AllOf(MetricType("custom.googleapis.com/metric-name"),
+                              Unit("unit"))));
+}
+
+TEST(ToRequests, Simple) {
+  Project p("test-project");
+
+  google::api::MonitoredResource mr;
+  mr.set_type("gcs_client");
+
+  google::monitoring::v3::TimeSeries ts;
+  ts.set_unit("unit");
+
+  auto constexpr kExpectedRequest = R"pb(
+    name: "projects/test-project"
+    time_series {
+      unit: "unit"
+      resource { type: "gcs_client" }
+    }
+    time_series {
+      unit: "unit"
+      resource { type: "gcs_client" }
+    }
+  )pb";
+  google::monitoring::v3::CreateTimeSeriesRequest expected;
+  EXPECT_TRUE(TextFormat::ParseFromString(kExpectedRequest, &expected));
+
+  auto requests = ToRequests(p.FullName(), mr, {ts, ts});
+  EXPECT_THAT(requests, ElementsAre(IsProtoEqual(expected)));
+}
+
+TEST(ToRequests, Batches) {
+  // Use an alias for readability.
+  auto const batch_limit = kMaxTimeSeriesPerRequest;
+
+  struct TestCase {
+    int time_series_count;
+    std::vector<int> batch_sizes;
+  };
+  std::vector<TestCase> cases = {
+      {0, {}},
+      {1, {1}},
+      {batch_limit, {batch_limit}},
+      {batch_limit + 1, {batch_limit, 1}},
+      {2 * batch_limit + 1, {batch_limit, batch_limit, 1}},
+  };
+
+  for (auto const& c : cases) {
+    std::vector<google::monitoring::v3::TimeSeries> tss(c.time_series_count);
+    auto requests = ToRequests("project", {}, std::move(tss));
+
+    std::vector<int> batch_sizes;
+    batch_sizes.reserve(requests.size());
+    for (auto& r : requests) batch_sizes.push_back(r.time_series_size());
+    EXPECT_THAT(batch_sizes, ElementsAreArray(c.batch_sizes));
+  }
 }
 
 }  // namespace

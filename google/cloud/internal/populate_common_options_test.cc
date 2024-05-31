@@ -48,8 +48,8 @@ TEST(PopulateCommonOptions, Simple) {
   EXPECT_TRUE(actual.has<AuthorityOption>());
   EXPECT_THAT(actual.get<AuthorityOption>(), Eq("default.googleapis.com"));
   EXPECT_FALSE(actual.has<UserProjectOption>());
-  EXPECT_TRUE(actual.has<TracingComponentsOption>());
-  EXPECT_THAT(actual.get<TracingComponentsOption>(), IsEmpty());
+  EXPECT_TRUE(actual.has<LoggingComponentsOption>());
+  EXPECT_THAT(actual.get<LoggingComponentsOption>(), IsEmpty());
   EXPECT_TRUE(actual.has<UserAgentProductsOption>());
   EXPECT_THAT(actual.get<UserAgentProductsOption>(),
               Contains(UserAgentPrefix()));
@@ -94,7 +94,6 @@ TEST(PopulateCommonOptions, InsecureCredentialsWithEmulator) {
   EXPECT_EQ(v.name, "InsecureCredentialsConfig");
 }
 
-// TODO(#13191): Simplify into multiple tests.
 TEST(PopulateCommonOptions, EndpointAuthority) {
   Options optionses[] = {
       Options{},

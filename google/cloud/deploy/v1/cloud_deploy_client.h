@@ -116,8 +116,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L494}
-  /// [google.cloud.deploy.v1.ListDeliveryPipelinesRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L862}
+  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L498}
+  /// [google.cloud.deploy.v1.ListDeliveryPipelinesRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L868}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::DeliveryPipeline>
@@ -155,8 +155,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L494}
-  /// [google.cloud.deploy.v1.ListDeliveryPipelinesRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L862}
+  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L498}
+  /// [google.cloud.deploy.v1.ListDeliveryPipelinesRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L868}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::DeliveryPipeline>
@@ -183,8 +183,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L494}
-  /// [google.cloud.deploy.v1.GetDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L907}
+  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L498}
+  /// [google.cloud.deploy.v1.GetDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L913}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::DeliveryPipeline> GetDeliveryPipeline(
@@ -213,8 +213,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L494}
-  /// [google.cloud.deploy.v1.GetDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L907}
+  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L498}
+  /// [google.cloud.deploy.v1.GetDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L913}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::DeliveryPipeline> GetDeliveryPipeline(
@@ -250,8 +250,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CreateDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L919}
-  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L494}
+  /// [google.cloud.deploy.v1.CreateDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L925}
+  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L498}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::DeliveryPipeline>>
@@ -290,8 +290,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CreateDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L919}
-  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L494}
+  /// [google.cloud.deploy.v1.CreateDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L925}
+  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L498}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::DeliveryPipeline>>
@@ -329,8 +329,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L494}
-  /// [google.cloud.deploy.v1.UpdateDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L958}
+  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L498}
+  /// [google.cloud.deploy.v1.UpdateDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L964}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::DeliveryPipeline>>
@@ -368,8 +368,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L494}
-  /// [google.cloud.deploy.v1.UpdateDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L958}
+  /// [google.cloud.deploy.v1.DeliveryPipeline]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L498}
+  /// [google.cloud.deploy.v1.UpdateDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L964}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::DeliveryPipeline>>
@@ -403,8 +403,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.DeleteDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L996}
-  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2804}
+  /// [google.cloud.deploy.v1.DeleteDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1002}
+  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2848}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::OperationMetadata>>
@@ -440,8 +440,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.DeleteDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L996}
-  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2804}
+  /// [google.cloud.deploy.v1.DeleteDeliveryPipelineRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1002}
+  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2848}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::OperationMetadata>>
@@ -477,8 +477,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.ListTargetsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1345}
-  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1096}
+  /// [google.cloud.deploy.v1.ListTargetsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1362}
+  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1102}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::Target> ListTargets(
@@ -516,8 +516,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.ListTargetsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1345}
-  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1096}
+  /// [google.cloud.deploy.v1.ListTargetsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1362}
+  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1102}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::Target> ListTargets(
@@ -545,8 +545,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.RollbackTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1051}
-  /// [google.cloud.deploy.v1.RollbackTargetResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1087}
+  /// [google.cloud.deploy.v1.RollbackTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1057}
+  /// [google.cloud.deploy.v1.RollbackTargetResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1093}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::RollbackTargetResponse> RollbackTarget(
@@ -576,8 +576,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.RollbackTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1051}
-  /// [google.cloud.deploy.v1.RollbackTargetResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1087}
+  /// [google.cloud.deploy.v1.RollbackTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1057}
+  /// [google.cloud.deploy.v1.RollbackTargetResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1093}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::RollbackTargetResponse> RollbackTarget(
@@ -603,8 +603,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.GetTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1391}
-  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1096}
+  /// [google.cloud.deploy.v1.GetTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1408}
+  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1102}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::Target> GetTarget(std::string const& name,
@@ -633,8 +633,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.GetTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1391}
-  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1096}
+  /// [google.cloud.deploy.v1.GetTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1408}
+  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1102}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::Target> GetTarget(
@@ -670,8 +670,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CreateTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1403}
-  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1096}
+  /// [google.cloud.deploy.v1.CreateTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1420}
+  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1102}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::Target>> CreateTarget(
@@ -709,8 +709,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CreateTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1403}
-  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1096}
+  /// [google.cloud.deploy.v1.CreateTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1420}
+  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1102}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::Target>> CreateTarget(
@@ -747,8 +747,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1096}
-  /// [google.cloud.deploy.v1.UpdateTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1441}
+  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1102}
+  /// [google.cloud.deploy.v1.UpdateTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1458}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::Target>> UpdateTarget(
@@ -785,8 +785,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1096}
-  /// [google.cloud.deploy.v1.UpdateTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1441}
+  /// [google.cloud.deploy.v1.Target]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1102}
+  /// [google.cloud.deploy.v1.UpdateTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1458}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::Target>> UpdateTarget(
@@ -819,8 +819,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.DeleteTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1478}
-  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2804}
+  /// [google.cloud.deploy.v1.DeleteTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1495}
+  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2848}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::OperationMetadata>> DeleteTarget(
@@ -856,8 +856,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.DeleteTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1478}
-  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2804}
+  /// [google.cloud.deploy.v1.DeleteTargetRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1495}
+  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2848}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::OperationMetadata>> DeleteTarget(
@@ -892,8 +892,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1522}
-  /// [google.cloud.deploy.v1.ListCustomTargetTypesRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1638}
+  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1539}
+  /// [google.cloud.deploy.v1.ListCustomTargetTypesRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1680}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::CustomTargetType>
@@ -931,8 +931,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1522}
-  /// [google.cloud.deploy.v1.ListCustomTargetTypesRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1638}
+  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1539}
+  /// [google.cloud.deploy.v1.ListCustomTargetTypesRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1680}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::CustomTargetType>
@@ -959,8 +959,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1522}
-  /// [google.cloud.deploy.v1.GetCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1684}
+  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1539}
+  /// [google.cloud.deploy.v1.GetCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1726}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::CustomTargetType> GetCustomTargetType(
@@ -989,8 +989,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1522}
-  /// [google.cloud.deploy.v1.GetCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1684}
+  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1539}
+  /// [google.cloud.deploy.v1.GetCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1726}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::CustomTargetType> GetCustomTargetType(
@@ -1026,8 +1026,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CreateCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1696}
-  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1522}
+  /// [google.cloud.deploy.v1.CreateCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1738}
+  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1539}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::CustomTargetType>>
@@ -1066,8 +1066,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CreateCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1696}
-  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1522}
+  /// [google.cloud.deploy.v1.CreateCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1738}
+  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1539}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::CustomTargetType>>
@@ -1105,8 +1105,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1522}
-  /// [google.cloud.deploy.v1.UpdateCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1735}
+  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1539}
+  /// [google.cloud.deploy.v1.UpdateCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1777}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::CustomTargetType>>
@@ -1144,8 +1144,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1522}
-  /// [google.cloud.deploy.v1.UpdateCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1735}
+  /// [google.cloud.deploy.v1.CustomTargetType]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1539}
+  /// [google.cloud.deploy.v1.UpdateCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1777}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::CustomTargetType>>
@@ -1179,8 +1179,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.DeleteCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1773}
-  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2804}
+  /// [google.cloud.deploy.v1.DeleteCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1815}
+  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2848}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::OperationMetadata>>
@@ -1216,8 +1216,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.DeleteCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1773}
-  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2804}
+  /// [google.cloud.deploy.v1.DeleteCustomTargetTypeRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1815}
+  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2848}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::OperationMetadata>>
@@ -1253,8 +1253,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.ListReleasesRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2147}
-  /// [google.cloud.deploy.v1.Release]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1829}
+  /// [google.cloud.deploy.v1.ListReleasesRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2190}
+  /// [google.cloud.deploy.v1.Release]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1871}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::Release> ListReleases(
@@ -1292,8 +1292,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.ListReleasesRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2147}
-  /// [google.cloud.deploy.v1.Release]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1829}
+  /// [google.cloud.deploy.v1.ListReleasesRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2190}
+  /// [google.cloud.deploy.v1.Release]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1871}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::Release> ListReleases(
@@ -1319,8 +1319,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.GetReleaseRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2193}
-  /// [google.cloud.deploy.v1.Release]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1829}
+  /// [google.cloud.deploy.v1.GetReleaseRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2236}
+  /// [google.cloud.deploy.v1.Release]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1871}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::Release> GetRelease(
@@ -1349,8 +1349,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.GetReleaseRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2193}
-  /// [google.cloud.deploy.v1.Release]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1829}
+  /// [google.cloud.deploy.v1.GetReleaseRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2236}
+  /// [google.cloud.deploy.v1.Release]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1871}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::Release> GetRelease(
@@ -1386,8 +1386,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CreateReleaseRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2205}
-  /// [google.cloud.deploy.v1.Release]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1829}
+  /// [google.cloud.deploy.v1.CreateReleaseRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2248}
+  /// [google.cloud.deploy.v1.Release]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1871}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::Release>> CreateRelease(
@@ -1425,8 +1425,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CreateReleaseRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2205}
-  /// [google.cloud.deploy.v1.Release]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1829}
+  /// [google.cloud.deploy.v1.CreateReleaseRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2248}
+  /// [google.cloud.deploy.v1.Release]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L1871}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::Release>> CreateRelease(
@@ -1452,8 +1452,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.AbandonReleaseRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2927}
-  /// [google.cloud.deploy.v1.AbandonReleaseResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2939}
+  /// [google.cloud.deploy.v1.AbandonReleaseRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2971}
+  /// [google.cloud.deploy.v1.AbandonReleaseResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2983}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::AbandonReleaseResponse> AbandonRelease(
@@ -1482,8 +1482,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.AbandonReleaseRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2927}
-  /// [google.cloud.deploy.v1.AbandonReleaseResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2939}
+  /// [google.cloud.deploy.v1.AbandonReleaseRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2971}
+  /// [google.cloud.deploy.v1.AbandonReleaseResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2983}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::AbandonReleaseResponse> AbandonRelease(
@@ -1509,8 +1509,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.ApproveRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2834}
-  /// [google.cloud.deploy.v1.ApproveRolloutResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2849}
+  /// [google.cloud.deploy.v1.ApproveRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2878}
+  /// [google.cloud.deploy.v1.ApproveRolloutResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2893}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::ApproveRolloutResponse> ApproveRollout(
@@ -1539,8 +1539,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.ApproveRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2834}
-  /// [google.cloud.deploy.v1.ApproveRolloutResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2849}
+  /// [google.cloud.deploy.v1.ApproveRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2878}
+  /// [google.cloud.deploy.v1.ApproveRolloutResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2893}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::ApproveRolloutResponse> ApproveRollout(
@@ -1567,8 +1567,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.AdvanceRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2852}
-  /// [google.cloud.deploy.v1.AdvanceRolloutResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2867}
+  /// [google.cloud.deploy.v1.AdvanceRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2896}
+  /// [google.cloud.deploy.v1.AdvanceRolloutResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2911}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::AdvanceRolloutResponse> AdvanceRollout(
@@ -1597,8 +1597,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.AdvanceRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2852}
-  /// [google.cloud.deploy.v1.AdvanceRolloutResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2867}
+  /// [google.cloud.deploy.v1.AdvanceRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2896}
+  /// [google.cloud.deploy.v1.AdvanceRolloutResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2911}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::AdvanceRolloutResponse> AdvanceRollout(
@@ -1624,8 +1624,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CancelRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2870}
-  /// [google.cloud.deploy.v1.CancelRolloutResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2882}
+  /// [google.cloud.deploy.v1.CancelRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2914}
+  /// [google.cloud.deploy.v1.CancelRolloutResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2926}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::CancelRolloutResponse> CancelRollout(
@@ -1654,8 +1654,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CancelRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2870}
-  /// [google.cloud.deploy.v1.CancelRolloutResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2882}
+  /// [google.cloud.deploy.v1.CancelRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2914}
+  /// [google.cloud.deploy.v1.CancelRolloutResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2926}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::CancelRolloutResponse> CancelRollout(
@@ -1689,8 +1689,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.ListRolloutsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2705}
-  /// [google.cloud.deploy.v1.Rollout]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2245}
+  /// [google.cloud.deploy.v1.ListRolloutsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2749}
+  /// [google.cloud.deploy.v1.Rollout]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2288}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::Rollout> ListRollouts(
@@ -1728,8 +1728,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.ListRolloutsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2705}
-  /// [google.cloud.deploy.v1.Rollout]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2245}
+  /// [google.cloud.deploy.v1.ListRolloutsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2749}
+  /// [google.cloud.deploy.v1.Rollout]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2288}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::Rollout> ListRollouts(
@@ -1755,8 +1755,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.GetRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2750}
-  /// [google.cloud.deploy.v1.Rollout]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2245}
+  /// [google.cloud.deploy.v1.GetRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2794}
+  /// [google.cloud.deploy.v1.Rollout]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2288}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::Rollout> GetRollout(
@@ -1785,8 +1785,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.GetRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2750}
-  /// [google.cloud.deploy.v1.Rollout]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2245}
+  /// [google.cloud.deploy.v1.GetRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2794}
+  /// [google.cloud.deploy.v1.Rollout]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2288}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::Rollout> GetRollout(
@@ -1822,8 +1822,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CreateRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2762}
-  /// [google.cloud.deploy.v1.Rollout]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2245}
+  /// [google.cloud.deploy.v1.CreateRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2806}
+  /// [google.cloud.deploy.v1.Rollout]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2288}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::Rollout>> CreateRollout(
@@ -1861,8 +1861,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CreateRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2762}
-  /// [google.cloud.deploy.v1.Rollout]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2245}
+  /// [google.cloud.deploy.v1.CreateRolloutRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2806}
+  /// [google.cloud.deploy.v1.Rollout]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2288}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::Rollout>> CreateRollout(
@@ -1890,8 +1890,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.IgnoreJobRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2885}
-  /// [google.cloud.deploy.v1.IgnoreJobResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2903}
+  /// [google.cloud.deploy.v1.IgnoreJobRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2929}
+  /// [google.cloud.deploy.v1.IgnoreJobResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2947}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::IgnoreJobResponse> IgnoreJob(
@@ -1921,8 +1921,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.IgnoreJobRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2885}
-  /// [google.cloud.deploy.v1.IgnoreJobResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2903}
+  /// [google.cloud.deploy.v1.IgnoreJobRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2929}
+  /// [google.cloud.deploy.v1.IgnoreJobResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2947}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::IgnoreJobResponse> IgnoreJob(
@@ -1950,8 +1950,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.RetryJobRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2906}
-  /// [google.cloud.deploy.v1.RetryJobResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2924}
+  /// [google.cloud.deploy.v1.RetryJobRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2950}
+  /// [google.cloud.deploy.v1.RetryJobResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2968}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::RetryJobResponse> RetryJob(
@@ -1981,8 +1981,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.RetryJobRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2906}
-  /// [google.cloud.deploy.v1.RetryJobResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2924}
+  /// [google.cloud.deploy.v1.RetryJobRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2950}
+  /// [google.cloud.deploy.v1.RetryJobResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2968}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::RetryJobResponse> RetryJob(
@@ -2016,8 +2016,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.JobRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2944}
-  /// [google.cloud.deploy.v1.ListJobRunsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3248}
+  /// [google.cloud.deploy.v1.JobRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2988}
+  /// [google.cloud.deploy.v1.ListJobRunsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3292}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::JobRun> ListJobRuns(
@@ -2055,8 +2055,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.JobRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2944}
-  /// [google.cloud.deploy.v1.ListJobRunsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3248}
+  /// [google.cloud.deploy.v1.JobRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2988}
+  /// [google.cloud.deploy.v1.ListJobRunsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3292}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::JobRun> ListJobRuns(
@@ -2081,8 +2081,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.GetJobRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3293}
-  /// [google.cloud.deploy.v1.JobRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2944}
+  /// [google.cloud.deploy.v1.GetJobRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3337}
+  /// [google.cloud.deploy.v1.JobRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2988}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::JobRun> GetJobRun(std::string const& name,
@@ -2111,8 +2111,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.GetJobRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3293}
-  /// [google.cloud.deploy.v1.JobRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2944}
+  /// [google.cloud.deploy.v1.GetJobRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3337}
+  /// [google.cloud.deploy.v1.JobRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2988}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::JobRun> GetJobRun(
@@ -2138,8 +2138,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.TerminateJobRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3305}
-  /// [google.cloud.deploy.v1.TerminateJobRunResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3317}
+  /// [google.cloud.deploy.v1.TerminateJobRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3349}
+  /// [google.cloud.deploy.v1.TerminateJobRunResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3361}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::TerminateJobRunResponse> TerminateJobRun(
@@ -2168,8 +2168,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.TerminateJobRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3305}
-  /// [google.cloud.deploy.v1.TerminateJobRunResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3317}
+  /// [google.cloud.deploy.v1.TerminateJobRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3349}
+  /// [google.cloud.deploy.v1.TerminateJobRunResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3361}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::TerminateJobRunResponse> TerminateJobRun(
@@ -2194,8 +2194,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.Config]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3320}
-  /// [google.cloud.deploy.v1.GetConfigRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3353}
+  /// [google.cloud.deploy.v1.Config]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3364}
+  /// [google.cloud.deploy.v1.GetConfigRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3397}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::Config> GetConfig(std::string const& name,
@@ -2224,8 +2224,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.Config]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3320}
-  /// [google.cloud.deploy.v1.GetConfigRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3353}
+  /// [google.cloud.deploy.v1.Config]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3364}
+  /// [google.cloud.deploy.v1.GetConfigRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3397}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::Config> GetConfig(
@@ -2261,8 +2261,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3370}
-  /// [google.cloud.deploy.v1.CreateAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3606}
+  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3414}
+  /// [google.cloud.deploy.v1.CreateAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3653}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::Automation>> CreateAutomation(
@@ -2300,8 +2300,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3370}
-  /// [google.cloud.deploy.v1.CreateAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3606}
+  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3414}
+  /// [google.cloud.deploy.v1.CreateAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3653}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::Automation>> CreateAutomation(
@@ -2338,8 +2338,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3370}
-  /// [google.cloud.deploy.v1.UpdateAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3644}
+  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3414}
+  /// [google.cloud.deploy.v1.UpdateAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3691}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::Automation>> UpdateAutomation(
@@ -2376,8 +2376,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3370}
-  /// [google.cloud.deploy.v1.UpdateAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3644}
+  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3414}
+  /// [google.cloud.deploy.v1.UpdateAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3691}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::Automation>> UpdateAutomation(
@@ -2410,8 +2410,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.DeleteAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3681}
-  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2804}
+  /// [google.cloud.deploy.v1.DeleteAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3728}
+  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2848}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::OperationMetadata>>
@@ -2447,8 +2447,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.DeleteAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3681}
-  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2804}
+  /// [google.cloud.deploy.v1.DeleteAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3728}
+  /// [google.cloud.deploy.v1.OperationMetadata]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L2848}
   ///
   // clang-format on
   future<StatusOr<google::cloud::deploy::v1::OperationMetadata>>
@@ -2475,8 +2475,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3370}
-  /// [google.cloud.deploy.v1.GetAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3768}
+  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3414}
+  /// [google.cloud.deploy.v1.GetAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3815}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::Automation> GetAutomation(
@@ -2505,8 +2505,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3370}
-  /// [google.cloud.deploy.v1.GetAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3768}
+  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3414}
+  /// [google.cloud.deploy.v1.GetAutomationRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3815}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::Automation> GetAutomation(
@@ -2542,8 +2542,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3370}
-  /// [google.cloud.deploy.v1.ListAutomationsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3722}
+  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3414}
+  /// [google.cloud.deploy.v1.ListAutomationsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3769}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::Automation> ListAutomations(
@@ -2581,8 +2581,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3370}
-  /// [google.cloud.deploy.v1.ListAutomationsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3722}
+  /// [google.cloud.deploy.v1.Automation]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3414}
+  /// [google.cloud.deploy.v1.ListAutomationsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3769}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::Automation> ListAutomations(
@@ -2608,8 +2608,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.AutomationRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3783}
-  /// [google.cloud.deploy.v1.GetAutomationRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L4038}
+  /// [google.cloud.deploy.v1.AutomationRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3830}
+  /// [google.cloud.deploy.v1.GetAutomationRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L4085}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::AutomationRun> GetAutomationRun(
@@ -2638,8 +2638,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.AutomationRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3783}
-  /// [google.cloud.deploy.v1.GetAutomationRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L4038}
+  /// [google.cloud.deploy.v1.AutomationRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3830}
+  /// [google.cloud.deploy.v1.GetAutomationRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L4085}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::AutomationRun> GetAutomationRun(
@@ -2675,8 +2675,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.AutomationRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3783}
-  /// [google.cloud.deploy.v1.ListAutomationRunsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3992}
+  /// [google.cloud.deploy.v1.AutomationRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3830}
+  /// [google.cloud.deploy.v1.ListAutomationRunsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L4039}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::AutomationRun> ListAutomationRuns(
@@ -2714,8 +2714,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.AutomationRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3783}
-  /// [google.cloud.deploy.v1.ListAutomationRunsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3992}
+  /// [google.cloud.deploy.v1.AutomationRun]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L3830}
+  /// [google.cloud.deploy.v1.ListAutomationRunsRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L4039}
   ///
   // clang-format on
   StreamRange<google::cloud::deploy::v1::AutomationRun> ListAutomationRuns(
@@ -2744,8 +2744,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CancelAutomationRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L4050}
-  /// [google.cloud.deploy.v1.CancelAutomationRunResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L4062}
+  /// [google.cloud.deploy.v1.CancelAutomationRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L4097}
+  /// [google.cloud.deploy.v1.CancelAutomationRunResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L4109}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::CancelAutomationRunResponse>
@@ -2777,8 +2777,8 @@ class CloudDeployClient {
   /// [`future`]: @ref google::cloud::future
   /// [`StatusOr`]: @ref google::cloud::StatusOr
   /// [`Status`]: @ref google::cloud::Status
-  /// [google.cloud.deploy.v1.CancelAutomationRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L4050}
-  /// [google.cloud.deploy.v1.CancelAutomationRunResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L4062}
+  /// [google.cloud.deploy.v1.CancelAutomationRunRequest]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L4097}
+  /// [google.cloud.deploy.v1.CancelAutomationRunResponse]: @googleapis_reference_link{google/cloud/deploy/v1/cloud_deploy.proto#L4109}
   ///
   // clang-format on
   StatusOr<google::cloud::deploy::v1::CancelAutomationRunResponse>

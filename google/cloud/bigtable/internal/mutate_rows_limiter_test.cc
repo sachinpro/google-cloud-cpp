@@ -32,7 +32,6 @@ namespace {
 using Clock = ThrottlingMutateRowsLimiter::Clock;
 using ::google::cloud::bigtable::experimental::BulkApplyThrottlingOption;
 using ::google::cloud::testing_util::FakeSteadyClock;
-using ::google::cloud::testing_util::MockCompletionQueueImpl;
 using ::testing::Contains;
 using ::testing::HasSubstr;
 using ::testing::IsEmpty;
@@ -253,7 +252,7 @@ TEST(MutateRowsLimiter, LoggingEnabled) {
   auto limiter = MakeMutateRowsLimiter(
       CompletionQueue{}, Options{}
                              .set<BulkApplyThrottlingOption>(true)
-                             .set<TracingComponentsOption>({"rpc"}));
+                             .set<LoggingComponentsOption>({"rpc"}));
   // With the default settings, we should expect throttling by the second
   // request. Still, go up to 100 in case instructions are slow.
   for (auto i = 0; i != 100 && lines.empty(); ++i) {
@@ -270,7 +269,7 @@ TEST(MakeMutateRowsLimiter, LoggingDisabled) {
   auto limiter = MakeMutateRowsLimiter(CompletionQueue{},
                                        Options{}
                                            .set<BulkApplyThrottlingOption>(true)
-                                           .set<TracingComponentsOption>({}));
+                                           .set<LoggingComponentsOption>({}));
   // We generally expect throttling by the second response. Still, go up to 5 to
   // be a little bit more conclusive.
   for (auto i = 0; i != 5; ++i) {
@@ -282,6 +281,7 @@ TEST(MakeMutateRowsLimiter, LoggingDisabled) {
 #ifdef GOOGLE_CLOUD_CPP_HAVE_OPENTELEMETRY
 using ::google::cloud::testing_util::DisableTracing;
 using ::google::cloud::testing_util::EnableTracing;
+using ::google::cloud::testing_util::MockCompletionQueueImpl;
 using ::google::cloud::testing_util::SpanNamed;
 
 TEST(MakeMutateRowsLimiter, TracingEnabled) {

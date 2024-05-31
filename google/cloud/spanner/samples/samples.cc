@@ -4246,8 +4246,11 @@ void PartitionQuery(google::cloud::spanner::Client client) {
   RemoteConnectionFake remote_connection;
 
   //! [analyze-query]
-  // Only SQL queries with a Distributed Union as the first operator in the
-  // `ExecutionPlan` can be partitioned.
+  // For a SQL query to be partitionable, it has to satisfy some conditions.
+  // For example, if it has a Distributed Union operator, the Distributed
+  // Union operator must be the first operator in the `ExecutionPlan`.
+  // For detailed definition, please refer to
+  // https://cloud.google.com/spanner/docs/reads#read_data_in_parallel
   auto is_partitionable = [](spanner::ExecutionPlan const& plan) {
     return (!plan.plan_nodes().empty() &&
             plan.plan_nodes(0).kind() ==
@@ -4316,8 +4319,7 @@ void CreateSequence(
   if (!metadata) throw std::move(metadata).status();
   std::cout << "Created `Seq` sequence and `Customers` table,"
             << " where the key column `CustomerId`"
-            << " uses the sequence as a default value,"
-            << " new DDL:\n"
+            << " uses the sequence as a default value," << " new DDL:\n"
             << metadata->DebugString();
   auto commit = client.Commit(
       [&client](google::cloud::spanner::Transaction txn)
@@ -4419,8 +4421,7 @@ void DropSequence(
   if (!metadata) throw std::move(metadata).status();
   std::cout << "Altered `Customers` table to"
             << " drop DEFAULT from `CustomerId` column,"
-            << " and dropped the `Seq` sequence,"
-            << " new DDL:\n"
+            << " and dropped the `Seq` sequence," << " new DDL:\n"
             << metadata->DebugString();
 }
 // [END spanner_drop_sequence]

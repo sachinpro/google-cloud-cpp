@@ -53,13 +53,14 @@ void InstrumentedClient(std::vector<std::string> const& argv) {
       std::vector<std::string> data(1'000'000);
       std::generate(data.begin(), data.end(),
                     [n = 0]() mutable { return std::to_string(++n) + "\n"; });
-      auto metadata = co_await client.InsertObject(bucket_name, object_name,
-                                                   std::move(data));
+      auto metadata = co_await client.InsertObject(
+          gcs_ex::BucketName(bucket_name), object_name, std::move(data));
       if (!metadata) throw std::move(metadata).status();
 
       std::int64_t count = 0;
-      auto [reader, token] =
-          (co_await client.ReadObject(bucket_name, object_name)).value();
+      auto [reader, token] = (co_await client.ReadObject(
+                                  gcs_ex::BucketName(bucket_name), object_name))
+                                 .value();
       while (token.valid()) {
         auto [payload, t] = (co_await reader.Read(std::move(token))).value();
         token = std::move(t);
@@ -69,7 +70,8 @@ void InstrumentedClient(std::vector<std::string> const& argv) {
       }
       std::cout << "Counted " << count << " 7's in the GCS object\n";
 
-      auto deleted = co_await client.DeleteObject(bucket_name, object_name);
+      auto deleted = co_await client.DeleteObject(
+          gcs_ex::BucketName(bucket_name), object_name);
       if (!deleted.ok()) throw gc::Status(std::move(deleted));
 
       co_return;

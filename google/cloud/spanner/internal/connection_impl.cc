@@ -26,6 +26,7 @@
 #include "google/cloud/common_options.h"
 #include "google/cloud/grpc_error_delegate.h"
 #include "google/cloud/internal/algorithm.h"
+#include "google/cloud/internal/make_status.h"
 #include "google/cloud/internal/resumable_streaming_read_rpc.h"
 #include "google/cloud/internal/retry_loop.h"
 #include "google/cloud/internal/streaming_read_rpc.h"
@@ -116,7 +117,7 @@ inline std::shared_ptr<spanner::BackoffPolicy> const& BackoffPolicyPrototype() {
 
 inline bool RpcStreamTracingEnabled() {
   return internal::Contains(
-      internal::CurrentOptions().get<TracingComponentsOption>(), "rpc-streams");
+      internal::CurrentOptions().get<LoggingComponentsOption>(), "rpc-streams");
 }
 
 inline TracingOptions const& RpcTracingOptions() {
@@ -208,9 +209,10 @@ spanner::Timestamp MakeTimestamp(google::protobuf::Timestamp const& proto) {
 // a malformed response that does not contain a `Transaction` should invalidate
 // the transaction with and also return this status.
 Status MissingTransactionStatus(std::string const& operation) {
-  return Status(StatusCode::kInternal,
-                "Begin transaction requested but no transaction returned (in " +
-                    operation + ")");
+  return internal::InternalError(
+      "Begin transaction requested but no transaction returned (in " +
+          operation + ")",
+      GCP_ERROR_INFO());
 }
 
 class StatusOnlyResultSetSource : public spanner::ResultSourceInterface {
@@ -1190,7 +1192,8 @@ StatusOr<spanner::CommitResult> ConnectionImpl::CommitImpl(
       break;
     }
     default:
-      return Status(StatusCode::kInternal, "TransactionSelector state error");
+      return internal::InternalError("TransactionSelector state error",
+                                     GCP_ERROR_INFO());
   }
 
   auto const& current = internal::CurrentOptions();
@@ -1226,8 +1229,8 @@ Status ConnectionImpl::RollbackImpl(
     return s.status();
   }
   if (s->has_single_use()) {
-    return Status(StatusCode::kInvalidArgument,
-                  "Cannot rollback a single-use transaction");
+    return internal::InvalidArgumentError(
+        "Cannot rollback a single-use transaction", GCP_ERROR_INFO());
   }
 
   auto prepare_status = PrepareSession(session);

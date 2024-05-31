@@ -490,7 +490,8 @@ g::future<Result> DownloadOne(Configuration const& cfg,
   auto const transfer_start = std::chrono::system_clock::now();
   auto const start = std::chrono::steady_clock::now();
   auto [reader, token] =
-      (co_await client.ReadObject(cfg.bucket, object_name)).value();
+      (co_await client.ReadObject(gcs_ex::BucketName(cfg.bucket), object_name))
+          .value();
 
   std::int64_t generation = 0;
   std::uint64_t size = 0;
@@ -533,8 +534,9 @@ g::future<Result> UploadOne(Configuration const& cfg, IterationConfig iteration,
                             std::string object_name) try {
   auto const transfer_start = std::chrono::system_clock::now();
   auto const start = std::chrono::steady_clock::now();
-  auto [writer, token] =
-      (co_await client.StartUnbufferedUpload(cfg.bucket, object_name)).value();
+  auto [writer, token] = (co_await client.StartUnbufferedUpload(
+                              gcs_ex::BucketName(cfg.bucket), object_name))
+                             .value();
 
   using google::cloud::storage_experimental::WritePayload;
   for (auto remaining = iteration.transfer_size; remaining != 0;) {
@@ -575,8 +577,8 @@ g::future<IterationResult> Upload(Configuration const& cfg,
 }
 
 template <typename F, typename... Args>
-auto Launch(F&& function, Args&&... a)
-    -> g::future<std::invoke_result_t<F, Args...>> {
+auto Launch(F&& function,
+            Args&&... a) -> g::future<std::invoke_result_t<F, Args...>> {
   using R = std::invoke_result_t<F, Args...>;
   g::promise<R> p;
   auto f = p.get_future();
@@ -760,8 +762,9 @@ void RunBenchmark(Configuration const& cfg) {
                        std::vector<std::string> names) -> g::future<void> {
     std::vector<g::future<g::Status>> pending(names.size());
     std::transform(
-        names.begin(), names.end(), pending.begin(),
-        [&](auto const& name) { return client.DeleteObject(bucket, name); });
+        names.begin(), names.end(), pending.begin(), [&](auto const& name) {
+          return client.DeleteObject(gcs_ex::BucketName(bucket), name);
+        });
     names.clear();
     for (auto& p : pending) co_await std::move(p);
   };

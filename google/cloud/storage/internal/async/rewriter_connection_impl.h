@@ -15,7 +15,6 @@
 #ifndef GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_STORAGE_INTERNAL_ASYNC_REWRITER_CONNECTION_IMPL_H
 #define GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_STORAGE_INTERNAL_ASYNC_REWRITER_CONNECTION_IMPL_H
 
-#include "google/cloud/storage/async/object_requests.h"
 #include "google/cloud/storage/async/rewriter_connection.h"
 #include "google/cloud/storage/internal/storage_stub.h"
 #include "google/cloud/completion_queue.h"
@@ -23,6 +22,7 @@
 #include "google/cloud/options.h"
 #include "google/cloud/status_or.h"
 #include "google/cloud/version.h"
+#include <google/storage/v2/storage.pb.h>
 #include <memory>
 
 namespace google {
@@ -34,27 +34,25 @@ class RewriterConnectionImpl
     : public storage_experimental::AsyncRewriterConnection,
       public std::enable_shared_from_this<RewriterConnectionImpl> {
  public:
-  RewriterConnectionImpl(
-      CompletionQueue cq, std::shared_ptr<StorageStub> stub,
-      google::cloud::internal::ImmutableOptions current,
-      google::cloud::storage::internal::RewriteObjectRequest request);
+  RewriterConnectionImpl(CompletionQueue cq, std::shared_ptr<StorageStub> stub,
+                         google::cloud::internal::ImmutableOptions current,
+                         google::storage::v2::RewriteObjectRequest request);
   ~RewriterConnectionImpl() override = default;
 
-  future<StatusOr<storage_experimental::RewriteObjectResponse>> Iterate()
-      override;
+  future<StatusOr<google::storage::v2::RewriteResponse>> Iterate() override;
 
  private:
   std::weak_ptr<RewriterConnectionImpl> WeakFromThis() {
     return shared_from_this();
   }
 
-  StatusOr<storage_experimental::RewriteObjectResponse> OnRewrite(
+  StatusOr<google::storage::v2::RewriteResponse> OnRewrite(
       StatusOr<google::storage::v2::RewriteResponse> response);
 
   CompletionQueue cq_;
   std::shared_ptr<StorageStub> stub_;
   google::cloud::internal::ImmutableOptions current_;
-  google::cloud::storage::internal::RewriteObjectRequest request_;
+  google::storage::v2::RewriteObjectRequest request_;
 };
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END

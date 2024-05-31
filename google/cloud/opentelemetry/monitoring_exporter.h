@@ -27,10 +27,56 @@ namespace cloud {
 namespace otel_internal {
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 
+/**
+ * The prefix prepended to metric names.
+ *
+ * The default value is "workload.googleapis.com/". Note the trailing slash.
+ *
+ * @see https://cloud.google.com/monitoring/api/v3/naming-conventions for
+ *   understanding Google's naming conventions.
+ *
+ * The typical values for [user metrics] are:
+ * - "workload.googleapis.com/"
+ * - "custom.googleapis.com/"
+ * - "external.googleapis.com/user/"
+ *
+ * There are many [external metrics]. A common one is [Prometheus]:
+ * - "external.googleapis.com/prometheus/"
+ *
+ * [external metrics]: https://cloud.google.com/monitoring/api/metrics_other
+ * [prometheus]: https://prometheus.io/
+ * [user metrics]: https://cloud.google.com/monitoring/custom-metrics#identifier
+ */
+struct MetricPrefixOption {
+  using Type = std::string;
+};
+
+/**
+ * Export Google-defined metrics.
+ *
+ * Set to true if exporting Google-defined metrics. This option is only relevant
+ * to Google applications and libraries. It can be ignored by external
+ * developers.
+ */
+struct ServiceTimeSeriesOption {
+  using Type = bool;
+};
+
+/**
+ * Override the monitored resource to tie metrics to.
+ *
+ * This option is primarily relevant to Google applications and libraries. It
+ * can be ignored by external developers.
+ */
+struct MonitoredResourceOption {
+  using Type = google::api::MonitoredResource;
+};
+
 std::unique_ptr<opentelemetry::sdk::metrics::PushMetricExporter>
 MakeMonitoringExporter(
     Project project,
-    std::shared_ptr<monitoring_v3::MetricServiceConnection> conn);
+    std::shared_ptr<monitoring_v3::MetricServiceConnection> conn,
+    Options options = {});
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END
 }  // namespace otel_internal

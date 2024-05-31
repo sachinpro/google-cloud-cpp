@@ -1,15 +1,11 @@
-# Cloud Storage Control API C++ Client Library
-
-:construction:
+# Storage Control API C++ Client Library
 
 This directory contains an idiomatic C++ client library for the
-[Cloud Storage Control API][cloud-service-docs], a service to manage GCS
+[Storage Control API][cloud-service-docs], a service to manage GCS
 configuration.
 
-This library is **experimental**. Its APIs are subject to change without notice.
-
-Please, note that the Google Cloud C++ client libraries do **not** follow
-[Semantic Versioning](https://semver.org/).
+While this library is **GA**, please note that the Google Cloud C++ client
+libraries do **not** follow [Semantic Versioning](https://semver.org/).
 
 ## Quickstart
 
@@ -29,16 +25,16 @@ int main(int argc, char* argv[]) try {
     std::cerr << "Usage: " << argv[0] << " bucket-id\n";
     return 1;
   }
-  std::string const bucket_name = std::string{"projects/_/buckets/"} + argv[1];
+  auto const name =
+      std::string{"projects/_/buckets/"} + argv[1] + "/storageLayout";
 
   namespace storagecontrol = ::google::cloud::storagecontrol_v2;
   auto client = storagecontrol::StorageControlClient(
       storagecontrol::MakeStorageControlConnection());
 
-  for (auto r : client.ListFolders(bucket_name)) {
-    if (!r) throw std::move(r).status();
-    std::cout << r->DebugString() << "\n";
-  }
+  auto layout = client.GetStorageLayout(name);
+  if (!layout) throw std::move(layout).status();
+  std::cout << layout->DebugString() << "\n";
 
   return 0;
 } catch (google::cloud::Status const& status) {
@@ -51,8 +47,8 @@ int main(int argc, char* argv[]) try {
 
 ## More Information
 
-- Official documentation about the
-  [Cloud Storage Control API][cloud-service-docs] service
+- Official documentation about the [Storage Control API][cloud-service-docs]
+  service
 - [Reference doxygen documentation][doxygen-link] for each release of this
   client library
 - Detailed header comments in our [public `.h`][source-link] files

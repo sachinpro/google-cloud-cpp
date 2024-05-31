@@ -2996,7 +2996,8 @@ class Client {
     google::cloud::internal::OptionsSpan const span(
         SpanOptions(std::forward<Options>(options)...));
     internal::V4SignUrlRequest request(std::move(verb), std::move(bucket_name),
-                                       std::move(object_name));
+                                       std::move(object_name),
+                                       EndpointAuthority());
     request.set_multiple_options(std::forward<Options>(options)...);
     return SignUrlV4(std::move(request));
   }
@@ -3082,7 +3083,8 @@ class Client {
       PolicyDocumentV4 document, Options&&... options) {
     google::cloud::internal::OptionsSpan const span(
         SpanOptions(std::forward<Options>(options)...));
-    internal::PolicyDocumentV4Request request(std::move(document));
+    internal::PolicyDocumentV4Request request(std::move(document),
+                                              EndpointAuthority());
     request.set_multiple_options(std::forward<Options>(options)...);
     return SignPolicyDocumentV4(std::move(request));
   }
@@ -3492,6 +3494,12 @@ class Client {
   StatusOr<PolicyDocumentV4Result> SignPolicyDocumentV4(
       internal::PolicyDocumentV4Request request);
 
+  // The configured endpoint, including any scheme and port.
+  std::string Endpoint() const;
+
+  // The hostname:port part of the configured endpoint.
+  std::string EndpointAuthority() const;
+
   std::shared_ptr<internal::StorageConnection> connection_;
 };
 
@@ -3743,8 +3751,8 @@ StatusOr<ObjectMetadata> ComposeMany(
   std::size_t const max_num_objects = 32;
 
   if (source_objects.empty()) {
-    return Status(StatusCode::kInvalidArgument,
-                  "ComposeMany requires at least one source object.");
+    return google::cloud::internal::InvalidArgumentError(
+        "ComposeMany requires at least one source object.", GCP_ERROR_INFO());
   }
 
   auto all_options = std::make_tuple(options...);

@@ -54,9 +54,10 @@ function (google_cloud_cpp_doxygen_targets_impl library)
         set(DOXYGEN_NUM_PROC_THREADS 1)
     endif ()
 
-    message(
-        "Performing Doxygen processing on library=${library} using DOXYGEN_NUM_PROC_THREADS=${DOXYGEN_NUM_PROC_THREADS}"
-    )
+    if (NOT ("${DOXYGEN_NUM_PROC_THREADS}" STREQUAL "1"))
+        message("Performing Doxygen processing on library=${library}"
+                " using DOXYGEN_NUM_PROC_THREADS=${DOXYGEN_NUM_PROC_THREADS}")
+    endif ()
 
     set(DOXYGEN_FILE_PATTERNS "*.dox" "*.h")
     set(DOXYGEN_EXCLUDE_PATTERNS
@@ -80,7 +81,8 @@ function (google_cloud_cpp_doxygen_targets_impl library)
 
     # Options controlling how Doxygen behaves on errors and the level of output.
     set(DOXYGEN_QUIET YES)
-    set(DOXYGEN_WARN_AS_ERROR YES)
+    # Continue running after a warning, and then exit with an error at the end.
+    set(DOXYGEN_WARN_AS_ERROR FAIL_ON_WARNINGS)
 
     # Options controlling the format of the output.
     google_cloud_cpp_doxygen_deploy_version(VERSION)

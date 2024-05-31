@@ -16,7 +16,6 @@
 #define GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_STORAGE_INTERNAL_ASYNC_CONNECTION_IMPL_H
 
 #include "google/cloud/storage/async/connection.h"
-#include "google/cloud/storage/async/object_requests.h"
 #include "google/cloud/storage/async/reader_connection.h"
 #include "google/cloud/storage/async/rewriter_connection.h"
 #include "google/cloud/storage/idempotency_policy.h"
@@ -56,7 +55,7 @@ class AsyncConnectionImpl
 
   Options options() const override { return options_; }
 
-  future<StatusOr<storage::ObjectMetadata>> InsertObject(
+  future<StatusOr<google::storage::v2::Object>> InsertObject(
       InsertObjectParams p) override;
 
   future<StatusOr<std::unique_ptr<storage_experimental::AsyncReaderConnection>>>
@@ -71,7 +70,13 @@ class AsyncConnectionImpl
   future<StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
   StartBufferedUpload(UploadParams p) override;
 
-  future<StatusOr<storage::ObjectMetadata>> ComposeObject(
+  future<StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
+  ResumeUnbufferedUpload(ResumeUploadParams p) override;
+
+  future<StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
+  ResumeBufferedUpload(ResumeUploadParams p) override;
+
+  future<StatusOr<google::storage::v2::Object>> ComposeObject(
       ComposeObjectParams p) override;
 
   future<Status> DeleteObject(DeleteObjectParams p) override;
@@ -83,8 +88,7 @@ class AsyncConnectionImpl
   // new `AsyncReaderConnection` instances at different offsets.
   AsyncReaderConnectionFactory MakeReaderConnectionFactory(
       google::cloud::internal::ImmutableOptions current,
-      google::cloud::storage_experimental::ReadObjectRequest request,
-      google::storage::v2::ReadObjectRequest proto_request,
+      google::storage::v2::ReadObjectRequest request,
       std::shared_ptr<storage::internal::HashFunction> hash_function);
 
  private:
@@ -94,34 +98,33 @@ class AsyncConnectionImpl
 
   future<StatusOr<google::storage::v2::StartResumableWriteResponse>>
   StartResumableWrite(internal::ImmutableOptions current,
-                      storage::internal::ResumableUploadRequest request);
-
-  future<StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
-  ResumeUpload(internal::ImmutableOptions current,
-               storage_experimental::ResumableUploadRequest request,
-               storage::internal::QueryResumableUploadRequest query);
+                      google::storage::v2::StartResumableWriteRequest request);
 
   future<StatusOr<google::storage::v2::QueryWriteStatusResponse>>
   QueryWriteStatus(internal::ImmutableOptions current,
-                   storage::internal::QueryResumableUploadRequest request);
+                   google::storage::v2::QueryWriteStatusRequest request);
 
   future<StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
-  UnbufferedUploadImpl(
+  ResumeUpload(internal::ImmutableOptions current,
+               google::storage::v2::QueryWriteStatusRequest query);
+
+  future<StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
+  StartUnbufferedUploadImpl(
       internal::ImmutableOptions current,
-      storage_experimental::ResumableUploadRequest request,
+      google::storage::v2::StartResumableWriteRequest request,
       StatusOr<google::storage::v2::StartResumableWriteResponse> response);
 
   future<StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
-  UnbufferedUploadImpl(
+  ResumeUnbufferedUploadImpl(
       internal::ImmutableOptions current,
-      storage_experimental::ResumableUploadRequest request,
+      google::storage::v2::QueryWriteStatusRequest query,
       StatusOr<google::storage::v2::QueryWriteStatusResponse> response);
 
   future<StatusOr<std::unique_ptr<storage_experimental::AsyncWriterConnection>>>
   UnbufferedUploadImpl(
       internal::ImmutableOptions current,
       std::function<void(grpc::ClientContext&)> configure_context,
-      std::string upload_id,
+      google::storage::v2::BidiWriteObjectRequest request,
       std::shared_ptr<storage::internal::HashFunction> hash_function,
       std::int64_t persisted_size);
 

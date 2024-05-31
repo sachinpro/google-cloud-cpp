@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM fedora:39
+FROM fedora:40
 ARG NCPU=4
 ARG ARCH=amd64
 
@@ -43,7 +43,13 @@ WORKDIR /var/tmp/build
 #     https://github.com/google/sanitizers/wiki/MemorySanitizerLibcxxHowTo
 # with updates from:
 #     https://github.com/google/sanitizers/issues/1685
-RUN git clone --depth=1 --branch llvmorg-17.0.3 https://github.com/llvm/llvm-project
+#
+# Starting with 18.0 libcxx defaults to using LLVM's unwind library:
+#     https://libcxx.llvm.org/ReleaseNotes/18.html#build-system-changes
+# This does not work for us (not sure why exactly), we need to use the system
+# library, and therefore turn off the LLVM_UNWINDER.
+#
+RUN git clone --depth=1 --branch llvmorg-18.1.1 https://github.com/llvm/llvm-project
 WORKDIR /var/tmp/build/llvm-project
 # configure cmake
 RUN cmake -GNinja -S runtimes -B build \
@@ -53,6 +59,8 @@ RUN cmake -GNinja -S runtimes -B build \
     -DCMAKE_C_COMPILER=clang \
     -DCMAKE_CXX_COMPILER=clang++ \
     -DLLVM_USE_SANITIZER=MemoryWithOrigins \
+    -DLIBCXXABI_USE_LLVM_UNWINDER=OFF \
+    -DCOMPILER_RT_USE_LLVM_UNWINDER=OFF \
     -DCMAKE_INSTALL_PREFIX=/usr
 # build the libraries
 RUN cmake --build build
@@ -73,6 +81,6 @@ RUN /var/tmp/ci/install-cloud-sdk.sh
 ENV CLOUD_SDK_LOCATION=/usr/local/google-cloud-sdk
 ENV PATH=${CLOUD_SDK_LOCATION}/bin:${PATH}
 
-RUN curl -o /usr/bin/bazelisk -sSL "https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/bazelisk-linux-${ARCH}" && \
+RUN curl -o /usr/bin/bazelisk -sSL "https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-${ARCH}" && \
     chmod +x /usr/bin/bazelisk && \
     ln -s /usr/bin/bazelisk /usr/bin/bazel

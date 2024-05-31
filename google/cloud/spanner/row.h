@@ -18,6 +18,7 @@
 #include "google/cloud/spanner/internal/tuple_utils.h"
 #include "google/cloud/spanner/value.h"
 #include "google/cloud/spanner/version.h"
+#include "google/cloud/internal/make_status.h"
 #include "google/cloud/status.h"
 #include "google/cloud/status_or.h"
 #include <functional>
@@ -135,7 +136,7 @@ class Row {
   StatusOr<Tuple> get() const& {
     if (size() != std::tuple_size<Tuple>::value) {
       auto constexpr kMsg = "Tuple has the wrong number of elements";
-      return Status(StatusCode::kInvalidArgument, kMsg);
+      return internal::InvalidArgumentError(kMsg, GCP_ERROR_INFO());
     }
     Tuple tup;
     auto it = values_.begin();
@@ -467,9 +468,13 @@ template <typename RowRange>
 auto GetSingularRow(RowRange range) -> std::decay_t<decltype(*range.begin())> {
   auto const e = range.end();
   auto it = range.begin();
-  if (it == e) return Status(StatusCode::kInvalidArgument, "no rows");
+  if (it == e) {
+    return internal::InvalidArgumentError("no rows", GCP_ERROR_INFO());
+  }
   auto row = std::move(*it);
-  if (++it != e) return Status(StatusCode::kInvalidArgument, "too many rows");
+  if (++it != e) {
+    return internal::InvalidArgumentError("too many rows", GCP_ERROR_INFO());
+  }
   return row;
 }
 

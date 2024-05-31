@@ -320,6 +320,10 @@ INSTANTIATE_TEST_SUITE_P(
         std::make_pair("service_endpoint_env_var",
                        "GOOGLE_CLOUD_CPP_FROBBER_SERVICE_ENDPOINT"),
         std::make_pair("service_name", "FrobberService"),
+        std::make_pair("sources_cc_path",
+                       "google/cloud/frobber/internal/frobber_sources.cc"),
+        std::make_pair("streaming_cc_path",
+                       "google/cloud/frobber/internal/frobber_streaming.cc"),
         std::make_pair("stub_class_name", "FrobberServiceStub"),
         std::make_pair("stub_cc_path",
                        "google/cloud/frobber/internal/frobber_stub.cc"),
@@ -453,6 +457,8 @@ INSTANTIATE_TEST_SUITE_P(
         std::make_pair("service_endpoint_env_var",
                        "GOOGLE_CLOUD_CPP_FROBBER_SERVICE_ENDPOINT"),
         std::make_pair("service_name", "NewFrobberService"),
+        std::make_pair("sources_cc_path",
+                       "google/cloud/frobber/internal/new_frobber_sources.cc"),
         std::make_pair("stub_class_name", "NewFrobberServiceStub"),
         std::make_pair("stub_cc_path",
                        "google/cloud/frobber/internal/new_frobber_stub.cc"),
@@ -593,6 +599,8 @@ INSTANTIATE_TEST_SUITE_P(
         std::make_pair("service_endpoint_env_var",
                        "GOOGLE_CLOUD_CPP_FROBBER_SERVICE_ENDPOINT"),
         std::make_pair("service_name", "FrobberService"),
+        std::make_pair("sources_cc_path",
+                       "google/cloud/frobber/internal/frobber_sources.cc"),
         std::make_pair("stub_class_name", "FrobberServiceStub"),
         std::make_pair("stub_cc_path",
                        "google/cloud/frobber/internal/frobber_stub.cc"),
@@ -750,7 +758,7 @@ auto constexpr kServiceProto =
     "}\n"
     "// Leading comments about service Service.\n"
     "service Service {\n"
-    "  // Leading comments about rpc Method0$.\n"
+    "  // Leading comments about rpc Method0.\n"
     "  rpc Method0(Bar) returns (google.protobuf.Empty) {\n"
     "  }\n"
     "  // Leading comments about rpc Method1.\n"
@@ -799,7 +807,7 @@ auto constexpr kServiceProto =
     "    option (google.api.method_signature) = \"name,swallow_types\";\n"
     "    option (google.api.method_signature) = \"\";\n"
     "  }\n"
-    "  // Leading comments about rpc $Method6.\n"
+    "  // Leading comments about rpc Method6.\n"
     "  rpc Method6(Foo) returns (google.protobuf.Empty) {\n"
     "    option (google.api.http) = {\n"
     "       get: \"/v1/{name=projects/*/instances/*/databases/*}\"\n"
@@ -1011,7 +1019,7 @@ TEST_F(CreateMethodVarsTest, FormatMethodCommentsProtobufRequest) {
       *service_file_descriptor->service(0)->method(0), false);
   EXPECT_EQ(actual, R"""(  // clang-format off
   ///
-  /// Leading comments about rpc Method0$$.
+  /// Leading comments about rpc Method0.
   ///
   /// @param request Unary RPCs, such as the one wrapped by this
   ///     function, receive a single `request` proto message which includes all
@@ -1130,7 +1138,7 @@ TEST_F(CreateMethodVarsTest, FormatMethodCommentsMethodSignature) {
       *service_file_descriptor->service(0)->method(6), "labels", false);
   EXPECT_EQ(actual, R"""(  // clang-format off
   ///
-  /// Leading comments about rpc $$Method6.
+  /// Leading comments about rpc Method6.
   ///
   /// @param labels  labels $$field comment.
   /// @param opts Optional. Override the class-level options, such as retry and

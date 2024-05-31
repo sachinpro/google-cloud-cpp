@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM fedora:39
+FROM fedora:40
 ARG NCPU=4
 
 # Install the minimal development tools:
@@ -20,7 +20,7 @@ RUN dnf makecache && \
     dnf install -y cmake curl diffutils findutils gcc-c++ git make \
         ninja-build patch tar unzip wget which zip
 
-# Fedora 39 includes packages, with recent enough versions, for most of the
+# Fedora 40 includes packages, with recent enough versions, for most of the
 # direct dependencies of `google-cloud-cpp`. We will install those.
 
 # First install the "host" (64-bit) version of the protobuf compiler and gRPC
@@ -44,7 +44,7 @@ RUN dnf makecache && \
         openssl-devel.i686 \
         protobuf-devel.i686 \
         re2-devel.i686 \
-        zlib-devel.i686
+        zlib-ng-compat-devel.i686
 
 # Install the Python modules needed to run the storage emulator
 RUN dnf makecache && dnf install -y python3-devel
@@ -100,7 +100,7 @@ RUN curl -fsSL https://github.com/nlohmann/json/archive/v3.11.3.tar.gz | \
 # compiled with. And we use the compiler flags from ci/etc/m32-toolchain.cmake
 # to force a 32-bit install.
 WORKDIR /var/tmp/build/opentelemetry
-RUN curl -fsSL https://github.com/open-telemetry/opentelemetry-cpp/archive/v1.14.2.tar.gz | \
+RUN curl -fsSL https://github.com/open-telemetry/opentelemetry-cpp/archive/v1.15.0.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_CXX_STANDARD=17 \
@@ -123,7 +123,7 @@ RUN curl -fsSL https://github.com/open-telemetry/opentelemetry-cpp/archive/v1.14
     ldconfig
 
 WORKDIR /var/tmp/sccache
-RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v0.7.7/sccache-v0.7.7-x86_64-unknown-linux-musl.tar.gz | \
+RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v0.8.1/sccache-v0.8.1-x86_64-unknown-linux-musl.tar.gz | \
     tar -zxf - --strip-components=1 && \
     mkdir -p /usr/local/bin && \
     mv sccache /usr/local/bin/sccache && \

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM fedora:39
+FROM fedora:40
 ARG NCPU=4
 ARG ARCH=amd64
 
@@ -93,7 +93,7 @@ RUN curl -fsSL https://github.com/google/googletest/archive/v1.14.0.tar.gz | \
     cd /var/tmp && rm -fr build
 
 WORKDIR /var/tmp/build
-RUN curl -fsSL https://github.com/google/benchmark/archive/v1.8.3.tar.gz | \
+RUN curl -fsSL https://github.com/google/benchmark/archive/v1.8.4.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_CXX_STANDARD=14 \
@@ -135,7 +135,7 @@ RUN curl -fsSL https://github.com/nlohmann/json/archive/v3.11.3.tar.gz | \
     cd /var/tmp && rm -fr build
 
 WORKDIR /var/tmp/build/protobuf
-RUN curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v26.1.tar.gz | \
+RUN curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v27.0.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_CXX_STANDARD=14 \
@@ -148,29 +148,8 @@ RUN curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v26.1.tar.gz 
     ldconfig && \
     cd /var/tmp && rm -fr build
 
-WORKDIR /var/tmp/build/grpc
-RUN dnf makecache && dnf install -y c-ares-devel re2-devel
-RUN curl -fsSL https://github.com/grpc/grpc/archive/v1.62.1.tar.gz | \
-    tar -xzf - --strip-components=1 && \
-    cmake \
-        -DCMAKE_CXX_STANDARD=14 \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DBUILD_SHARED_LIBS=ON \
-        -DgRPC_INSTALL=ON \
-        -DgRPC_BUILD_TESTS=OFF \
-        -DgRPC_ABSL_PROVIDER=package \
-        -DgRPC_CARES_PROVIDER=package \
-        -DgRPC_PROTOBUF_PROVIDER=package \
-        -DgRPC_RE2_PROVIDER=package \
-        -DgRPC_SSL_PROVIDER=package \
-        -DgRPC_ZLIB_PROVIDER=package \
-        -GNinja -S . -B cmake-out && \
-    cmake --build cmake-out && cmake --install cmake-out && \
-    ldconfig && \
-    cd /var/tmp && rm -fr build
-
 WORKDIR /var/tmp/build/
-RUN curl -fsSL https://github.com/open-telemetry/opentelemetry-cpp/archive/v1.14.2.tar.gz | \
+RUN curl -fsSL https://github.com/open-telemetry/opentelemetry-cpp/archive/v1.15.0.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_CXX_STANDARD=14 \
@@ -186,8 +165,31 @@ RUN curl -fsSL https://github.com/open-telemetry/opentelemetry-cpp/archive/v1.14
     cmake --build cmake-out && cmake --install cmake-out && \
     ldconfig && cd /var/tmp && rm -fr build
 
+WORKDIR /var/tmp/build/grpc
+RUN dnf makecache && dnf install -y c-ares-devel re2-devel
+RUN curl -fsSL https://github.com/grpc/grpc/archive/v1.64.0.tar.gz | \
+    tar -xzf - --strip-components=1 && \
+    cmake \
+        -DCMAKE_CXX_STANDARD=14 \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_SHARED_LIBS=ON \
+        -DgRPC_INSTALL=ON \
+        -DgRPC_BUILD_TESTS=OFF \
+        -DgRPC_ABSL_PROVIDER=package \
+        -DgRPC_CARES_PROVIDER=package \
+        -DgRPC_PROTOBUF_PROVIDER=package \
+        -DgRPC_RE2_PROVIDER=package \
+        -DgRPC_SSL_PROVIDER=package \
+        -DgRPC_ZLIB_PROVIDER=package \
+        -DgRPC_OPENTELEMETRY_PROVIDER=package \
+        -DgRPC_BUILD_GRPCPP_OTEL_PLUGIN=ON \
+        -GNinja -S . -B cmake-out && \
+    cmake --build cmake-out && cmake --install cmake-out && \
+    ldconfig && \
+    cd /var/tmp && rm -fr build
+
 WORKDIR /var/tmp/sccache
-RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v0.7.7/sccache-v0.7.7-x86_64-unknown-linux-musl.tar.gz | \
+RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v0.8.1/sccache-v0.8.1-x86_64-unknown-linux-musl.tar.gz | \
     tar -zxf - --strip-components=1 && \
     mkdir -p /usr/local/bin && \
     mv sccache /usr/local/bin/sccache && \

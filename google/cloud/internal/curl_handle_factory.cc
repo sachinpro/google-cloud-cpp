@@ -96,7 +96,7 @@ CurlPtr PooledCurlHandleFactory::CreateHandle() {
     lk.unlock();
     // Clear all the options in the handle, so we do not leak its previous
     // state.
-    (void)curl_easy_reset(handle.get());
+    curl_easy_reset(handle.get());
     SetCurlOptions(handle.get());
     return handle;
   }
@@ -180,7 +180,7 @@ void PooledCurlHandleFactory::CleanupMultiHandle(CurlMulti m,
   if (multi_handles_.size() >= maximum_size_) {
     // Same idea as is CleanupHandle()
     auto const release_count =
-        (std::min)(handles_.size() - maximum_size_ / 2,
+        (std::min)(multi_handles_.size() - maximum_size_ / 2,
                    active_multi_handles_ - maximum_size_);
     released.reserve(release_count);
     auto const end = std::next(multi_handles_.begin(), release_count);

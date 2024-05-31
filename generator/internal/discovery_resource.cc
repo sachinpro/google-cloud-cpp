@@ -16,6 +16,7 @@
 #include "generator/internal/codegen_utils.h"
 #include "google/cloud/internal/absl_str_cat_quiet.h"
 #include "google/cloud/internal/absl_str_join_quiet.h"
+#include "google/cloud/internal/absl_str_replace_quiet.h"
 #include "google/cloud/internal/algorithm.h"
 #include "google/cloud/internal/make_status.h"
 #include "absl/strings/ascii.h"
@@ -38,8 +39,8 @@ absl::optional<std::string> DetermineLongRunningOperationService(
     std::set<std::string> const& operation_services,
     std::string const& resource_name) {
   // Only services NOT considered operation_services should be generated
-  // using the asynchronous LRO framework, even if they have a response of type
-  // Operation.
+  // using the asynchronous LRO framework, even if they have a response of
+  // type Operation.
   if (method_json.contains("response") &&
       method_json["response"].value("$ref", "") == "Operation" &&
       !internal::Contains(operation_services,
@@ -62,8 +63,6 @@ absl::optional<std::string> DetermineLongRunningOperationService(
 
 DiscoveryResource::DiscoveryResource() : json_("") {}
 
-// TODO(#11377): remove default_host and base_path as member variables and pass
-// DiscoveryDocumentProperties as an argument to JsonToProtobufService.
 DiscoveryResource::DiscoveryResource(std::string name, std::string package_name,
                                      nlohmann::json json)
     : name_(std::move(name)),
@@ -92,6 +91,38 @@ std::vector<DiscoveryTypeVertex*> DiscoveryResource::GetRequestTypesList()
   return v;
 }
 
+StatusOr<std::string> DiscoveryResource::GetServiceApiVersion() const {
+  if (!service_api_version_) {
+    return internal::InternalError(
+        "SetServiceApiVersion must be called before JsonToProtobufService is "
+        "called",
+        GCP_ERROR_INFO().WithMetadata("json", json_.dump()));
+  }
+
+  return *service_api_version_;
+}
+
+Status DiscoveryResource::SetServiceApiVersion() {
+  if (!json_.contains("methods")) {
+    service_api_version_ = internal::InvalidArgumentError(
+        "resource contains no methods",
+        GCP_ERROR_INFO().WithMetadata("json", json_.dump()));
+    return service_api_version_->status();
+  }
+
+  for (auto const& m : *json_.find("methods")) {
+    std::string method_api_version = m.value("apiVersion", "");
+    if (!service_api_version_) service_api_version_ = method_api_version;
+    if (**service_api_version_ != method_api_version) {
+      service_api_version_ = internal::InvalidArgumentError(
+          "resource contains methods with different apiVersion values",
+          GCP_ERROR_INFO().WithMetadata("json", json_.dump()));
+      return service_api_version_->status();
+    }
+  }
+  return {};
+}
+
 std::string DiscoveryResource::FormatUrlPath(std::string const& path) {
   std::string output;
   std::size_t current = 0;
@@ -102,6 +133,7 @@ std::string DiscoveryResource::FormatUrlPath(std::string const& path) {
     auto close = path.find('}', current);
     absl::StrAppend(
         &output, CamelCaseToSnakeCase(path.substr(current, close - current)));
+    absl::StrReplaceAll({{"{+", "{"}}, &output);
     current = close;
   }
   absl::StrAppend(&output, path.substr(current));
@@ -141,8 +173,9 @@ StatusOr<std::string> DiscoveryResource::FormatRpcOptions(
   std::vector<std::string> parameter_order =
       method_json.value("parameterOrder", std::vector<std::string>{});
   if (!parameter_order.empty()) {
-    // Workaround for necessary, but not marked REQUIRED, mask field for update
-    // methods. AIP-134 indicates that the update mask should be provided.
+    // Workaround for necessary, but not marked REQUIRED, mask field for
+    // update methods. AIP-134 indicates that the update mask should be
+    // provided.
     if (verb == "patch" && !internal::Contains(parameter_order, "updateMask")) {
       nlohmann::json parameters =
           method_json.value("parameters", nlohmann::json());
@@ -153,12 +186,12 @@ StatusOr<std::string> DiscoveryResource::FormatRpcOptions(
     if (!request_resource_field_name.empty()) {
       parameter_order.push_back(request_resource_field_name);
     }
-    rpc_options.push_back(
-        absl::StrFormat("    option (google.api.method_signature) = \"%s\";",
-                        absl::StrJoin(parameter_order, ",",
-                                      [](std::string* s, std::string const& p) {
-                                        *s += CamelCaseToSnakeCase(p);
-                                      })));
+    rpc_options.push_back(absl::StrFormat(
+        "    option (google.api.method_signature) = \"%s\";",
+        absl::StrJoin(parameter_order, ",", [](std::string* s, std::string p) {
+          absl::StrReplaceAll({{".", "_"}}, &p);
+          *s += CamelCaseToSnakeCase(p);
+        })));
   }
 
   auto longrunning_operation_service = DetermineLongRunningOperationService(
@@ -251,6 +284,12 @@ StatusOr<std::string> DiscoveryResource::JsonToProtobufService(
   service_text.push_back(
       absl::StrFormat("  option (google.api.default_host) = \"%s\";",
                       document_properties.default_hostname));
+  auto service_api_version = GetServiceApiVersion();
+  if (!service_api_version) return service_api_version.status();
+  if (!service_api_version->empty()) {
+    service_text.push_back(absl::StrFormat(
+        "  option (google.api.api_version) = \"%s\";", *service_api_version));
+  }
   auto scopes = FormatOAuthScopes();
   if (!scopes) return std::move(scopes).status();
   service_text.push_back(

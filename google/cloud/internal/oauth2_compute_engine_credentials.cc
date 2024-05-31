@@ -16,6 +16,7 @@
 #include "google/cloud/internal/absl_str_cat_quiet.h"
 #include "google/cloud/internal/compute_engine_util.h"
 #include "google/cloud/internal/curl_options.h"
+#include "google/cloud/internal/make_status.h"
 #include "google/cloud/internal/oauth2_credential_constants.h"
 #include "google/cloud/internal/oauth2_credentials.h"
 #include "google/cloud/internal/oauth2_universe_domain.h"
@@ -34,6 +35,9 @@ namespace oauth2_internal {
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 namespace {
 
+auto constexpr kMetadataServerUniverseDomainPath =
+    "computeMetadata/v1/universe/universe_domain";
+
 StatusOr<std::unique_ptr<rest_internal::RestResponse>>
 DoMetadataServerGetRequest(rest_internal::RestClient& client,
                            std::string const& path, bool recursive) {
@@ -47,7 +51,7 @@ DoMetadataServerGetRequest(rest_internal::RestClient& client,
 }
 
 struct DefaultUniverseDomainRetryTraits {
-  static inline bool IsPermanentFailure(google::cloud::Status const& status) {
+  static bool IsPermanentFailure(google::cloud::Status const& status) {
     return status.code() != StatusCode::kOk &&
            status.code() != StatusCode::kUnavailable;
   }
@@ -122,26 +126,26 @@ ServiceAccountMetadata ParseMetadataServerResponse(std::string const& payload) {
   auto body = nlohmann::json::parse(payload, nullptr, false);
   // Parse the body, ignoring invalid or missing values.
   auto scopes = [&]() -> std::set<std::string> {
-    // TODO(#13436): refactor to use iterator in the JSON.
-    if (!body.contains("scopes")) return {};
-    auto const& s = body["scopes"];
-    if (s.is_string()) {
-      return absl::StrSplit(s.get<std::string>(), '\n', absl::SkipWhitespace());
+    auto it = body.find("scopes");
+    if (it == body.end()) return {};
+    if (it->is_string()) {
+      return absl::StrSplit(it->get<std::string>(), '\n',
+                            absl::SkipWhitespace());
     }
     // If we cannot parse the `scopes` field as an array of strings, we return
     // an empty set.
-    if (!s.is_array()) return {};
+    if (!it->is_array()) return {};
     std::set<std::string> result;
-    for (auto const& i : s) {
+    for (auto const& i : *it) {
       if (!i.is_string()) return {};
       result.insert(i.get<std::string>());
     }
     return result;
   };
   auto email = [&]() -> std::string {
-    // TODO(#13436): refactor to use iterator in the JSON.
-    if (!body.contains("email") || !body["email"].is_string()) return {};
-    return body.value("email", "");
+    auto it = body.find("email");
+    if (it == body.end() || !it->is_string()) return {};
+    return it->get<std::string>();
   };
   auto universe_domain = [&]() -> std::string {
     auto iter = body.find("universe_domain");
@@ -172,7 +176,7 @@ StatusOr<AccessToken> ParseComputeEngineRefreshResponse(
         "Could not find all required fields in response (access_token,"
         " expires_in, token_type) while trying to obtain an access token for"
         " compute engine credentials.";
-    return Status{StatusCode::kInvalidArgument, error_payload, {}};
+    return InvalidArgumentError(error_payload, GCP_ERROR_INFO());
   }
   auto expires_in = std::chrono::seconds(access_token.value("expires_in", 0));
   auto new_expiration = now + expires_in;
@@ -208,21 +212,31 @@ StatusOr<AccessToken> ComputeEngineCredentials::GetToken(
 }
 
 std::string ComputeEngineCredentials::AccountEmail() const {
-  std::lock_guard<std::mutex> lock(mu_);
+  std::lock_guard<std::mutex> lock(service_account_mu_);
   // Force a refresh on the account info.
   RetrieveServiceAccountInfo(lock);
   return service_account_email_;
 }
 
 StatusOr<std::string> ComputeEngineCredentials::universe_domain() const {
-  std::lock_guard<std::mutex> lock(mu_);
+  std::lock_guard<std::mutex> lock(universe_domain_mu_);
   return RetrieveUniverseDomain(lock, Options{});
 }
 
 StatusOr<std::string> ComputeEngineCredentials::universe_domain(
     google::cloud::Options const& options) const {
-  std::lock_guard<std::mutex> lock(mu_);
+  std::lock_guard<std::mutex> lock(universe_domain_mu_);
   return RetrieveUniverseDomain(lock, options);
+}
+
+StatusOr<std::string> ComputeEngineCredentials::project_id() const {
+  return project_id(Options{});
+}
+
+StatusOr<std::string> ComputeEngineCredentials::project_id(
+    google::cloud::Options const& options) const {
+  std::lock_guard<std::mutex> lk(project_id_mu_);
+  return RetrieveProjectId(lk, options);
 }
 
 StatusOr<std::string> ComputeEngineCredentials::RetrieveUniverseDomain(
@@ -237,7 +251,7 @@ StatusOr<std::string> ComputeEngineCredentials::RetrieveUniverseDomain(
   rest_internal::RestRequest request;
   request.SetPath(absl::StrCat(internal::GceMetadataScheme(), "://",
                                internal::GceMetadataHostname(), "/",
-                               "computeMetadata/v1/universe/universe_domain"));
+                               kMetadataServerUniverseDomainPath));
   request.AddHeader("metadata-flavor", "Google");
   request.AddQueryParameter("recursive", "true");
 
@@ -272,17 +286,18 @@ StatusOr<std::string> ComputeEngineCredentials::RetrieveUniverseDomain(
 }
 
 std::string ComputeEngineCredentials::service_account_email() const {
-  std::unique_lock<std::mutex> lock(mu_);
+  std::unique_lock<std::mutex> lock(service_account_mu_);
   return service_account_email_;
 }
 
 std::set<std::string> ComputeEngineCredentials::scopes() const {
-  std::unique_lock<std::mutex> lock(mu_);
+  std::unique_lock<std::mutex> lock(service_account_mu_);
   return scopes_;
 }
 
 std::string ComputeEngineCredentials::RetrieveServiceAccountInfo() const {
-  return RetrieveServiceAccountInfo(std::lock_guard<std::mutex>{mu_});
+  return RetrieveServiceAccountInfo(
+      std::lock_guard<std::mutex>{service_account_mu_});
 }
 
 std::string ComputeEngineCredentials::RetrieveServiceAccountInfo(
@@ -303,6 +318,30 @@ std::string ComputeEngineCredentials::RetrieveServiceAccountInfo(
   scopes_ = std::move(metadata->scopes);
   service_account_retrieved_ = true;
   return service_account_email_;
+}
+
+StatusOr<std::string> ComputeEngineCredentials::RetrieveProjectId(
+    std::lock_guard<std::mutex> const&, Options const& options) const {
+  if (project_id_.has_value()) return *project_id_;
+
+  auto client = client_factory_(internal::MergeOptions(options, options_));
+  auto request =
+      rest_internal::RestRequest{}
+          .SetPath(absl::StrCat(internal::GceMetadataScheme(), "://",
+                                internal::GceMetadataHostname(), "/",
+                                "computeMetadata/v1/project/project-id"))
+          .AddHeader("metadata-flavor", "Google");
+
+  auto context = rest_internal::RestContext{};
+  auto response = client->Get(context, request);
+  if (!response) return std::move(response).status();
+  if (IsHttpError(**response)) return AsStatus(std::move(**response));
+
+  auto payload =
+      rest_internal::ReadAll((std::move(**response)).ExtractPayload());
+  if (!payload) return std::move(payload).status();
+  project_id_ = *std::move(payload);
+  return *project_id_;
 }
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END

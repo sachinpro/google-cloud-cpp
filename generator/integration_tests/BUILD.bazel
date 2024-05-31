@@ -67,30 +67,33 @@ cc_grpc_library(
 filegroup(
     name = "golden_srcs",
     srcs = glob([
-        "golden/v1/*.cc",
-        "golden/v1/internal/*.cc",
+        "golden/v1/internal/*_sources.cc",
+        "golden/v1/internal/streaming.cc",
     ]),
 )
 
 filegroup(
     name = "golden_hdrs",
-    srcs = glob([
-        "golden/*.h",
-        "golden/mocks/*.h",
-        "golden/v1/*.h",
-        "golden/v1/internal/*.h",
-        "golden/v1/mocks/*.h",
-    ]),
+    srcs = glob(
+        include = [
+            "golden/*.h",
+            "golden/mocks/*.h",
+            "golden/v1/*.cc",
+            "golden/v1/*.h",
+            "golden/v1/internal/*.cc",
+            "golden/v1/internal/*.h",
+            "golden/v1/mocks/*.h",
+        ],
+        exclude = [
+            "golden/v1/internal/*_sources.cc",
+        ],
+    ),
 )
 
 cc_library(
     name = "google_cloud_cpp_generator_golden",
-    srcs = [
-        ":golden_srcs",
-    ],
-    hdrs = [
-        ":golden_hdrs",
-    ],
+    srcs = [":golden_srcs"],
+    hdrs = [":golden_hdrs"],
     copts = [
         "-I$(BINDIR)",
     ],

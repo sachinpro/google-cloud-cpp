@@ -26,8 +26,8 @@ source module ci/lib/shard.sh
 
 export CC=clang
 export CXX=clang++
-# Use a directory *not* saved by the ci/lib/cache.sh script, but is preserved
-# in local builds (i.e., with build.sh --docker)
+# Use a directory *not* saved by the CI builds, but is preserved in local
+# builds. For example, when using `build.sh --docker`.
 export CTCACHE_DIR=~/.ctcache
 
 mapfile -t cmake_args < <(cmake::common_args)
@@ -46,6 +46,7 @@ fi
 # require a newer C++ standard.
 io::run cmake "${cmake_args[@]}" \
   -DCMAKE_CXX_CLANG_TIDY=/usr/local/bin/clang-tidy-wrapper \
+  -DGOOGLE_CLOUD_CPP_ENABLE_CLANG_ABI_COMPAT_17=ON \
   -DCMAKE_CXX_STANDARD=14 \
   -DGOOGLE_CLOUD_CPP_ENABLE_EXAMPLES=ON \
   -DGOOGLE_CLOUD_CPP_ENABLE="${ENABLED_FEATURES}" \

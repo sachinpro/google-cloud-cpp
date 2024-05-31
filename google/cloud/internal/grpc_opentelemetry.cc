@@ -14,6 +14,7 @@
 
 #include "google/cloud/internal/grpc_opentelemetry.h"
 #include "google/cloud/internal/absl_str_cat_quiet.h"
+#include "google/cloud/internal/grpc_metadata_view.h"
 #include "google/cloud/internal/grpc_request_metadata.h"
 #include "google/cloud/internal/noexcept_action.h"
 #include "google/cloud/internal/trace_propagator.h"
@@ -133,8 +134,9 @@ void InjectTraceContext(
 }
 
 void ExtractAttributes(grpc::ClientContext& context,
-                       opentelemetry::trace::Span& span) {
-  auto md = GetRequestMetadataFromContext(context);
+                       opentelemetry::trace::Span& span,
+                       GrpcMetadataView view) {
+  auto md = GetRequestMetadataFromContext(context, view);
   for (auto& kv : md.headers) {
     auto p = MakeAttribute(std::move(kv));
     span.SetAttribute(p.first, p.second);
@@ -145,6 +147,24 @@ void ExtractAttributes(grpc::ClientContext& context,
   }
 }
 
+future<Status> EndSpan(
+    std::shared_ptr<grpc::ClientContext> context,
+    opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span> span,
+    future<Status> fut) {
+  return fut.then([oc = opentelemetry::context::RuntimeContext::GetCurrent(),
+                   c = std::move(context), s = std::move(span)](auto f) {
+    auto t = f.get();
+    // If the error is client originated, then do not make the call to get the
+    // gRPC server metadata. Since the call to GetInitialServerMetadata()
+    // *might* crash the program.
+    ExtractAttributes(*c, *s,
+                      IsClientOrigin(t)
+                          ? GrpcMetadataView::kWithoutServerMetadata
+                          : GrpcMetadataView::kWithServerMetadata);
+    DetachOTelContext(oc);
+    return EndSpan(*s, std::move(t));
+  });
+}
 #endif  // GOOGLE_CLOUD_CPP_HAVE_OPENTELEMETRY
 
 }  // namespace internal

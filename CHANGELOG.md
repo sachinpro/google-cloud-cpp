@@ -4,7 +4,83 @@
 breaking changes in the upcoming 3.x release. This release is scheduled for
 2024-12 or 2025-01.
 
-## v2.23.0 - TBD
+## v2.25.0 - TBD
+
+### New Libraries
+
+We are happy to announce the following GA libraries. Unless specifically noted,
+the APIs in these libraries are stable, and are ready for production use.
+
+- [Public Certificate Authority API](/google/cloud/publicca/README.md)
+
+## v2.24.0 - 2024-05
+
+### No longer testing with MSVC 2019
+
+We have stopped testing with MSVC 2019. Microsoft stopped mainstream support for
+MSVC 2019 in
+[2024-04](https://learn.microsoft.com/en-us/lifecycle/products/visual-studio-2019).
+We continue to test with MSVC 2022. We recommend that you update to this
+version. Note that, in accordance with Google's
+[Foundational C++ support policy][oss-cxx-support], other Google libraries
+have stopped (or shortly will stop) testing with MSVC 2019 too.
+
+### Updated Libraries
+
+- [AI Platform API](/google/cloud/aiplatform/README.md) - new
+  `FeatureRegistryServiceClient` and `GenAiTuningServiceClient`
+- [Cloud Dataplex API](/google/cloud/dataplex/README.md) - new
+  `DataScanServiceClient` and `DataTaxonomyServiceClient`
+- [Cloud SQL Admin API](/google/cloud/sql/README.md) - several new clients:
+  - `SqlAvailableDatabaseVersionsServiceClient`
+  - `SqlEventsServiceClient`
+  - `SqlIamPoliciesServiceClient`
+  - `SqlInstanceNamesServiceClient`
+  - `SqlRegionsServiceClient`
+- [Content Warehouse](/google/cloud/contentwarehouse/README.md) - new
+  `PipelineServiceClient`
+- [Dataproc](/google/cloud/dataproc/README.md) - new `SessionControllerClient`
+  and `SessionTemplateControllerClient`
+- [Dialogflow CX API](/google/cloud/dialogflow_cx/README.md) - new
+  `GeneratorsClient`
+- [Discovery Engine](/google/cloud/discoveryengine/README.md) - several new
+  clients:
+  - `DataStoreServiceClient`
+  - `EngineServiceClient`
+  - `RecommendationServiceClient`
+  - `SiteSearchEngineServiceClient`
+- [Network Connectivity API](/google/cloud/networkconnectivity/README.md) - new
+  `PolicyBasedRoutingServiceClient`
+- [Retail](/google/cloud/retail/README.md) - new `AnalyticsServiceClient`
+
+### [Datastore](/google/cloud/datastore/README.md)
+
+- feat(datastore): emulator environment variable ([#14100](https://github.com/googleapis/google-cloud-cpp/pull/14100))
+
+### [Pub/Sub](/google/cloud/pubsub/README.md)
+
+- fix(pubsub): correctly trace modacks in the unary pull ([#14049](https://github.com/googleapis/google-cloud-cpp/pull/14049))
+
+### [Spanner](/google/cloud/spanner/README.md)
+
+- fix(spanner): avoid absl types in public Interval API ([#14095](https://github.com/googleapis/google-cloud-cpp/pull/14095))
+- feat(spanner): add a representation for the Spanner INTERVAL ([#14059](https://github.com/googleapis/google-cloud-cpp/pull/14059))
+- fix(spanner): delete idle sessions upon SessionPool destruction ([#14012](https://github.com/googleapis/google-cloud-cpp/pull/14012))
+
+### [Storage](/google/cloud/storage/README.md)
+
+- fix(storage): missing include ([#14052](https://github.com/googleapis/google-cloud-cpp/pull/14052))
+
+### [Storage Control](/google/cloud/storagecontrol/README.md)
+
+- docs(storagecontrol): use `GetStorageLayout()` for quickstart ([#14044](https://github.com/googleapis/google-cloud-cpp/pull/14044))
+- docs(storagecontrol): update service title ([#14042](https://github.com/googleapis/google-cloud-cpp/pull/14042))
+
+### [Google APIs interface definitions](https://github.com/googleapis/googleapis)
+
+- This release is based on definitions as of [2024-04-30T21:03:48Z](https://github.com/googleapis/googleapis/tree/5a0ae652df1ef39b7849bf2bd6ba417376ce3204)
+
+## v2.23.0 - 2024-04
 
 ### New Libraries
 
@@ -14,15 +90,55 @@ the APIs in these libraries are stable, and are ready for production use.
 - [App Hub API](/google/cloud/apphub/README.md)
 - [Backup and DR Service API](/google/cloud/backupdr/README.md)
 - [Sovereign Controls by Partners](/google/cloud/cloudcontrolspartner/README.md)
+- [Cloud Storage Control API](/google/cloud/storagecontrol/README.md) is now GA.
 
 ### Updated Libraries
 
+- [AI Platform API](/google/cloud/aiplatform/README.md) - new
+  `NotebookServiceClient` and `PersistentResourceServiceClient`
 - [Cloud Dataplex API](/google/cloud/dataplex/README.md) - new
   `CatalogServiceClient`
 - [Network Services API](/google/cloud/networkservices/README.md) - new
   `DepServiceClient`
-- [AI Platform API](/google/cloud/aiplatform/README.md) - new
-  `NotebookServiceClient` and `PersistentResourceServiceClient`
+- [SecurityCenter](/google/cloud/securitycenter/README.md) - add v2 version of the library
+
+### [Bigtable](/google/cloud/bigtable/README.md)
+
+- fix(bigtable): respect GOOGLE_CLOUD_CPP_OPENTELEMETRY_TRACING ([#13748](https://github.com/googleapis/google-cloud-cpp/pull/13748))
+
+### [Pub/Sub](/google/cloud/pubsub/README.md)
+
+- docs(pubsub): add kinesis sample ([#13593](https://github.com/googleapis/google-cloud-cpp/pull/13593))
+
+### [Spanner](/google/cloud/spanner/README.md)
+
+- feat(spanner): add ExcludeTransactionFromChangeStreamsOption ([#13898](https://github.com/googleapis/google-cloud-cpp/pull/13898))
+- feat(spanner): add spanner::Value support for TypeCode::FLOAT32 ([#13862](https://github.com/googleapis/google-cloud-cpp/pull/13862))
+- feat(spanner): add samples for proto columns ([#13759](https://github.com/googleapis/google-cloud-cpp/pull/13759))
+- feat(spanner): add integration tests for proto columns ([#13756](https://github.com/googleapis/google-cloud-cpp/pull/13756))
+- feat(spanner): add spanner::Value support for ProtoEnum/ProtoMessage ([#13747](https://github.com/googleapis/google-cloud-cpp/pull/13747))
+- feat(spanner): add representations for the Spanner PROTO/ENUM types ([#13743](https://github.com/googleapis/google-cloud-cpp/pull/13743))
+- feat(spanner): add sample for instance-admin managed autoscaler ([#13740](https://github.com/googleapis/google-cloud-cpp/pull/13740))
+
+### [Speech](/google/cloud/speech/README.md)
+
+- fix(speech): enable location specific connections ([#13757](https://github.com/googleapis/google-cloud-cpp/pull/13757))
+
+### [Storage](/google/cloud/storage/README.md)
+
+- fix(storage): preserve full Status in default creds ([#13897](https://github.com/googleapis/google-cloud-cpp/pull/13897))
+- fix(storage): respect `GOOGLE_CLOUD_CPP_OPENTELEMETRY_TRACING` ([#13766](https://github.com/googleapis/google-cloud-cpp/pull/13766))
+- feat(storage): support HNS-enabled buckets ([#13753](https://github.com/googleapis/google-cloud-cpp/pull/13753))
+- feat(storage): support soft delete timestamps ([#13728](https://github.com/googleapis/google-cloud-cpp/pull/13728))
+
+### [Common Libraries](/google/cloud/README.md)
+
+- feat(common): introduce `FieldMaskOption` ([#13936](https://github.com/googleapis/google-cloud-cpp/pull/13936))
+- docs(common): link to system parameters page ([#13937](https://github.com/googleapis/google-cloud-cpp/pull/13937))
+- feat(common): `QuotaUserOption` for gRPC-based libs ([#13933](https://github.com/googleapis/google-cloud-cpp/pull/13933))
+- fix(common): `clang-cl` needs a `const_cast<>` ([#13891](https://github.com/googleapis/google-cloud-cpp/pull/13891))
+- fix(compute): shorten paths for Bazel+MSVC ([#13836](https://github.com/googleapis/google-cloud-cpp/pull/13836))
+- feat(common): support injecting custom headers ([#13829](https://github.com/googleapis/google-cloud-cpp/pull/13829))
 
 ## v2.22.0 - 2024-03
 

@@ -16,7 +16,6 @@
 #define GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_STORAGE_ASYNC_REWRITER_H
 
 #include "google/cloud/storage/async/connection.h"
-#include "google/cloud/storage/async/object_requests.h"
 #include "google/cloud/storage/async/rewriter_connection.h"
 #include "google/cloud/storage/async/token.h"
 #include "google/cloud/storage/object_metadata.h"
@@ -24,6 +23,7 @@
 #include "google/cloud/status_or.h"
 #include "google/cloud/version.h"
 #include "absl/types/optional.h"
+#include <google/storage/v2/storage.pb.h>
 #include <cstdint>
 #include <memory>
 #include <utility>
@@ -67,8 +67,8 @@ class AsyncRewriter {
    * Calling this function on a default-constructed or moved-from
    * `AsyncRewriter` results in undefined behavior.
    */
-  future<StatusOr<std::pair<RewriteObjectResponse, AsyncToken>>> Iterate(
-      AsyncToken token);
+  future<StatusOr<std::pair<google::storage::v2::RewriteResponse, AsyncToken>>>
+  Iterate(AsyncToken token);
 
  private:
   std::shared_ptr<AsyncRewriterConnection> impl_;

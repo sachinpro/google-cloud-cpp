@@ -29,6 +29,7 @@
 #include "google/cloud/internal/absl_str_join_quiet.h"
 #include "google/cloud/internal/absl_str_replace_quiet.h"
 #include "google/cloud/internal/algorithm.h"
+#include "google/cloud/internal/make_status.h"
 #include "google/cloud/log.h"
 #include "absl/strings/str_split.h"
 #include "absl/strings/strip.h"
@@ -837,6 +838,12 @@ VarsDictionary CreateServiceVars(
   vars["service_authority_env_var"] =
       absl::StrCat(service_endpoint_env_var_prefix, "_AUTHORITY");
   vars["service_name"] = service_name;
+  vars["sources_cc_path"] =
+      absl::StrCat(vars["product_path"], "internal/",
+                   ServiceNameToFilePath(service_name), "_sources.cc");
+  vars["streaming_cc_path"] =
+      absl::StrCat(vars["product_path"], "internal/",
+                   ServiceNameToFilePath(service_name), "_streaming.cc");
   vars["stub_class_name"] = absl::StrCat(service_name, "Stub");
   vars["stub_cc_path"] =
       absl::StrCat(vars["product_path"], "internal/",
@@ -970,14 +977,15 @@ Status PrintMethod(google::protobuf::MethodDescriptor const& method,
   }
 
   if (matching_patterns.empty())
-    return Status(StatusCode::kNotFound,
-                  absl::StrCat(file, ":", line, ": no matching patterns for: ",
-                               method.full_name()));
+    return internal::NotFoundError(
+        absl::StrCat(file, ":", line,
+                     ": no matching patterns for: ", method.full_name()),
+        GCP_ERROR_INFO());
   if (matching_patterns.size() > 1)
-    return Status(
-        StatusCode::kInternal,
-        absl::StrCat(file, ":", line, ": more than one pattern found for: ",
-                     method.full_name()));
+    return internal::InternalError(
+        absl::StrCat(file, ":", line,
+                     ": more than one pattern found for: ", method.full_name()),
+        GCP_ERROR_INFO());
   for (auto const& f : matching_patterns[0].fragments()) {
     printer.Print(line, file, vars, f(method));
   }

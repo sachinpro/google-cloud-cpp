@@ -343,6 +343,9 @@ See each library's `README.md` file for more information about:
 - [Cloud Profiler API](google/cloud/profiler/README.md)
   [\[quickstart\]](google/cloud/profiler/quickstart/README.md)
   [\[reference\]](https://cloud.google.com/cpp/docs/reference/profiler/latest)
+- [Public Certificate Authority API](google/cloud/publicca/README.md)
+  [\[quickstart\]](google/cloud/publicca/quickstart/README.md)
+  [\[reference\]](https://cloud.google.com/cpp/docs/reference/publicca/latest)
 - [Google Cloud Pub/Sub](google/cloud/pubsub/README.md)
   [\[quickstart\]](google/cloud/pubsub/quickstart/README.md)
   [\[reference\]](https://cloud.google.com/cpp/docs/reference/pubsub/latest)
@@ -415,6 +418,9 @@ See each library's `README.md` file for more information about:
 - [Google Cloud Storage](google/cloud/storage/README.md)
   [\[quickstart\]](google/cloud/storage/quickstart/README.md)
   [\[reference\]](https://cloud.google.com/cpp/docs/reference/storage/latest)
+- [Storage Control API](google/cloud/storagecontrol/README.md)
+  [\[quickstart\]](google/cloud/storagecontrol/quickstart/README.md)
+  [\[reference\]](https://cloud.google.com/cpp/docs/reference/storagecontrol/latest)
 - [Storage Insights API](google/cloud/storageinsights/README.md)
   [\[quickstart\]](google/cloud/storageinsights/quickstart/README.md)
   [\[reference\]](https://cloud.google.com/cpp/docs/reference/storageinsights/latest)
@@ -537,7 +543,7 @@ The binary artifacts, such as examples, will be placed in `cmake-out/`.
   - Language Version (>= C++14).
   - Operating Systems: Windows, macOS, and Linux.
   - Build Systems: Bazel (>= 6.0), CMake (>= 3.10).
-  - Compilers: GCC (>= 7.3), Clang (>= 6.0), MSVC (>= 2019), Apple Clang (>=
+  - Compilers: GCC (>= 7.3), Clang (>= 6.0), MSVC (>= 2022), Apple Clang (>=
     12).
 - This project uses dependencies described in
   [doc/packaging.md](https://github.com/googleapis/google-cloud-cpp/blob/main/doc/packaging.md).

@@ -53,7 +53,7 @@ ENV PATH=/usr/local/bin:${PATH}
 
 # ```bash
 WORKDIR /var/tmp/build/re2
-RUN curl -fsSL https://github.com/google/re2/archive/2024-04-01.tar.gz | \
+RUN curl -fsSL https://github.com/google/re2/archive/2024-05-01.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
@@ -72,7 +72,7 @@ RUN curl -fsSL https://github.com/google/re2/archive/2024-04-01.tar.gz | \
 
 # ```bash
 WORKDIR /var/tmp/build/protobuf
-RUN curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v26.1.tar.gz | \
+RUN curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v27.0.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
@@ -92,7 +92,7 @@ RUN curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v26.1.tar.gz 
 
 # ```bash
 WORKDIR /var/tmp/build/grpc
-RUN curl -fsSL https://github.com/grpc/grpc/archive/v1.62.1.tar.gz | \
+RUN curl -fsSL https://github.com/grpc/grpc/archive/v1.64.0.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
@@ -120,7 +120,7 @@ RUN curl -fsSL https://github.com/grpc/grpc/archive/v1.62.1.tar.gz | \
 
 # ```bash
 WORKDIR /var/tmp/build/opentelemetry-cpp
-RUN curl -fsSL https://github.com/open-telemetry/opentelemetry-cpp/archive/v1.14.2.tar.gz | \
+RUN curl -fsSL https://github.com/open-telemetry/opentelemetry-cpp/archive/v1.15.0.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
@@ -145,7 +145,7 @@ ENV CC=gcc-8
 ## [DONE packaging.md]
 
 WORKDIR /var/tmp/sccache
-RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v0.7.7/sccache-v0.7.7-x86_64-unknown-linux-musl.tar.gz | \
+RUN curl -fsSL https://github.com/mozilla/sccache/releases/download/v0.8.1/sccache-v0.8.1-x86_64-unknown-linux-musl.tar.gz | \
     tar -zxf - --strip-components=1 && \
     mkdir -p /usr/local/bin && \
     mv sccache /usr/local/bin/sccache && \

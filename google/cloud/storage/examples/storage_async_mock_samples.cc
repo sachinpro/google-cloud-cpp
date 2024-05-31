@@ -37,7 +37,9 @@ TEST(StorageAsyncMockingSamples, MockDeleteObject) {
       .WillOnce(Return(ByMove(gc::make_ready_future(gc::Status{}))));
 
   auto client = gcs_ex::AsyncClient(mock);
-  auto actual = client.DeleteObject("test-bucket", "test-object").get();
+  auto actual =
+      client.DeleteObject(gcs_ex::BucketName("test-bucket"), "test-object")
+          .get();
   EXPECT_TRUE(actual.ok());
 }
 //! [mock-async-delete-object]
@@ -79,7 +81,9 @@ TEST(StorageAsyncMockingSamples, MockReadObject) {
   gcs_ex::AsyncReader reader;
   gcs_ex::AsyncToken token;
   std::tie(reader, token) =
-      client.ReadObject("test-bucket", "test-object").get().value();
+      client.ReadObject(gcs_ex::BucketName("test-bucket"), "test-object")
+          .get()
+          .value();
 
   gcs_ex::ReadPayload payload;
   gcs_ex::AsyncToken t;  // Avoid use-after-move warnings from clang-tidy.

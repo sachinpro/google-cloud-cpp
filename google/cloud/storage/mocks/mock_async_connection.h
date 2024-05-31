@@ -32,7 +32,7 @@ GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 class MockAsyncConnection : public storage_experimental::AsyncConnection {
  public:
   MOCK_METHOD(Options, options, (), (const, override));
-  MOCK_METHOD(future<StatusOr<storage::ObjectMetadata>>, InsertObject,
+  MOCK_METHOD(future<StatusOr<google::storage::v2::Object>>, InsertObject,
               (InsertObjectParams), (override));
   MOCK_METHOD(
       future<StatusOr<
@@ -48,7 +48,15 @@ class MockAsyncConnection : public storage_experimental::AsyncConnection {
       future<StatusOr<
           std::unique_ptr<storage_experimental::AsyncWriterConnection>>>,
       StartBufferedUpload, (UploadParams), (override));
-  MOCK_METHOD(future<StatusOr<storage::ObjectMetadata>>, ComposeObject,
+  MOCK_METHOD(
+      future<StatusOr<
+          std::unique_ptr<storage_experimental::AsyncWriterConnection>>>,
+      ResumeUnbufferedUpload, (ResumeUploadParams), (override));
+  MOCK_METHOD(
+      future<StatusOr<
+          std::unique_ptr<storage_experimental::AsyncWriterConnection>>>,
+      ResumeBufferedUpload, (ResumeUploadParams), (override));
+  MOCK_METHOD(future<StatusOr<google::storage::v2::Object>>, ComposeObject,
               (ComposeObjectParams), (override));
   MOCK_METHOD(future<Status>, DeleteObject, (DeleteObjectParams), (override));
   MOCK_METHOD(std::shared_ptr<storage_experimental::AsyncRewriterConnection>,

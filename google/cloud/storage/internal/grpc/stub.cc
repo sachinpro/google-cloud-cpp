@@ -20,6 +20,7 @@
 #include "google/cloud/storage/internal/grpc/bucket_request_parser.h"
 #include "google/cloud/storage/internal/grpc/configure_client_context.h"
 #include "google/cloud/storage/internal/grpc/ctype_cord_workaround.h"
+#include "google/cloud/storage/internal/grpc/default_options.h"
 #include "google/cloud/storage/internal/grpc/hmac_key_metadata_parser.h"
 #include "google/cloud/storage/internal/grpc/hmac_key_request_parser.h"
 #include "google/cloud/storage/internal/grpc/notification_metadata_parser.h"
@@ -34,13 +35,9 @@
 #include "google/cloud/storage/internal/grpc/split_write_object_data.h"
 #include "google/cloud/storage/internal/grpc/synthetic_self_link.h"
 #include "google/cloud/storage/internal/storage_stub_factory.h"
-#include "google/cloud/grpc_options.h"
 #include "google/cloud/internal/big_endian.h"
-#include "google/cloud/internal/getenv.h"
 #include "google/cloud/internal/invoke_result.h"
-#include "google/cloud/internal/populate_common_options.h"
-#include "google/cloud/internal/service_endpoint.h"
-#include "google/cloud/log.h"
+#include "google/cloud/internal/make_status.h"
 #include "absl/strings/match.h"
 #include "absl/time/time.h"
 #include <grpcpp/grpcpp.h>
@@ -82,9 +79,9 @@ StatusOr<storage::BucketAccessControl> FindBucketAccessControl(
     if (acl.entity() != entity && acl.entity_alt() != entity) continue;
     return FromProto(acl, response->bucket_id(), bucket_self_link);
   }
-  return Status(
-      StatusCode::kNotFound,
-      "cannot find entity <" + entity + "> in bucket " + response->bucket_id());
+  return google::cloud::internal::NotFoundError(
+      "cannot find entity <" + entity + "> in bucket " + response->bucket_id(),
+      GCP_ERROR_INFO());
 }
 
 // Used in the implementation of `*ObjectAcl()`.
@@ -98,9 +95,10 @@ StatusOr<storage::ObjectAccessControl> FindObjectAccessControl(
     return FromProto(acl, bucket_id, response->name(), response->generation(),
                      object_self_link);
   }
-  return Status(StatusCode::kNotFound, "cannot find entity <" + entity +
-                                           "> in bucket/object " + bucket_id +
-                                           "/" + response->name());
+  return google::cloud::internal::NotFoundError(
+      "cannot find entity <" + entity + "> in bucket/object " + bucket_id +
+          "/" + response->name(),
+      GCP_ERROR_INFO());
 }
 
 // Used in the implementation of `*DefaultObjectAcl()`.
@@ -111,15 +109,16 @@ StatusOr<storage::ObjectAccessControl> FindDefaultObjectAccessControl(
     if (acl.entity() != entity && acl.entity_alt() != entity) continue;
     return FromProtoDefaultObjectAccessControl(acl, response->bucket_id());
   }
-  return Status(
-      StatusCode::kNotFound,
-      "cannot find entity <" + entity + "> in bucket " + response->bucket_id());
+  return google::cloud::internal::NotFoundError(
+      "cannot find entity <" + entity + "> in bucket " + response->bucket_id(),
+      GCP_ERROR_INFO());
 }
 
 Status TimeoutError(std::chrono::milliseconds timeout, std::string const& op) {
-  return Status(StatusCode::kDeadlineExceeded,
-                "timeout [" + absl::FormatDuration(absl::FromChrono(timeout)) +
-                    "] while waiting for " + op);
+  return google::cloud::internal::DeadlineExceededError(
+      "timeout [" + absl::FormatDuration(absl::FromChrono(timeout)) +
+          "] while waiting for " + op,
+      GCP_ERROR_INFO());
 }
 
 StatusOr<storage::internal::QueryResumableUploadResponse>
@@ -181,63 +180,6 @@ CloseWriteObjectStream(std::chrono::milliseconds timeout,
 
 using ::google::cloud::internal::MakeBackgroundThreadsFactory;
 
-int DefaultGrpcNumChannels(std::string const& endpoint) {
-  // When using DirectPath the gRPC library already does load balancing across
-  // multiple sockets, it makes little sense to perform additional load
-  // balancing in the client library.
-  if (absl::StartsWith(endpoint, "google-c2p:///") ||
-      absl::StartsWith(endpoint, "google-c2p-experimental:///")) {
-    return 1;
-  }
-  // When not using DirectPath, there are limits to the bandwidth per channel,
-  // we want to create more channels to avoid hitting said limits.  The value
-  // here is mostly a guess: we know 1 channel is too little for most
-  // applications, but the ideal number depends on the workload.  The
-  // application can always override this default, so it is not important to
-  // have it exactly right.
-  auto constexpr kMinimumChannels = 4;
-  auto const count = std::thread::hardware_concurrency();
-  return (std::max)(kMinimumChannels, static_cast<int>(count));
-}
-
-Options DefaultOptionsGrpc(Options options) {
-  using ::google::cloud::internal::GetEnv;
-  // Experiments show that gRPC gets better upload throughput when the upload
-  // buffer is at least 32MiB.
-  auto constexpr kDefaultGrpcUploadBufferSize = 32 * 1024 * 1024L;
-  options = google::cloud::internal::MergeOptions(
-      std::move(options), Options{}.set<storage::UploadBufferSizeOption>(
-                              kDefaultGrpcUploadBufferSize));
-  options =
-      storage::internal::DefaultOptionsWithCredentials(std::move(options));
-  if (!options.has<UnifiedCredentialsOption>() &&
-      !options.has<GrpcCredentialOption>()) {
-    options.set<UnifiedCredentialsOption>(
-        google::cloud::MakeGoogleDefaultCredentials(
-            google::cloud::internal::MakeAuthOptions(options)));
-  }
-  auto const testbench =
-      GetEnv("CLOUD_STORAGE_EXPERIMENTAL_GRPC_TESTBENCH_ENDPOINT");
-  if (testbench.has_value() && !testbench->empty()) {
-    options.set<EndpointOption>(*testbench);
-    // The emulator does not support HTTPS or authentication, use insecure
-    // (sometimes called "anonymous") credentials, which disable SSL.
-    options.set<UnifiedCredentialsOption>(MakeInsecureCredentials());
-  }
-
-  auto const ep = google::cloud::internal::UniverseDomainEndpoint(
-      "storage.googleapis.com", options);
-  options = google::cloud::internal::MergeOptions(
-      std::move(options),
-      Options{}.set<EndpointOption>(ep).set<AuthorityOption>(ep));
-  // We can only compute this once the endpoint is known, so take an additional
-  // step.
-  auto const num_channels =
-      DefaultGrpcNumChannels(options.get<EndpointOption>());
-  return google::cloud::internal::MergeOptions(
-      std::move(options), Options{}.set<GrpcNumChannelsOption>(num_channels));
-}
-
 GrpcStub::GrpcStub(Options opts)
     : options_(std::move(opts)),
       background_(MakeBackgroundThreadsFactory(options_)()),
@@ -283,8 +225,8 @@ StatusOr<storage::BucketMetadata> GrpcStub::CreateBucket(
   // as we do for the JSON transport.
   auto const code = response.status().code();
   if (code == StatusCode::kFailedPrecondition || code == StatusCode::kAborted) {
-    return Status(StatusCode::kAlreadyExists, response.status().message(),
-                  response.status().error_info());
+    return google::cloud::internal::AlreadyExistsError(
+        response.status().message(), response.status().error_info());
   }
   return std::move(response).status();
 }
@@ -460,9 +402,9 @@ StatusOr<storage::ObjectMetadata> GrpcStub::CopyObject(
   auto response = stub_->RewriteObject(ctx, options, *proto);
   if (!response) return std::move(response).status();
   if (!response->done()) {
-    return Status(
-        StatusCode::kOutOfRange,
-        "Object too large, use RewriteObject() instead of CopyObject()");
+    return google::cloud::internal::OutOfRangeError(
+        "Object too large, use RewriteObject() instead of CopyObject()",
+        GCP_ERROR_INFO());
   }
   return FromProto(response->resource(), options);
 }
@@ -759,10 +701,10 @@ StatusOr<storage::internal::EmptyResponse> GrpcStub::DeleteBucketAcl(
           return a.entity() == entity || a.entity_alt() == entity;
         });
     if (i == acl.end()) {
-      return Status(StatusCode::kNotFound,
-                    "the entity <" + request.entity() +
-                        "> is not present in the ACL for bucket " +
-                        request.bucket_name());
+      return google::cloud::internal::NotFoundError(
+          "the entity <" + request.entity() +
+              "> is not present in the ACL for bucket " + request.bucket_name(),
+          GCP_ERROR_INFO());
     }
     acl.erase(i, acl.end());
     return acl;
@@ -853,10 +795,10 @@ StatusOr<storage::internal::EmptyResponse> GrpcStub::DeleteObjectAcl(
           return a.entity() == entity || a.entity_alt() == entity;
         });
     if (i == acl.end()) {
-      return Status(StatusCode::kNotFound,
-                    "the entity <" + request.entity() +
-                        "> is not present in the ACL for object " +
-                        request.object_name());
+      return google::cloud::internal::NotFoundError(
+          "the entity <" + request.entity() +
+              "> is not present in the ACL for object " + request.object_name(),
+          GCP_ERROR_INFO());
     }
     acl.erase(i, acl.end());
     return acl;
@@ -959,10 +901,10 @@ StatusOr<storage::internal::EmptyResponse> GrpcStub::DeleteDefaultObjectAcl(
           return a.entity() == entity || a.entity_alt() == entity;
         });
     if (i == acl.end()) {
-      return Status(StatusCode::kNotFound,
-                    "the entity <" + request.entity() +
-                        "> is not present in the ACL for bucket " +
-                        request.bucket_name());
+      return google::cloud::internal::NotFoundError(
+          "the entity <" + request.entity() +
+              "> is not present in the ACL for bucket " + request.bucket_name(),
+          GCP_ERROR_INFO());
     }
     acl.erase(i, acl.end());
     return acl;
@@ -1219,10 +1161,10 @@ StatusOr<google::storage::v2::Bucket> GrpcStub::ModifyBucketAccessControl(
   auto patch = PatchBucketImpl(context, options, patch_request);
   // Retry on failed preconditions
   if (patch.status().code() == StatusCode::kFailedPrecondition) {
-    return Status(
-        StatusCode::kUnavailable,
+    return google::cloud::internal::UnavailableError(
         "retrying BucketAccessControl change due to conflict, bucket=" +
-            request.bucket_name());
+            request.bucket_name(),
+        patch.status().error_info());
   }
   return patch;
 }
@@ -1254,10 +1196,10 @@ StatusOr<google::storage::v2::Object> GrpcStub::ModifyObjectAccessControl(
   auto patch = PatchObjectImpl(context, options, patch_request);
   // Retry on failed preconditions
   if (patch.status().code() == StatusCode::kFailedPrecondition) {
-    return Status(
-        StatusCode::kUnavailable,
+    return google::cloud::internal::UnavailableError(
         "retrying ObjectAccessControl change due to conflict, bucket=" +
-            request.bucket_name() + ", object=" + request.object_name());
+            request.bucket_name() + ", object=" + request.object_name(),
+        patch.status().error_info());
   }
   return patch;
 }
@@ -1286,10 +1228,10 @@ StatusOr<google::storage::v2::Bucket> GrpcStub::ModifyDefaultAccessControl(
   auto patch = PatchBucketImpl(context, options, patch_request);
   // Retry on failed preconditions
   if (patch.status().code() == StatusCode::kFailedPrecondition) {
-    return Status(
-        StatusCode::kUnavailable,
+    return google::cloud::internal::UnavailableError(
         "retrying BucketAccessControl change due to conflict, bucket=" +
-            request.bucket_name());
+            request.bucket_name(),
+        patch.status().error_info());
   }
   return patch;
 }

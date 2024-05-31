@@ -45,28 +45,44 @@ auto HandleFinishAfterError(Status s) {
 
 AsyncWriterConnectionImpl::AsyncWriterConnectionImpl(
     google::cloud::internal::ImmutableOptions options,
-    std::unique_ptr<StreamingRpc> impl, std::string upload_id,
+    google::storage::v2::BidiWriteObjectRequest request,
+    std::unique_ptr<StreamingRpc> impl,
     std::shared_ptr<storage::internal::HashFunction> hash_function,
     std::int64_t persisted_size)
-    : options_(std::move(options)),
-      impl_(std::move(impl)),
-      upload_id_(std::move(upload_id)),
-      hash_function_(std::move(hash_function)),
-      persisted_state_(persisted_size),
-      offset_(persisted_size),
-      finished_(on_finish_.get_future()) {}
+    : AsyncWriterConnectionImpl(std::move(options), std::move(request),
+                                std::move(impl), std::move(hash_function),
+                                PersistedStateType(persisted_size),
+                                /*offset=*/persisted_size) {}
 
 AsyncWriterConnectionImpl::AsyncWriterConnectionImpl(
     google::cloud::internal::ImmutableOptions options,
-    std::unique_ptr<StreamingRpc> impl, std::string upload_id,
+    google::storage::v2::BidiWriteObjectRequest request,
+    std::unique_ptr<StreamingRpc> impl,
     std::shared_ptr<storage::internal::HashFunction> hash_function,
-    storage::ObjectMetadata metadata)
+    google::storage::v2::Object metadata)
+    : AsyncWriterConnectionImpl(std::move(options), std::move(request),
+                                std::move(impl), std::move(hash_function),
+                                PersistedStateType(std::move(metadata)),
+                                /*offset=*/0) {}
+
+AsyncWriterConnectionImpl::AsyncWriterConnectionImpl(
+    google::cloud::internal::ImmutableOptions options,
+    google::storage::v2::BidiWriteObjectRequest request,
+    std::unique_ptr<StreamingRpc> impl,
+    std::shared_ptr<storage::internal::HashFunction> hash_function,
+    PersistedStateType persisted_state, std::int64_t offset)
     : options_(std::move(options)),
       impl_(std::move(impl)),
-      upload_id_(std::move(upload_id)),
+      request_(std::move(request)),
       hash_function_(std::move(hash_function)),
-      persisted_state_(std::move(metadata)),
-      finished_(on_finish_.get_future()) {}
+      persisted_state_(std::move(persisted_state)),
+      offset_(offset),
+      finished_(on_finish_.get_future()) {
+  request_.clear_object_checksums();
+  request_.set_state_lookup(false);
+  request_.set_flush(false);
+  request_.set_finish_write(false);
+}
 
 AsyncWriterConnectionImpl::~AsyncWriterConnectionImpl() {
   // Cancel the streaming RPC.
@@ -84,9 +100,11 @@ AsyncWriterConnectionImpl::~AsyncWriterConnectionImpl() {
   });
 }
 
-std::string AsyncWriterConnectionImpl::UploadId() const { return upload_id_; }
+std::string AsyncWriterConnectionImpl::UploadId() const {
+  return request_.upload_id();
+}
 
-absl::variant<std::int64_t, storage::ObjectMetadata>
+absl::variant<std::int64_t, google::storage::v2::Object>
 AsyncWriterConnectionImpl::PersistedState() const {
   return persisted_state_;
 }
@@ -105,7 +123,8 @@ future<Status> AsyncWriterConnectionImpl::Write(
   });
 }
 
-future<StatusOr<storage::ObjectMetadata>> AsyncWriterConnectionImpl::Finalize(
+future<StatusOr<google::storage::v2::Object>>
+AsyncWriterConnectionImpl::Finalize(
     storage_experimental::WritePayload payload) {
   auto write = MakeRequest();
   write.set_finish_write(true);
@@ -144,10 +163,11 @@ RpcMetadata AsyncWriterConnectionImpl::GetRequestMetadata() {
 
 google::storage::v2::BidiWriteObjectRequest
 AsyncWriterConnectionImpl::MakeRequest() {
-  auto request = google::storage::v2::BidiWriteObjectRequest{};
+  auto request = request_;
   if (first_request_) {
-    request.set_upload_id(upload_id_);
     first_request_ = false;
+  } else {
+    request.clear_upload_id();
   }
   request.set_write_offset(offset_);
   return request;
@@ -166,11 +186,11 @@ future<Status> AsyncWriterConnectionImpl::OnPartialUpload(
   return make_ready_future(Status{});
 }
 
-future<StatusOr<storage::ObjectMetadata>>
+future<StatusOr<google::storage::v2::Object>>
 AsyncWriterConnectionImpl::OnFinalUpload(std::size_t upload_size,
                                          StatusOr<bool> success) {
   auto transform = [](future<Status> f) {
-    return StatusOr<storage::ObjectMetadata>(f.get());
+    return StatusOr<google::storage::v2::Object>(f.get());
   };
   if (!success) {
     return Finish()
@@ -186,16 +206,16 @@ AsyncWriterConnectionImpl::OnFinalUpload(std::size_t upload_size,
   offset_ += upload_size;
   return impl_->Read()
       .then([this](auto f) { return OnQuery(f.get()); })
-      .then([this](auto g) -> StatusOr<storage::ObjectMetadata> {
+      .then([this](auto g) -> StatusOr<google::storage::v2::Object> {
         auto status = g.get();
         if (!status) return std::move(status).status();
-        if (!absl::holds_alternative<storage::ObjectMetadata>(
+        if (!absl::holds_alternative<google::storage::v2::Object>(
                 persisted_state_)) {
           return internal::InternalError(
               "no object metadata returned after finalizing upload",
               GCP_ERROR_INFO());
         }
-        return absl::get<storage::ObjectMetadata>(persisted_state_);
+        return absl::get<google::storage::v2::Object>(persisted_state_);
       });
 }
 
@@ -212,7 +232,7 @@ future<StatusOr<std::int64_t>> AsyncWriterConnectionImpl::OnQuery(
     return make_ready_future(make_status_or(response->persisted_size()));
   }
   if (response->has_resource()) {
-    persisted_state_ = FromProto(response->resource(), *options_);
+    persisted_state_ = response->resource();
     return make_ready_future(make_status_or(response->resource().size()));
   }
   return make_ready_future(make_status_or(static_cast<std::int64_t>(0)));

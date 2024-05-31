@@ -15,6 +15,7 @@
 #include "google/cloud/internal/grpc_request_metadata.h"
 #include "google/cloud/internal/absl_str_cat_quiet.h"
 #include "google/cloud/internal/absl_str_join_quiet.h"
+#include "google/cloud/internal/grpc_metadata_view.h"
 #include <grpcpp/grpcpp.h>
 
 namespace google {
@@ -32,25 +33,15 @@ std::string ToString(grpc_compression_algorithm algo) {
   }
   return name;
 }
-}  // namespace
 
-RpcMetadata GetRequestMetadataFromContext(grpc::ClientContext const& context) {
-  RpcMetadata metadata{
-      /*.headers=*/{
-          // Use invalid header names (starting with ':') to store the
-          // grpc::ClientContext metadata.
-          {":grpc-context-peer", context.peer()},
-          {":grpc-context-compression-algorithm",
-           ToString(context.compression_algorithm())},
-
-      },
-      /*.trailers=*/{},
-  };
+void AddServerRequestMetadata(grpc::ClientContext const& context,
+                              RpcMetadata& metadata) {
   auto hint = metadata.headers.end();
   for (auto const& kv : context.GetServerInitialMetadata()) {
     // gRPC metadata is stored in `grpc::string_ref`, a type inspired by
-    // `std::string_view`. We need to explicitly convert these to `std::string`.
-    // In addition, we use a prefix to distinguish initial vs. trailing headers.
+    // `std::string_view`. We need to explicitly convert these to
+    // `std::string`. In addition, we use a prefix to distinguish initial vs.
+    // trailing headers.
     auto key = std::string{kv.first.data(), kv.first.size()};
     auto value = std::string{kv.second.data(), kv.second.size()};
     hint = std::next(
@@ -63,6 +54,26 @@ RpcMetadata GetRequestMetadataFromContext(grpc::ClientContext const& context) {
     auto value = std::string{kv.second.data(), kv.second.size()};
     hint = std::next(
         metadata.trailers.emplace_hint(hint, std::move(key), std::move(value)));
+  }
+}
+
+void AddContextMetadata(grpc::ClientContext const& context,
+                        RpcMetadata& metadata) {
+  // Use invalid header names (starting with ':') to store the
+  // grpc::ClientContext metadata.
+  metadata.headers.emplace(":grpc-context-peer", context.peer());
+  metadata.headers.emplace(":grpc-context-compression-algorithm",
+                           ToString(context.compression_algorithm()));
+}
+
+}  // namespace
+
+RpcMetadata GetRequestMetadataFromContext(grpc::ClientContext const& context,
+                                          GrpcMetadataView view) {
+  RpcMetadata metadata;
+  AddContextMetadata(context, metadata);
+  if (view == GrpcMetadataView::kWithServerMetadata) {
+    AddServerRequestMetadata(context, metadata);
   }
   return metadata;
 }

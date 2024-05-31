@@ -16,7 +16,9 @@
 #define GOOGLE_CLOUD_CPP_GOOGLE_CLOUD_OPENTELEMETRY_INTERNAL_TIME_SERIES_H
 
 #include "google/cloud/version.h"
+#include "absl/types/optional.h"
 #include <google/api/metric.pb.h>
+#include <google/api/monitored_resource.pb.h>
 #include <google/monitoring/v3/metric_service.pb.h>
 #include <opentelemetry/sdk/metrics/metric_reader.h>
 
@@ -25,9 +27,15 @@ namespace cloud {
 namespace otel_internal {
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_BEGIN
 
+// GCM enforces a limit of 200 TimeSeries per CreateTimeSeriesRequest.
+//
+// See: https://cloud.google.com/monitoring/quotas
+auto constexpr kMaxTimeSeriesPerRequest = 200;
+
 google::api::Metric ToMetric(
     opentelemetry::sdk::metrics::MetricData const& metric_data,
-    opentelemetry::sdk::metrics::PointAttributes const& attributes);
+    opentelemetry::sdk::metrics::PointAttributes const& attributes,
+    std::string const& prefix);
 
 google::monitoring::v3::TimeSeries ToTimeSeries(
     opentelemetry::sdk::metrics::MetricData const& metric_data,
@@ -40,6 +48,10 @@ google::monitoring::v3::TimeSeries ToTimeSeries(
 google::monitoring::v3::TimeSeries ToTimeSeries(
     opentelemetry::sdk::metrics::MetricData const& metric_data,
     opentelemetry::sdk::metrics::HistogramPointData const& histogram_data);
+
+google::api::MonitoredResource ToMonitoredResource(
+    opentelemetry::sdk::metrics::ResourceMetrics const& data,
+    absl::optional<google::api::MonitoredResource> const& mr_proto);
 
 /**
  * We need to convert from the C++ OpenTelemetry metrics implementation to
@@ -59,8 +71,21 @@ google::monitoring::v3::TimeSeries ToTimeSeries(
  * https://github.com/open-telemetry/opentelemetry-cpp/blob/fabd8cc2bc318cb47d5db7322ea9c8cd3f4b847a/exporters/otlp/src/otlp_metric_utils.cc
  * [OTLP]: https://opentelemetry.io/docs/specs/otel/protocol/
  */
-google::monitoring::v3::CreateTimeSeriesRequest ToRequest(
-    opentelemetry::sdk::metrics::ResourceMetrics const& data);
+std::vector<google::monitoring::v3::TimeSeries> ToTimeSeries(
+    opentelemetry::sdk::metrics::ResourceMetrics const& data,
+    std::string const& prefix);
+
+/**
+ * Convert from OpenTelemetry metrics to Cloud Monitoring protos.
+ *
+ * We return a vector of requests, because Cloud Monitoring limits the amount of
+ * TimeSeries per request.
+ *
+ * See: https://cloud.google.com/monitoring/quotas
+ */
+std::vector<google::monitoring::v3::CreateTimeSeriesRequest> ToRequests(
+    std::string const& project, google::api::MonitoredResource const& mr_proto,
+    std::vector<google::monitoring::v3::TimeSeries> tss);
 
 GOOGLE_CLOUD_CPP_INLINE_NAMESPACE_END
 }  // namespace otel_internal

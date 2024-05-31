@@ -42,6 +42,10 @@ environment variables are convenient when troubleshooting problems.
   `EndpointOption` (which defaults to "<location>-dialogflow.googleapis.com")
   used by `MakeFlowsConnection()`.
 
+- `GOOGLE_CLOUD_CPP_GENERATORS_ENDPOINT=...` overrides the
+  `EndpointOption` (which defaults to "<location>-dialogflow.googleapis.com")
+  used by `MakeGeneratorsConnection()`.
+
 - `GOOGLE_CLOUD_CPP_INTENTS_ENDPOINT=...` overrides the
   `EndpointOption` (which defaults to "<location>-dialogflow.googleapis.com")
   used by `MakeIntentsConnection()`.
@@ -86,7 +90,7 @@ request and response.  Unless you have configured your own logging backend,
 you should also set `GOOGLE_CLOUD_CPP_ENABLE_CLOG` to produce any output on
 the program's console.
 
-@see google::cloud::TracingComponentsOption
+@see google::cloud::LoggingComponentsOption
 
 `GOOGLE_CLOUD_CPP_TRACING_OPTIONS=...`: modifies the behavior of gRPC tracing,
 including whether messages will be output on multiple lines, or whether
