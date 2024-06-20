@@ -121,7 +121,7 @@ RUN curl -fsSL https://github.com/nlohmann/json/archive/v3.11.3.tar.gz | \
     cd /var/tmp && rm -fr build
 
 WORKDIR /var/tmp/build/protobuf
-RUN curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v27.0.tar.gz | \
+RUN curl -fsSL https://github.com/protocolbuffers/protobuf/archive/v27.1.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release \
@@ -145,7 +145,7 @@ RUN curl -fsSL https://github.com/c-ares/c-ares/archive/refs/tags/cares-1_17_1.t
     cd /var/tmp && rm -fr build
 
 WORKDIR /var/tmp/build/re2
-RUN curl -fsSL https://github.com/google/re2/archive/2024-05-01.tar.gz | \
+RUN curl -fsSL https://github.com/google/re2/archive/2024-06-01.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake -DCMAKE_BUILD_TYPE=Release \
         -DBUILD_SHARED_LIBS=ON \
@@ -173,7 +173,7 @@ RUN curl -fsSL https://github.com/open-telemetry/opentelemetry-cpp/archive/v1.15
     ldconfig && cd /var/tmp && rm -fr build
 
 WORKDIR /var/tmp/build/grpc
-RUN curl -fsSL https://github.com/grpc/grpc/archive/v1.64.0.tar.gz | \
+RUN curl -fsSL https://github.com/grpc/grpc/archive/v1.64.2.tar.gz | \
     tar -xzf - --strip-components=1 && \
     cmake \
         -DCMAKE_BUILD_TYPE=Release \

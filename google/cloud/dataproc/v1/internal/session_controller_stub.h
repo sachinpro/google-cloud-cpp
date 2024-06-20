@@ -24,6 +24,7 @@
 #include "google/cloud/options.h"
 #include "google/cloud/status_or.h"
 #include "google/cloud/version.h"
+#include <google/cloud/dataproc/v1/operations.pb.h>
 #include <google/cloud/dataproc/v1/sessions.grpc.pb.h>
 #include <google/longrunning/operations.grpc.pb.h>
 #include <memory>
@@ -44,6 +45,10 @@ class SessionControllerStub {
       google::cloud::internal::ImmutableOptions options,
       google::cloud::dataproc::v1::CreateSessionRequest const& request) = 0;
 
+  virtual StatusOr<google::longrunning::Operation> CreateSession(
+      grpc::ClientContext& context, Options options,
+      google::cloud::dataproc::v1::CreateSessionRequest const& request) = 0;
+
   virtual StatusOr<google::cloud::dataproc::v1::Session> GetSession(
       grpc::ClientContext& context, Options const& options,
       google::cloud::dataproc::v1::GetSessionRequest const& request) = 0;
@@ -60,10 +65,18 @@ class SessionControllerStub {
       google::cloud::internal::ImmutableOptions options,
       google::cloud::dataproc::v1::TerminateSessionRequest const& request) = 0;
 
+  virtual StatusOr<google::longrunning::Operation> TerminateSession(
+      grpc::ClientContext& context, Options options,
+      google::cloud::dataproc::v1::TerminateSessionRequest const& request) = 0;
+
   virtual future<StatusOr<google::longrunning::Operation>> AsyncDeleteSession(
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
+      google::cloud::dataproc::v1::DeleteSessionRequest const& request) = 0;
+
+  virtual StatusOr<google::longrunning::Operation> DeleteSession(
+      grpc::ClientContext& context, Options options,
       google::cloud::dataproc::v1::DeleteSessionRequest const& request) = 0;
 
   virtual future<StatusOr<google::longrunning::Operation>> AsyncGetOperation(
@@ -96,6 +109,11 @@ class DefaultSessionControllerStub : public SessionControllerStub {
       google::cloud::dataproc::v1::CreateSessionRequest const& request)
       override;
 
+  StatusOr<google::longrunning::Operation> CreateSession(
+      grpc::ClientContext& context, Options options,
+      google::cloud::dataproc::v1::CreateSessionRequest const& request)
+      override;
+
   StatusOr<google::cloud::dataproc::v1::Session> GetSession(
       grpc::ClientContext& context, Options const& options,
       google::cloud::dataproc::v1::GetSessionRequest const& request) override;
@@ -111,10 +129,20 @@ class DefaultSessionControllerStub : public SessionControllerStub {
       google::cloud::dataproc::v1::TerminateSessionRequest const& request)
       override;
 
+  StatusOr<google::longrunning::Operation> TerminateSession(
+      grpc::ClientContext& context, Options options,
+      google::cloud::dataproc::v1::TerminateSessionRequest const& request)
+      override;
+
   future<StatusOr<google::longrunning::Operation>> AsyncDeleteSession(
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
+      google::cloud::dataproc::v1::DeleteSessionRequest const& request)
+      override;
+
+  StatusOr<google::longrunning::Operation> DeleteSession(
+      grpc::ClientContext& context, Options options,
       google::cloud::dataproc::v1::DeleteSessionRequest const& request)
       override;
 

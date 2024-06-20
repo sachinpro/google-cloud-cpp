@@ -43,6 +43,8 @@ add_library(
     bucket_logging.h
     bucket_metadata.cc
     bucket_metadata.h
+    bucket_object_retention.cc
+    bucket_object_retention.h
     bucket_retention_policy.cc
     bucket_retention_policy.h
     bucket_rpo.h
@@ -55,6 +57,7 @@ add_library(
     client_options.cc
     client_options.h
     download_options.h
+    enable_object_retention.h
     hash_mismatch_error.h
     hashing_options.cc
     hashing_options.h
@@ -227,6 +230,8 @@ add_library(
     object_metadata.h
     object_read_stream.cc
     object_read_stream.h
+    object_retention.cc
+    object_retention.h
     object_rewriter.cc
     object_rewriter.h
     object_stream.h
@@ -234,6 +239,7 @@ add_library(
     object_write_stream.h
     options.h
     override_default_project.h
+    override_unlocked_retention.h
     owner.h
     parallel_upload.cc
     parallel_upload.h
@@ -425,6 +431,7 @@ if (BUILD_TESTING)
         bucket_cors_entry_test.cc
         bucket_iam_configuration_test.cc
         bucket_metadata_test.cc
+        bucket_object_retention_test.cc
         bucket_soft_delete_policy_test.cc
         client_bucket_acl_test.cc
         client_bucket_test.cc
@@ -509,6 +516,7 @@ if (BUILD_TESTING)
         oauth2/service_account_credentials_test.cc
         object_access_control_test.cc
         object_metadata_test.cc
+        object_retention_test.cc
         object_stream_test.cc
         parallel_uploads_test.cc
         policy_document_test.cc

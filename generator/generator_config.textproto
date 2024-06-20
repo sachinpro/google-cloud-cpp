@@ -344,6 +344,7 @@ service {
 
 service {
   service_proto_path: "google/cloud/automl/v1/prediction_service.proto"
+  additional_proto_files: ["google/cloud/automl/v1/operations.proto"]
   product_path: "google/cloud/automl/v1"
   forwarding_product_path: "google/cloud/automl"
   initial_copyright_year: "2022"
@@ -1841,6 +1842,7 @@ service {
 
 service {
   service_proto_path: "google/cloud/dataproc/v1/sessions.proto"
+  additional_proto_files: ["google/cloud/dataproc/v1/operations.proto"]
   product_path: "google/cloud/dataproc/v1"
   initial_copyright_year: "2024"
   retryable_status_codes: ["kUnavailable"]
@@ -2194,6 +2196,13 @@ service {
 }
 
 service {
+  service_proto_path: "google/cloud/discoveryengine/v1/control_service.proto"
+  product_path: "google/cloud/discoveryengine/v1"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
+}
+
+service {
   service_proto_path: "google/cloud/discoveryengine/v1/conversational_search_service.proto"
   product_path: "google/cloud/discoveryengine/v1"
   initial_copyright_year: "2023"
@@ -2216,6 +2225,27 @@ service {
 
 service {
   service_proto_path: "google/cloud/discoveryengine/v1/engine_service.proto"
+  product_path: "google/cloud/discoveryengine/v1"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
+}
+
+service {
+  service_proto_path: "google/cloud/discoveryengine/v1/grounded_generation_service.proto"
+  product_path: "google/cloud/discoveryengine/v1"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
+}
+
+service {
+  service_proto_path: "google/cloud/discoveryengine/v1/project_service.proto"
+  product_path: "google/cloud/discoveryengine/v1"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
+}
+
+service {
+  service_proto_path: "google/cloud/discoveryengine/v1/rank_service.proto"
   product_path: "google/cloud/discoveryengine/v1"
   initial_copyright_year: "2024"
   retryable_status_codes: ["kUnavailable"]
@@ -2481,6 +2511,20 @@ service {
 
 # KMS
 service {
+  service_proto_path: "google/cloud/kms/v1/autokey.proto"
+  product_path: "google/cloud/kms/v1"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
+}
+
+service {
+  service_proto_path: "google/cloud/kms/v1/autokey_admin.proto"
+  product_path: "google/cloud/kms/v1"
+  initial_copyright_year: "2024"
+  retryable_status_codes: ["kUnavailable"]
+}
+
+service {
   service_proto_path: "google/cloud/kms/v1/service.proto"
   product_path: "google/cloud/kms/v1"
   forwarding_product_path: "google/cloud/kms"
@@ -2558,6 +2602,14 @@ service {
   product_path: "google/cloud/managedidentities/v1"
   forwarding_product_path: "google/cloud/managedidentities"
   initial_copyright_year: "2022"
+  retryable_status_codes: ["kUnavailable"]
+}
+
+# Managed Kafka
+service {
+  service_proto_path: "google/cloud/managedkafka/v1/managed_kafka.proto"
+  product_path: "google/cloud/managedkafka/v1"
+  initial_copyright_year: "2024"
   retryable_status_codes: ["kUnavailable"]
 }
 

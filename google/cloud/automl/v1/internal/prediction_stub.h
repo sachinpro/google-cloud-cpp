@@ -24,6 +24,7 @@
 #include "google/cloud/options.h"
 #include "google/cloud/status_or.h"
 #include "google/cloud/version.h"
+#include <google/cloud/automl/v1/operations.pb.h>
 #include <google/cloud/automl/v1/prediction_service.grpc.pb.h>
 #include <google/longrunning/operations.grpc.pb.h>
 #include <memory>
@@ -46,6 +47,10 @@ class PredictionServiceStub {
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
+      google::cloud::automl::v1::BatchPredictRequest const& request) = 0;
+
+  virtual StatusOr<google::longrunning::Operation> BatchPredict(
+      grpc::ClientContext& context, Options options,
       google::cloud::automl::v1::BatchPredictRequest const& request) = 0;
 
   virtual future<StatusOr<google::longrunning::Operation>> AsyncGetOperation(
@@ -79,6 +84,10 @@ class DefaultPredictionServiceStub : public PredictionServiceStub {
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
+      google::cloud::automl::v1::BatchPredictRequest const& request) override;
+
+  StatusOr<google::longrunning::Operation> BatchPredict(
+      grpc::ClientContext& context, Options options,
       google::cloud::automl::v1::BatchPredictRequest const& request) override;
 
   future<StatusOr<google::longrunning::Operation>> AsyncGetOperation(

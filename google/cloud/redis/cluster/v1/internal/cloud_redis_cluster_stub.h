@@ -54,10 +54,20 @@ class CloudRedisClusterStub {
       google::cloud::redis::cluster::v1::UpdateClusterRequest const&
           request) = 0;
 
+  virtual StatusOr<google::longrunning::Operation> UpdateCluster(
+      grpc::ClientContext& context, Options options,
+      google::cloud::redis::cluster::v1::UpdateClusterRequest const&
+          request) = 0;
+
   virtual future<StatusOr<google::longrunning::Operation>> AsyncDeleteCluster(
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
+      google::cloud::redis::cluster::v1::DeleteClusterRequest const&
+          request) = 0;
+
+  virtual StatusOr<google::longrunning::Operation> DeleteCluster(
+      grpc::ClientContext& context, Options options,
       google::cloud::redis::cluster::v1::DeleteClusterRequest const&
           request) = 0;
 
@@ -67,6 +77,17 @@ class CloudRedisClusterStub {
       google::cloud::internal::ImmutableOptions options,
       google::cloud::redis::cluster::v1::CreateClusterRequest const&
           request) = 0;
+
+  virtual StatusOr<google::longrunning::Operation> CreateCluster(
+      grpc::ClientContext& context, Options options,
+      google::cloud::redis::cluster::v1::CreateClusterRequest const&
+          request) = 0;
+
+  virtual StatusOr<google::cloud::redis::cluster::v1::CertificateAuthority>
+  GetClusterCertificateAuthority(
+      grpc::ClientContext& context, Options const& options,
+      google::cloud::redis::cluster::v1::
+          GetClusterCertificateAuthorityRequest const& request) = 0;
 
   virtual future<StatusOr<google::longrunning::Operation>> AsyncGetOperation(
       google::cloud::CompletionQueue& cq,
@@ -108,10 +129,20 @@ class DefaultCloudRedisClusterStub : public CloudRedisClusterStub {
       google::cloud::redis::cluster::v1::UpdateClusterRequest const& request)
       override;
 
+  StatusOr<google::longrunning::Operation> UpdateCluster(
+      grpc::ClientContext& context, Options options,
+      google::cloud::redis::cluster::v1::UpdateClusterRequest const& request)
+      override;
+
   future<StatusOr<google::longrunning::Operation>> AsyncDeleteCluster(
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
+      google::cloud::redis::cluster::v1::DeleteClusterRequest const& request)
+      override;
+
+  StatusOr<google::longrunning::Operation> DeleteCluster(
+      grpc::ClientContext& context, Options options,
       google::cloud::redis::cluster::v1::DeleteClusterRequest const& request)
       override;
 
@@ -121,6 +152,17 @@ class DefaultCloudRedisClusterStub : public CloudRedisClusterStub {
       google::cloud::internal::ImmutableOptions options,
       google::cloud::redis::cluster::v1::CreateClusterRequest const& request)
       override;
+
+  StatusOr<google::longrunning::Operation> CreateCluster(
+      grpc::ClientContext& context, Options options,
+      google::cloud::redis::cluster::v1::CreateClusterRequest const& request)
+      override;
+
+  StatusOr<google::cloud::redis::cluster::v1::CertificateAuthority>
+  GetClusterCertificateAuthority(
+      grpc::ClientContext& context, Options const& options,
+      google::cloud::redis::cluster::v1::
+          GetClusterCertificateAuthorityRequest const& request) override;
 
   future<StatusOr<google::longrunning::Operation>> AsyncGetOperation(
       google::cloud::CompletionQueue& cq,

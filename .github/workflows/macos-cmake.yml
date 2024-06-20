@@ -18,7 +18,7 @@ permissions:
 jobs:
   cmake:
     name: cmake + ${{ matrix.os }} + ${{ matrix.shard }}
-    runs-on: ${{ matrix.os }}-xlarge
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: 'read'
       id-token: 'write'
@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
       matrix:
         exclude-from-full-trick: [ true ]
-        os: [ macos-13 ]
+        os: [ macos-14 ]
         shard: [ Core, Compute, Shard1, Other ]
         exclude:
         # Only full builds include shards with generated code.
@@ -38,7 +38,7 @@ jobs:
         - exclude-from-full-trick: ${{ ! inputs.full-matrix }}
           shard: Other
     steps:
-    - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4
+    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
       with:
         ref: ${{ inputs.checkout-ref }}
     - uses: google-github-actions/auth@v2

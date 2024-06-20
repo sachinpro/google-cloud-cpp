@@ -121,11 +121,11 @@ def gl_cpp_workspace0(name = None):
         http_archive,
         name = "com_google_googleapis",
         urls = [
-            "https://storage.googleapis.com/cloud-cpp-community-archive/com_google_googleapis/30717c0b0c9966906880703208a4c820411565c4.tar.gz",
-            "https://github.com/googleapis/googleapis/archive/30717c0b0c9966906880703208a4c820411565c4.tar.gz",
+            "https://storage.googleapis.com/cloud-cpp-community-archive/com_google_googleapis/51e66d3e8420252827c2a3dd0c25e42beedcb2c1.tar.gz",
+            "https://github.com/googleapis/googleapis/archive/51e66d3e8420252827c2a3dd0c25e42beedcb2c1.tar.gz",
         ],
-        sha256 = "bf49dfee4daecfbcd38bd07cd9b0fd9e303452ed7f54dda56171b500c1234e2e",
-        strip_prefix = "googleapis-30717c0b0c9966906880703208a4c820411565c4",
+        sha256 = "37b51f047e0ad4fae5ef25c17bcbb3628dfda5f1215f8f73571b556a8888769c",
+        strip_prefix = "googleapis-51e66d3e8420252827c2a3dd0c25e42beedcb2c1",
         build_file = Label("//bazel:googleapis.BUILD"),
         # Scaffolding for patching googleapis after download. For example:
         #   patches = ["googleapis.patch"]
@@ -142,11 +142,11 @@ def gl_cpp_workspace0(name = None):
         http_archive,
         name = "com_google_protobuf",
         urls = [
-            "https://storage.googleapis.com/cloud-cpp-community-archive/com_google_protobuf/v27.0.tar.gz",
-            "https://github.com/protocolbuffers/protobuf/archive/v27.0.tar.gz",
+            "https://storage.googleapis.com/cloud-cpp-community-archive/com_google_protobuf/v27.1.tar.gz",
+            "https://github.com/protocolbuffers/protobuf/archive/v27.1.tar.gz",
         ],
-        sha256 = "da288bf1daa6c04d03a9051781caa52aceb9163586bff9aa6cfb12f69b9395aa",
-        strip_prefix = "protobuf-27.0",
+        sha256 = "6fbe2e6f703bcd3a246529c2cab586ca12a98c4e641f5f71d51fde09eb48e9e7",
+        strip_prefix = "protobuf-27.1",
     )
 
     # Load BoringSSL. This could be automatically loaded by gRPC. But as of
@@ -170,11 +170,11 @@ def gl_cpp_workspace0(name = None):
         http_archive,
         name = "com_github_grpc_grpc",
         urls = [
-            "https://storage.googleapis.com/cloud-cpp-community-archive/com_github_grpc_grpc/v1.64.0.tar.gz",
-            "https://github.com/grpc/grpc/archive/v1.64.0.tar.gz",
+            "https://storage.googleapis.com/cloud-cpp-community-archive/com_github_grpc_grpc/v1.64.2.tar.gz",
+            "https://github.com/grpc/grpc/archive/v1.64.2.tar.gz",
         ],
-        sha256 = "d5509e40fb24f6390deeef8a88668124f4ec77d2ebb3b1a957b235a2f08b70c0",
-        strip_prefix = "grpc-1.64.0",
+        sha256 = "c682fc39baefc6e804d735e6b48141157b7213602cc66dbe0bf375b904d8b5f9",
+        strip_prefix = "grpc-1.64.2",
     )
 
     # We use the cc_proto_library() rule from @com_google_protobuf, which
@@ -212,7 +212,6 @@ def gl_cpp_workspace0(name = None):
         ],
         sha256 = "0d8ef5af7f9794e3263480193c491549b2ba6cc74bb018906202ada498a79406",
         strip_prefix = "json-3.11.3",
-        build_file = Label("//bazel:nlohmann_json.BUILD"),
     )
 
     # Load google/crc32c, a library to efficiently compute CRC32C checksums.

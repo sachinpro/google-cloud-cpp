@@ -44,6 +44,10 @@ class DatasetServiceStub {
       google::cloud::internal::ImmutableOptions options,
       google::cloud::aiplatform::v1::CreateDatasetRequest const& request) = 0;
 
+  virtual StatusOr<google::longrunning::Operation> CreateDataset(
+      grpc::ClientContext& context, Options options,
+      google::cloud::aiplatform::v1::CreateDatasetRequest const& request) = 0;
+
   virtual StatusOr<google::cloud::aiplatform::v1::Dataset> GetDataset(
       grpc::ClientContext& context, Options const& options,
       google::cloud::aiplatform::v1::GetDatasetRequest const& request) = 0;
@@ -63,16 +67,28 @@ class DatasetServiceStub {
       google::cloud::internal::ImmutableOptions options,
       google::cloud::aiplatform::v1::DeleteDatasetRequest const& request) = 0;
 
+  virtual StatusOr<google::longrunning::Operation> DeleteDataset(
+      grpc::ClientContext& context, Options options,
+      google::cloud::aiplatform::v1::DeleteDatasetRequest const& request) = 0;
+
   virtual future<StatusOr<google::longrunning::Operation>> AsyncImportData(
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
       google::cloud::aiplatform::v1::ImportDataRequest const& request) = 0;
 
+  virtual StatusOr<google::longrunning::Operation> ImportData(
+      grpc::ClientContext& context, Options options,
+      google::cloud::aiplatform::v1::ImportDataRequest const& request) = 0;
+
   virtual future<StatusOr<google::longrunning::Operation>> AsyncExportData(
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
+      google::cloud::aiplatform::v1::ExportDataRequest const& request) = 0;
+
+  virtual StatusOr<google::longrunning::Operation> ExportData(
+      grpc::ClientContext& context, Options options,
       google::cloud::aiplatform::v1::ExportDataRequest const& request) = 0;
 
   virtual future<StatusOr<google::longrunning::Operation>>
@@ -83,11 +99,27 @@ class DatasetServiceStub {
       google::cloud::aiplatform::v1::CreateDatasetVersionRequest const&
           request) = 0;
 
+  virtual StatusOr<google::longrunning::Operation> CreateDatasetVersion(
+      grpc::ClientContext& context, Options options,
+      google::cloud::aiplatform::v1::CreateDatasetVersionRequest const&
+          request) = 0;
+
+  virtual StatusOr<google::cloud::aiplatform::v1::DatasetVersion>
+  UpdateDatasetVersion(
+      grpc::ClientContext& context, Options const& options,
+      google::cloud::aiplatform::v1::UpdateDatasetVersionRequest const&
+          request) = 0;
+
   virtual future<StatusOr<google::longrunning::Operation>>
   AsyncDeleteDatasetVersion(
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
+      google::cloud::aiplatform::v1::DeleteDatasetVersionRequest const&
+          request) = 0;
+
+  virtual StatusOr<google::longrunning::Operation> DeleteDatasetVersion(
+      grpc::ClientContext& context, Options options,
       google::cloud::aiplatform::v1::DeleteDatasetVersionRequest const&
           request) = 0;
 
@@ -111,6 +143,11 @@ class DatasetServiceStub {
       google::cloud::aiplatform::v1::RestoreDatasetVersionRequest const&
           request) = 0;
 
+  virtual StatusOr<google::longrunning::Operation> RestoreDatasetVersion(
+      grpc::ClientContext& context, Options options,
+      google::cloud::aiplatform::v1::RestoreDatasetVersionRequest const&
+          request) = 0;
+
   virtual StatusOr<google::cloud::aiplatform::v1::ListDataItemsResponse>
   ListDataItems(
       grpc::ClientContext& context, Options const& options,
@@ -131,6 +168,11 @@ class DatasetServiceStub {
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
+      google::cloud::aiplatform::v1::DeleteSavedQueryRequest const&
+          request) = 0;
+
+  virtual StatusOr<google::longrunning::Operation> DeleteSavedQuery(
+      grpc::ClientContext& context, Options options,
       google::cloud::aiplatform::v1::DeleteSavedQueryRequest const&
           request) = 0;
 
@@ -175,6 +217,11 @@ class DefaultDatasetServiceStub : public DatasetServiceStub {
       google::cloud::aiplatform::v1::CreateDatasetRequest const& request)
       override;
 
+  StatusOr<google::longrunning::Operation> CreateDataset(
+      grpc::ClientContext& context, Options options,
+      google::cloud::aiplatform::v1::CreateDatasetRequest const& request)
+      override;
+
   StatusOr<google::cloud::aiplatform::v1::Dataset> GetDataset(
       grpc::ClientContext& context, Options const& options,
       google::cloud::aiplatform::v1::GetDatasetRequest const& request) override;
@@ -196,16 +243,29 @@ class DefaultDatasetServiceStub : public DatasetServiceStub {
       google::cloud::aiplatform::v1::DeleteDatasetRequest const& request)
       override;
 
+  StatusOr<google::longrunning::Operation> DeleteDataset(
+      grpc::ClientContext& context, Options options,
+      google::cloud::aiplatform::v1::DeleteDatasetRequest const& request)
+      override;
+
   future<StatusOr<google::longrunning::Operation>> AsyncImportData(
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
       google::cloud::aiplatform::v1::ImportDataRequest const& request) override;
 
+  StatusOr<google::longrunning::Operation> ImportData(
+      grpc::ClientContext& context, Options options,
+      google::cloud::aiplatform::v1::ImportDataRequest const& request) override;
+
   future<StatusOr<google::longrunning::Operation>> AsyncExportData(
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
+      google::cloud::aiplatform::v1::ExportDataRequest const& request) override;
+
+  StatusOr<google::longrunning::Operation> ExportData(
+      grpc::ClientContext& context, Options options,
       google::cloud::aiplatform::v1::ExportDataRequest const& request) override;
 
   future<StatusOr<google::longrunning::Operation>> AsyncCreateDatasetVersion(
@@ -215,10 +275,25 @@ class DefaultDatasetServiceStub : public DatasetServiceStub {
       google::cloud::aiplatform::v1::CreateDatasetVersionRequest const& request)
       override;
 
+  StatusOr<google::longrunning::Operation> CreateDatasetVersion(
+      grpc::ClientContext& context, Options options,
+      google::cloud::aiplatform::v1::CreateDatasetVersionRequest const& request)
+      override;
+
+  StatusOr<google::cloud::aiplatform::v1::DatasetVersion> UpdateDatasetVersion(
+      grpc::ClientContext& context, Options const& options,
+      google::cloud::aiplatform::v1::UpdateDatasetVersionRequest const& request)
+      override;
+
   future<StatusOr<google::longrunning::Operation>> AsyncDeleteDatasetVersion(
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
+      google::cloud::aiplatform::v1::DeleteDatasetVersionRequest const& request)
+      override;
+
+  StatusOr<google::longrunning::Operation> DeleteDatasetVersion(
+      grpc::ClientContext& context, Options options,
       google::cloud::aiplatform::v1::DeleteDatasetVersionRequest const& request)
       override;
 
@@ -237,6 +312,11 @@ class DefaultDatasetServiceStub : public DatasetServiceStub {
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
+      google::cloud::aiplatform::v1::RestoreDatasetVersionRequest const&
+          request) override;
+
+  StatusOr<google::longrunning::Operation> RestoreDatasetVersion(
+      grpc::ClientContext& context, Options options,
       google::cloud::aiplatform::v1::RestoreDatasetVersionRequest const&
           request) override;
 
@@ -259,6 +339,11 @@ class DefaultDatasetServiceStub : public DatasetServiceStub {
       google::cloud::CompletionQueue& cq,
       std::shared_ptr<grpc::ClientContext> context,
       google::cloud::internal::ImmutableOptions options,
+      google::cloud::aiplatform::v1::DeleteSavedQueryRequest const& request)
+      override;
+
+  StatusOr<google::longrunning::Operation> DeleteSavedQuery(
+      grpc::ClientContext& context, Options options,
       google::cloud::aiplatform::v1::DeleteSavedQueryRequest const& request)
       override;
 
